@@ -49,6 +49,10 @@
             android:exported="false" />
             
         <activity
+            android:name=".LibraryDetailActivity"
+            android:exported="false" />
+            
+        <activity
             android:name=".GeneratorTestActivity"
             android:exported="false" />
             

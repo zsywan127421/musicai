@@ -2,48 +2,34 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/apple_dark"
+    android:background="@color/apple_light_bg"
     android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:fitsSystemWindows="true"
-        android:padding="16dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="20dp">
-
-            <TextView
-                android:id="@+id/tv_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="大模型配置"
-                android:textSize="24sp"
-                android:textColor="@color/apple_text"
-                android:textStyle="bold"
-                android:layout_marginBottom="4dp"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="配置自定义大模型，使用 OpenAI API 格式"
-                android:textSize="13sp"
-                android:textColor="@color/apple_text_secondary"/>
-
-        </LinearLayout>
+        android:padding="16dp"
+        android:fitsSystemWindows="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="@drawable/apple_card_bg"
-            android:padding="14dp"
-            android:layout_marginBottom="10dp">
+            android:padding="16dp"
+            android:layout_marginBottom="12dp"
+            android:elevation="0dp"
+            android:outlineProvider="background">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="API 配置"
+                android:textSize="17sp"
+                android:textColor="@color/apple_text"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -56,31 +42,19 @@
             <EditText
                 android:id="@+id/et_api_url"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="46dp"
-                android:hint="https://api.deepseek.com/v1"
-                android:textSize="14sp"
+                android:layout_height="44dp"
+                android:minHeight="44dp"
+                android:textSize="15sp"
                 android:textColor="@color/apple_text"
                 android:background="@drawable/apple_edittext_bg"
                 android:paddingStart="14dp"
                 android:paddingEnd="14dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/apple_card_bg"
-            android:padding="14dp"
-            android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="API 密钥"
+                android:text="API Key"
                 android:textSize="13sp"
                 android:textColor="@color/apple_text_secondary"
                 android:layout_marginBottom="6dp"/>
@@ -88,27 +62,14 @@
             <EditText
                 android:id="@+id/et_api_key"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="46dp"
-                android:hint="sk-..."
-                android:textSize="14sp"
+                android:layout_height="44dp"
+                android:minHeight="44dp"
+                android:textSize="15sp"
                 android:textColor="@color/apple_text"
                 android:background="@drawable/apple_edittext_bg"
                 android:paddingStart="14dp"
                 android:paddingEnd="14dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:inputType="textPassword"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/apple_card_bg"
-            android:padding="14dp"
-            android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -121,16 +82,14 @@
             <EditText
                 android:id="@+id/et_model_name"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="46dp"
-                android:hint="deepseek-v4-flash"
-                android:textSize="14sp"
+                android:layout_height="44dp"
+                android:minHeight="44dp"
+                android:textSize="15sp"
                 android:textColor="@color/apple_text"
                 android:background="@drawable/apple_edittext_bg"
                 android:paddingStart="14dp"
                 android:paddingEnd="14dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"/>
+                android:hint="例如：gpt-3.5-turbo"/>
 
         </LinearLayout>
 
@@ -139,77 +98,70 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="@drawable/apple_card_bg"
-            android:padding="14dp"
-            android:layout_marginBottom="10dp">
+            android:padding="16dp"
+            android:layout_marginBottom="12dp"
+            android:elevation="0dp"
+            android:outlineProvider="background">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="生成参数"
+                android:textSize="17sp"
+                android:textColor="@color/apple_text"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:gravity="center_vertical"
                 android:layout_marginBottom="8dp">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="温度"
+                    android:text="温度 (Temperature)"
                     android:textSize="14sp"
                     android:textColor="@color/apple_text"/>
 
                 <TextView
-                    android:id="@+id/tv_temperature"
+                    android:id="@+id/tv_temperature_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0.70"
+                    android:text="0.7"
                     android:textSize="14sp"
                     android:textColor="@color/apple_accent"/>
 
             </LinearLayout>
 
             <SeekBar
-                android:id="@+id/sb_temperature"
+                android:id="@+id/seek_temperature"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:max="100"
-                android:progress="70"
-                android:thumbTint="@color/apple_accent"
-                android:progressBackgroundTint="@color/apple_mid_gray"
-                android:progressTint="@color/apple_accent"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="控制生成的随机性"
-                android:textSize="11sp"
-                android:textColor="@color/apple_light_gray"
-                android:layout_marginTop="6dp"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/apple_card_bg"
-            android:padding="14dp"
-            android:layout_marginBottom="14dp">
+                android:max="10"
+                android:progress="7"
+                android:layout_marginBottom="16dp"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:gravity="center_vertical"
                 android:layout_marginBottom="8dp">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="最大 Token"
+                    android:text="最大令牌数 (Max Tokens)"
                     android:textSize="14sp"
                     android:textColor="@color/apple_text"/>
 
                 <TextView
-                    android:id="@+id/tv_max_tokens"
+                    android:id="@+id/tv_max_tokens_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="500"
@@ -219,88 +171,65 @@
             </LinearLayout>
 
             <SeekBar
-                android:id="@+id/sb_max_tokens"
+                android:id="@+id/seek_max_tokens"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:max="1900"
-                android:progress="400"
-                android:thumbTint="@color/apple_accent"
-                android:progressBackgroundTint="@color/apple_mid_gray"
-                android:progressTint="@color/apple_accent"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="控制生成内容的最大长度"
-                android:textSize="11sp"
-                android:textColor="@color/apple_light_gray"
-                android:layout_marginTop="6dp"/>
+                android:max="100"
+                android:progress="50"
+                android:layout_marginBottom="8dp"/>
 
         </LinearLayout>
 
         <Button
             android:id="@+id/btn_test_connection"
-            android:layout_width="wrap_content"
-            android:layout_height="46dp"
-            android:minHeight="46dp"
-            android:minWidth="180dp"
-            android:layout_gravity="center_horizontal"
-            android:text="测试连接"
-            android:textSize="15sp"
-            android:textColor="@color/apple_text"
-            android:background="@drawable/apple_button_bg"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:layout_marginBottom="6dp"/>
-
-        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="16dp">
-
-            <ProgressBar
-                android:id="@+id/progress_bar"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:visibility="gone"
-                android:layout_marginEnd="10dp"/>
-
-            <TextView
-                android:id="@+id/tv_connection_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:textSize="13sp"
-                android:visibility="gone"/>
-
-        </LinearLayout>
+            android:layout_height="50dp"
+            android:minHeight="50dp"
+            android:text="测试连接"
+            android:textSize="16sp"
+            android:textColor="@color/apple_white"
+            android:background="@drawable/apple_button_primary_bg"
+            android:layout_marginBottom="12dp"/>
 
         <Button
             android:id="@+id/btn_save"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:minHeight="48dp"
+            android:layout_height="50dp"
+            android:minHeight="50dp"
             android:text="保存设置"
-            android:textSize="15sp"
-            android:textColor="@color/apple_text"
+            android:textSize="16sp"
+            android:textColor="@color/apple_white"
             android:background="@drawable/apple_button_primary_bg"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="12dp"/>
 
         <Button
             android:id="@+id/btn_reset"
             android:layout_width="match_parent"
             android:layout_height="44dp"
             android:minHeight="44dp"
-            android:text="重置为默认值"
-            android:textSize="14sp"
+            android:text="重置为默认"
+            android:textSize="15sp"
             android:textColor="@color/apple_text"
-            android:background="@drawable/apple_button_bg"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"/>
+            android:background="@drawable/apple_button_secondary_bg"/>
+
+        <TextView
+            android:id="@+id/tv_test_result"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/apple_text_secondary"
+            android:gravity="center"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"/>
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:layout_marginTop="16dp"/>
 
     </LinearLayout>
+
 </ScrollView>

@@ -6,9 +6,10 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColorPrimary">@color/apple_text</item>
         <item name="android:textColorSecondary">@color/apple_text_secondary</item>
-        <item name="android:windowBackground">@color/apple_dark</item>
-        <item name="android:statusBarColor">@color/apple_dark</item>
-        <item name="android:navigationBarColor">@color/apple_dark</item>
+        <item name="android:windowBackground">@color/apple_light_bg</item>
+        <item name="android:statusBarColor">@color/apple_white</item>
+        <item name="android:navigationBarColor">@color/apple_white</item>
+        <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowTranslucentStatus">false</item>
         <item name="android:windowTranslucentNavigation">false</item>
     </style>
@@ -17,7 +18,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:windowBackground">@color/apple_dark</item>
+        <item name="android:windowBackground">@color/apple_light_bg</item>
         <item name="android:windowTranslucentStatus">false</item>
         <item name="android:windowTranslucentNavigation">false</item>
     </style>
@@ -25,7 +26,7 @@
     <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:background">@color/apple_dark</item>
+        <item name="android:background">@color/apple_light_bg</item>
         <item name="android:textColorPrimary">@color/apple_text</item>
         <item name="android:textColorSecondary">@color/apple_text_secondary</item>
         <item name="android:windowTranslucentStatus">false</item>
@@ -33,22 +34,25 @@
     </style>
 
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <item name="android:background">@color/apple_dark</item>
+        <item name="android:background">@color/apple_white</item>
         <item name="android:windowTranslucentStatus">false</item>
     </style>
 
     <style name="AppleText">
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/apple_text</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
 
     <style name="AppleButton">
-        <item name="android:layout_height">56dp</item>
-        <item name="android:textSize">17sp</item>
-        <item name="android:textColor">@color/apple_text</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:minHeight">44dp</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/apple_white</item>
         <item name="android:background">@drawable/apple_button_bg</item>
-        <item name="android:paddingHorizontal">16dp</item>
-        <item name="android:elevation">2dp</item>
+        <item name="android:paddingLeft">18dp</item>
+        <item name="android:paddingRight">18dp</item>
+        <item name="android:gravity">center</item>
     </style>
 
     <style name="AppleButton.Primary">
@@ -63,19 +67,24 @@
         <item name="android:background">@drawable/apple_button_danger_bg</item>
     </style>
 
+    <style name="AppleButton.Minor">
+        <item name="android:background">@drawable/apple_button_minor_bg</item>
+    </style>
+
     <style name="AppleEditText">
-        <item name="android:layout_height">52dp</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:minHeight">44dp</item>
+        <item name="android:textSize">15sp</item>
         <item name="android:textColor">@color/apple_text</item>
-        <item name="android:textColorHint">@color/apple_light_gray</item>
+        <item name="android:textColorHint">@color/apple_text_tertiary</item>
         <item name="android:background">@drawable/apple_edittext_bg</item>
-        <item name="android:paddingHorizontal">16dp</item>
-        <item name="android:paddingVertical">12dp</item>
+        <item name="android:paddingLeft">14dp</item>
+        <item name="android:paddingRight">14dp</item>
+        <item name="android:gravity">center_vertical</item>
     </style>
 
     <style name="AppleCard">
-        <item name="android:background">@color/apple_dark_gray</item>
-        <item name="android:elevation">4dp</item>
+        <item name="android:background">@drawable/apple_card_bg</item>
         <item name="android:padding">16dp</item>
     </style>
 
@@ -97,7 +106,14 @@
     </style>
 
     <style name="AppleText.Caption">
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">13sp</item>
         <item name="android:textColor">@color/apple_text_secondary</item>
+    </style>
+
+    <style name="AppleText.Section">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/apple_text_secondary</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.05</item>
     </style>
 </resources>
