@@ -6,107 +6,6 @@
     android:background="@color/apple_light_bg"
     android:fitsSystemWindows="true">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:background="@drawable/apple_card_bg"
-        android:layout_margin="16dp"
-        android:elevation="0dp"
-        android:outlineProvider="background">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="快速歌曲生成"
-            android:textSize="20sp"
-            android:textColor="@color/apple_text"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="风格"
-                android:textSize="14sp"
-                android:textColor="@color/apple_text_secondary"
-                android:layout_marginEnd="12dp"/>
-
-            <Spinner
-                android:id="@+id/sp_style"
-                android:layout_width="0dp"
-                android:layout_height="44dp"
-                android:minHeight="44dp"
-                android:layout_weight="1"
-                android:background="@drawable/spinner_bg"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="旋律"
-                android:textSize="14sp"
-                android:textColor="@color/apple_text_secondary"
-                android:layout_marginEnd="12dp"/>
-
-            <Spinner
-                android:id="@+id/sp_melody"
-                android:layout_width="0dp"
-                android:layout_height="44dp"
-                android:minHeight="44dp"
-                android:layout_weight="1"
-                android:background="@drawable/spinner_bg"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="和弦"
-                android:textSize="14sp"
-                android:textColor="@color/apple_text_secondary"
-                android:layout_marginEnd="12dp"/>
-
-            <Spinner
-                android:id="@+id/sp_chords"
-                android:layout_width="0dp"
-                android:layout_height="44dp"
-                android:minHeight="44dp"
-                android:layout_weight="1"
-                android:background="@drawable/spinner_bg"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"/>
-
-        </LinearLayout>
-
-    </LinearLayout>
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -117,15 +16,97 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="16dp">
+            android:padding="16dp">
 
-            <ListView
-                android:id="@+id/lv_result"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="160dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
                 android:background="@drawable/apple_card_bg"
-                android:divider="@color/apple_separator"
-                android:dividerHeight="1dp"/>
+                android:padding="16dp"
+                android:layout_marginBottom="12dp"
+                android:elevation="0dp"
+                android:outlineProvider="background">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="快速歌曲生成"
+                    android:textSize="20sp"
+                    android:textColor="@color/apple_text"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="选择一个风格，AI 将自动创作完整曲子"
+                    android:textSize="14sp"
+                    android:textColor="@color/apple_text_secondary"
+                    android:layout_marginBottom="16dp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="风格"
+                    android:textSize="13sp"
+                    android:textColor="@color/apple_text_secondary"
+                    android:layout_marginBottom="8dp"/>
+
+                <Spinner
+                    android:id="@+id/sp_style"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:minHeight="44dp"
+                    android:background="@drawable/spinner_bg"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:layout_marginBottom="12dp"/>
+
+                <EditText
+                    android:id="@+id/et_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:minHeight="44dp"
+                    android:hint="曲子名称（可选）"
+                    android:textSize="15sp"
+                    android:textColor="@color/apple_text"
+                    android:textColorHint="@color/apple_text_tertiary"
+                    android:background="@drawable/apple_edittext_bg"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/result_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/apple_card_bg"
+                android:padding="16dp"
+                android:visibility="gone"
+                android:elevation="0dp"
+                android:outlineProvider="background">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="生成结果"
+                    android:textSize="12sp"
+                    android:textColor="@color/apple_text_secondary"
+                    android:textAllCaps="true"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:id="@+id/tv_result"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/apple_text"
+                    android:fontFamily="monospace"/>
+
+            </LinearLayout>
 
         </LinearLayout>
 

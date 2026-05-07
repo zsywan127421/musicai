@@ -1,6 +1,8 @@
 package com.example.musicai;
 
+import android.app.AlertDialog;
 import android.content.ComponentName;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
@@ -8,14 +10,17 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.musicai.util.TimeUtils;
 import com.example.musicai.util.ToastHelper;
 import com.example.musicai.util.ConfirmDialog;
 
@@ -33,7 +38,7 @@ public class LibraryDetailActivity extends AppCompatActivity {
     private TextView tvSpeed, tvPlaybackTime;
     private CursorSeekBar playbackProgress;
     private ProgressBar progressBar;
-    private View notesSection, chordsSection;
+    private View notesSection, chordsSection, playbackSection;
     
     private MusicRepository repository;
     private MusicData.Melody melody;
@@ -49,6 +54,12 @@ public class LibraryDetailActivity extends AppCompatActivity {
     private Runnable progressUpdater;
     private boolean isPlaying = false;
     private float playbackSpeed = 1.0f;
+    
+    private static final String[] PITCHES = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+    private static final String[] OCTAVES = {"2", "3", "4", "5", "6", "7"};
+    private static final String[] DURATIONS = {"1", "2", "4", "8", "16"};
+    private static final String[] CHORD_NAMES = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+    private static final String[] CHORD_TYPES = {"major", "minor", "seventh", "diminished", "augmented", "sus2", "sus4"};
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +96,7 @@ public class LibraryDetailActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progress_bar);
         notesSection = findViewById(R.id.notes_section);
         chordsSection = findViewById(R.id.chords_section);
+        playbackSection = findViewById(R.id.playback_section);
         
         btnSpeed05 = findViewById(R.id.btn_speed_05);
         btnSpeed075 = findViewById(R.id.btn_speed_075);
@@ -96,59 +108,72 @@ public class LibraryDetailActivity extends AppCompatActivity {
         if (itemType == TYPE_MELODY) {
             notesSection.setVisibility(View.VISIBLE);
             chordsSection.setVisibility(View.GONE);
+            btnEdit.setVisibility(View.VISIBLE);
         } else {
             notesSection.setVisibility(View.GONE);
             chordsSection.setVisibility(View.VISIBLE);
+            playbackSection.setVisibility(View.GONE);
+            btnEdit.setVisibility(View.VISIBLE);
+            btnPlay.setVisibility(View.GONE);
+            btnStop.setVisibility(View.GONE);
         }
-        
-        btnEdit.setVisibility(View.GONE);
     }
     
     private void loadData() {
         if (itemType == TYPE_MELODY) {
             melodyEntry = repository.getMelodyById(itemId);
             melody = melodyEntry != null ? melodyEntry.toMelody() : null;
-            if (melody != null) {
-                etName.setText(melody.name);
-                tvStyle.setText(melody.style);
-                tvCreated.setText(String.valueOf(melody.createdAt));
-                
-                StringBuilder notesStr = new StringBuilder();
-                for (int i = 0; i < melody.notes.size(); i++) {
-                    MusicData.Note note = melody.notes.get(i);
-                    notesStr.append(String.format("%d. %s%d | 时值:%d | 位置:%d\n",
-                        i + 1, note.pitch, note.octave, note.duration, note.startTime));
-                }
-                tvNotes.setText(notesStr.toString());
+            if (melodyEntry != null) {
+                etName.setText(melodyEntry.name);
+                tvStyle.setText(melodyEntry.style);
+                tvCreated.setText(TimeUtils.formatRelativeTime(melodyEntry.createdAt));
+                updateNotesDisplay();
             }
         } else {
             chordEntry = repository.getChordById(itemId);
             chordProgression = chordEntry != null ? chordEntry.toChordProgression() : null;
-            if (chordProgression != null) {
-                etName.setText(chordProgression.name);
-                tvStyle.setText(chordProgression.style);
-                tvCreated.setText(String.valueOf(chordProgression.createdAt));
-                
-                StringBuilder chordsStr = new StringBuilder();
-                for (int i = 0; i < chordProgression.chords.size(); i++) {
-                    MusicData.Chord chord = chordProgression.chords.get(i);
-                    chordsStr.append(String.format("%d. %s %s | 时值:%d | 位置:%d\n",
-                        i + 1, chord.name, chord.type, chord.duration, chord.startTime));
-                }
-                tvChords.setText(chordsStr.toString());
+            if (chordEntry != null) {
+                etName.setText(chordEntry.name);
+                tvStyle.setText(chordEntry.style);
+                tvCreated.setText(TimeUtils.formatRelativeTime(chordEntry.createdAt));
+                updateChordsDisplay();
             }
         }
         
-        if (melody == null && chordProgression == null) {
+        if (melodyEntry == null && chordEntry == null) {
             ToastHelper.showError(this, "数据加载失败");
             finish();
         }
     }
     
+    private void updateNotesDisplay() {
+        if (melodyEntry == null) return;
+        StringBuilder notesStr = new StringBuilder();
+        for (int i = 0; i < melodyEntry.notes.size(); i++) {
+            MusicRepository.NoteData note = melodyEntry.notes.get(i);
+            notesStr.append(String.format("%d. %s%d | 时值:%d | 位置:%d\n",
+                i + 1, note.pitch, note.octave, note.duration, note.startTime));
+        }
+        tvNotes.setText(notesStr.toString());
+        melody = melodyEntry.toMelody();
+    }
+    
+    private void updateChordsDisplay() {
+        if (chordEntry == null) return;
+        StringBuilder chordsStr = new StringBuilder();
+        for (int i = 0; i < chordEntry.chords.size(); i++) {
+            MusicRepository.ChordData chord = chordEntry.chords.get(i);
+            chordsStr.append(String.format("%d. %s %s | 时值:%d | 位置:%d\n",
+                i + 1, chord.name, chord.type, chord.duration, chord.startTime));
+        }
+        tvChords.setText(chordsStr.toString());
+        chordProgression = chordEntry.toChordProgression();
+    }
+    
     private void setupListeners() {
         btnPlay.setOnClickListener(v -> play());
         btnStop.setOnClickListener(v -> stop());
-        btnEdit.setOnClickListener(v -> edit());
+        btnEdit.setOnClickListener(v -> showEditDialog());
         btnDelete.setOnClickListener(v -> confirmDelete());
         btnSave.setOnClickListener(v -> save());
         
@@ -220,10 +245,6 @@ public class LibraryDetailActivity extends AppCompatActivity {
             ToastHelper.showError(this, "暂无可播放内容");
             return;
         }
-        if (itemType == TYPE_CHORD && (chordProgression == null || chordProgression.chords.isEmpty())) {
-            ToastHelper.showError(this, "暂无可播放内容");
-            return;
-        }
         
         if (!isBound || playerService == null) {
             ToastHelper.showError(this, "播放器服务未连接");
@@ -260,8 +281,164 @@ public class LibraryDetailActivity extends AppCompatActivity {
         stopProgressUpdater();
     }
     
-    private void edit() {
-        ToastHelper.showInfo(this, "编辑功能开发中");
+    private void showEditDialog() {
+        if (itemType == TYPE_MELODY) {
+            showNoteEditDialog();
+        } else {
+            showChordEditDialog();
+        }
+    }
+    
+    private void showNoteEditDialog() {
+        if (melodyEntry == null || melodyEntry.notes.isEmpty()) {
+            ToastHelper.showWarning(this, "暂无音符数据");
+            return;
+        }
+        
+        String[] items = new String[melodyEntry.notes.size()];
+        for (int i = 0; i < melodyEntry.notes.size(); i++) {
+            MusicRepository.NoteData note = melodyEntry.notes.get(i);
+            items[i] = String.format("%d. %s%d | 时值:%d", i + 1, note.pitch, note.octave, note.duration);
+        }
+        
+        new AlertDialog.Builder(this)
+            .setTitle("选择要编辑的音符")
+            .setItems(items, (dialog, which) -> showNoteEditDialogForIndex(which))
+            .setNegativeButton("取消", null)
+            .show();
+    }
+    
+    private void showNoteEditDialogForIndex(int index) {
+        if (melodyEntry == null || index >= melodyEntry.notes.size()) return;
+        
+        MusicRepository.NoteData note = melodyEntry.notes.get(index);
+        
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_note, null);
+        TextView tvIndex = dialogView.findViewById(R.id.tv_note_index);
+        Spinner spPitch = dialogView.findViewById(R.id.sp_pitch);
+        Spinner spOctave = dialogView.findViewById(R.id.sp_octave);
+        Spinner spDuration = dialogView.findViewById(R.id.sp_duration);
+        
+        tvIndex.setText(String.valueOf(index + 1));
+        
+        ArrayAdapter<String> pitchAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, PITCHES);
+        pitchAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        spPitch.setAdapter(pitchAdapter);
+        for (int i = 0; i < PITCHES.length; i++) {
+            if (PITCHES[i].equals(note.pitch)) {
+                spPitch.setSelection(i);
+                break;
+            }
+        }
+        
+        ArrayAdapter<String> octaveAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, OCTAVES);
+        octaveAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        spOctave.setAdapter(octaveAdapter);
+        for (int i = 0; i < OCTAVES.length; i++) {
+            if (OCTAVES[i].equals(String.valueOf(note.octave))) {
+                spOctave.setSelection(i);
+                break;
+            }
+        }
+        
+        ArrayAdapter<String> durationAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, DURATIONS);
+        durationAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        spDuration.setAdapter(durationAdapter);
+        for (int i = 0; i < DURATIONS.length; i++) {
+            if (DURATIONS[i].equals(String.valueOf(note.duration))) {
+                spDuration.setSelection(i);
+                break;
+            }
+        }
+        
+        new AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setPositiveButton("保存", (dialog, which) -> {
+                note.pitch = PITCHES[spPitch.getSelectedItemPosition()];
+                note.octave = Integer.parseInt(OCTAVES[spOctave.getSelectedItemPosition()]);
+                note.duration = Integer.parseInt(DURATIONS[spDuration.getSelectedItemPosition()]);
+                updateNotesDisplay();
+                repository.saveMelodiesToPrefs();
+                ToastHelper.showSuccess(this, "音符已更新");
+            })
+            .setNegativeButton("取消", null)
+            .show();
+    }
+    
+    private void showChordEditDialog() {
+        if (chordEntry == null || chordEntry.chords.isEmpty()) {
+            ToastHelper.showWarning(this, "暂无和弦数据");
+            return;
+        }
+        
+        String[] items = new String[chordEntry.chords.size()];
+        for (int i = 0; i < chordEntry.chords.size(); i++) {
+            MusicRepository.ChordData chord = chordEntry.chords.get(i);
+            items[i] = String.format("%d. %s %s | 时值:%d", i + 1, chord.name, chord.type, chord.duration);
+        }
+        
+        new AlertDialog.Builder(this)
+            .setTitle("选择要编辑的和弦")
+            .setItems(items, (dialog, which) -> showChordEditDialogForIndex(which))
+            .setNegativeButton("取消", null)
+            .show();
+    }
+    
+    private void showChordEditDialogForIndex(int index) {
+        if (chordEntry == null || index >= chordEntry.chords.size()) return;
+        
+        MusicRepository.ChordData chord = chordEntry.chords.get(index);
+        
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_chord, null);
+        TextView tvIndex = dialogView.findViewById(R.id.tv_chord_index);
+        Spinner spName = dialogView.findViewById(R.id.sp_chord_name);
+        Spinner spType = dialogView.findViewById(R.id.sp_chord_type);
+        Spinner spDuration = dialogView.findViewById(R.id.sp_chord_duration);
+        
+        tvIndex.setText(String.valueOf(index + 1));
+        
+        ArrayAdapter<String> nameAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, CHORD_NAMES);
+        nameAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        spName.setAdapter(nameAdapter);
+        for (int i = 0; i < CHORD_NAMES.length; i++) {
+            if (CHORD_NAMES[i].equals(chord.name)) {
+                spName.setSelection(i);
+                break;
+            }
+        }
+        
+        ArrayAdapter<String> typeAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, CHORD_TYPES);
+        typeAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        spType.setAdapter(typeAdapter);
+        for (int i = 0; i < CHORD_TYPES.length; i++) {
+            if (CHORD_TYPES[i].equals(chord.type)) {
+                spType.setSelection(i);
+                break;
+            }
+        }
+        
+        ArrayAdapter<String> durationAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, DURATIONS);
+        durationAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        spDuration.setAdapter(durationAdapter);
+        for (int i = 0; i < DURATIONS.length; i++) {
+            if (DURATIONS[i].equals(String.valueOf(chord.duration))) {
+                spDuration.setSelection(i);
+                break;
+            }
+        }
+        
+        new AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setPositiveButton("保存", (dialog, which) -> {
+                chord.name = CHORD_NAMES[spName.getSelectedItemPosition()];
+                chord.type = CHORD_TYPES[spType.getSelectedItemPosition()];
+                chord.duration = Integer.parseInt(DURATIONS[spDuration.getSelectedItemPosition()]);
+                updateChordsDisplay();
+                repository.saveChordsToPrefs();
+                ToastHelper.showSuccess(this, "和弦已更新");
+            })
+            .setNegativeButton("取消", null)
+            .show();
     }
     
     private void confirmDelete() {
@@ -289,11 +466,11 @@ public class LibraryDetailActivity extends AppCompatActivity {
         
         if (itemType == TYPE_MELODY && melodyEntry != null) {
             melodyEntry.name = name;
-            // save via entry fields
+            repository.saveMelodiesToPrefs();
             ToastHelper.showSuccess(this, "保存成功");
         } else if (itemType == TYPE_CHORD && chordEntry != null) {
             chordEntry.name = name;
-            // save via entry fields
+            repository.saveChordsToPrefs();
             ToastHelper.showSuccess(this, "保存成功");
         } else {
             ToastHelper.showError(this, "保存失败");

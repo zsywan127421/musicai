@@ -9,38 +9,37 @@ import android.os.IBinder;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
+import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.musicai.util.ToastHelper;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class SongGeneratorActivity extends AppCompatActivity {
     
-    private MusicRepository repository;
-    private MusicGenerator musicGenerator;
-    
-    private Spinner spStyle, spMelody, spChords;
-    private ListView lvResult;
-    private ArrayAdapter<String> resultAdapter;
-    private List<String> resultList;
+    private Spinner spStyle;
+    private EditText etName;
+    private TextView tvResult;
+    private View resultSection;
     
     private Button btnGenerate, btnPlay, btnStop;
-    private TextView tvPlaybackTime;
+    private Button btnSpeed05, btnSpeed075, btnSpeed1, btnSpeed125, btnSpeed15, btnSpeed2;
+    private TextView tvSpeed, tvPlaybackTime;
     private CursorSeekBar playbackProgress;
     private ProgressBar progressBar;
     private View speedControlLayout;
-    private TextView tvSpeed;
     
-    private MusicData.Melody selectedMelody;
-    private MusicData.ChordProgression selectedChords;
+    private MusicGenerator musicGenerator;
     private MusicData.Song currentSong;
     
     private MusicPlayerService playerService;
@@ -70,22 +69,20 @@ public class SongGeneratorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song_generator);
         
-        repository = MusicRepository.getInstance(this);
         musicGenerator = new MusicGenerator(this);
-        
         currentSong = new MusicData.Song();
         
         initViews();
         setupSpinners();
         setupListeners();
-        loadLibraryData();
     }
     
     private void initViews() {
         spStyle = findViewById(R.id.sp_style);
-        spMelody = findViewById(R.id.sp_melody);
-        spChords = findViewById(R.id.sp_chords);
-        lvResult = findViewById(R.id.lv_result);
+        etName = findViewById(R.id.et_name);
+        tvResult = findViewById(R.id.tv_result);
+        resultSection = findViewById(R.id.result_section);
+        
         btnGenerate = findViewById(R.id.btn_generate);
         btnPlay = findViewById(R.id.btn_play);
         btnStop = findViewById(R.id.btn_stop);
@@ -95,9 +92,12 @@ public class SongGeneratorActivity extends AppCompatActivity {
         speedControlLayout = findViewById(R.id.speed_control_layout);
         tvSpeed = findViewById(R.id.tv_speed);
         
-        resultList = new ArrayList<>();
-        resultAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, resultList);
-        lvResult.setAdapter(resultAdapter);
+        btnSpeed05 = findViewById(R.id.btn_speed_05);
+        btnSpeed075 = findViewById(R.id.btn_speed_075);
+        btnSpeed1 = findViewById(R.id.btn_speed_1);
+        btnSpeed125 = findViewById(R.id.btn_speed_125);
+        btnSpeed15 = findViewById(R.id.btn_speed_15);
+        btnSpeed2 = findViewById(R.id.btn_speed_2);
         
         tvPlaybackTime.setVisibility(View.GONE);
         playbackProgress.setVisibility(View.GONE);
@@ -112,16 +112,6 @@ public class SongGeneratorActivity extends AppCompatActivity {
             R.layout.spinner_item, MusicData.MUSIC_STYLES);
         styleAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spStyle.setAdapter(styleAdapter);
-        
-        ArrayAdapter<String> melodyAdapter = new ArrayAdapter<>(this,
-            R.layout.spinner_item, new String[]{"从资源库选择旋律"});
-        melodyAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        spMelody.setAdapter(melodyAdapter);
-        
-        ArrayAdapter<String> chordAdapter = new ArrayAdapter<>(this,
-            R.layout.spinner_item, new String[]{"从资源库选择和弦"});
-        chordAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        spChords.setAdapter(chordAdapter);
     }
     
     private void setupListeners() {
@@ -129,107 +119,68 @@ public class SongGeneratorActivity extends AppCompatActivity {
         btnPlay.setOnClickListener(v -> play());
         btnStop.setOnClickListener(v -> stop());
         
-        Button btnSpeed05 = findViewById(R.id.btn_speed_05);
-        Button btnSpeed075 = findViewById(R.id.btn_speed_075);
-        Button btnSpeed1 = findViewById(R.id.btn_speed_1);
-        Button btnSpeed125 = findViewById(R.id.btn_speed_125);
-        Button btnSpeed15 = findViewById(R.id.btn_speed_15);
-        Button btnSpeed2 = findViewById(R.id.btn_speed_2);
-        
         btnSpeed05.setOnClickListener(v -> setSpeed(0.5f));
         btnSpeed075.setOnClickListener(v -> setSpeed(0.75f));
         btnSpeed1.setOnClickListener(v -> setSpeed(1.0f));
         btnSpeed125.setOnClickListener(v -> setSpeed(1.25f));
         btnSpeed15.setOnClickListener(v -> setSpeed(1.5f));
         btnSpeed2.setOnClickListener(v -> setSpeed(2.0f));
-    }
-    
-    private void loadLibraryData() {
-        List<MusicRepository.MelodyEntry> melodies = repository.getMelodyLibrary();
-        List<String> melodyNames = new ArrayList<>();
-        melodyNames.add("从资源库选择旋律");
-        for (MusicRepository.MelodyEntry entry : melodies) {
-            melodyNames.add(entry.name);
-        }
         
-        ArrayAdapter<String> melodyAdapter = new ArrayAdapter<>(this,
-            R.layout.spinner_item, melodyNames);
-        melodyAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        spMelody.setAdapter(melodyAdapter);
-        
-        List<MusicRepository.ChordEntry> chords = repository.getChordLibrary();
-        List<String> chordNames = new ArrayList<>();
-        chordNames.add("从资源库选择和弦");
-        for (MusicRepository.ChordEntry entry : chords) {
-            chordNames.add(entry.name);
-        }
-        
-        ArrayAdapter<String> chordAdapter = new ArrayAdapter<>(this,
-            R.layout.spinner_item, chordNames);
-        chordAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        spChords.setAdapter(chordAdapter);
+        playbackProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {}
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                if (isBound && playerService != null && playerService.isPlaying()) {
+                    int currentProgress = playbackProgress.getProgress();
+                    int posMs = (int) (playerService.getDuration() * (long) currentProgress / 100L);
+                    playerService.seekTo(posMs);
+                }
+            }
+        });
     }
     
     private void generate() {
         if (isGenerating) return;
-        
-        int melodyPos = spMelody.getSelectedItemPosition();
-        int chordPos = spChords.getSelectedItemPosition();
-        
-        if (melodyPos <= 0) {
-            ToastHelper.showWarning(this, "请选择一条旋律");
-            return;
-        }
-        
-        if (chordPos <= 0) {
-            ToastHelper.showWarning(this, "请选择一组和弦");
-            return;
-        }
-        
-        List<MusicRepository.MelodyEntry> melodies = repository.getMelodyLibrary();
-        List<MusicRepository.ChordEntry> chords = repository.getChordLibrary();
-        
-        int melodyIndex = melodyPos - 1;
-        int chordIndex = chordPos - 1;
-        
-        if (melodyIndex >= melodies.size() || chordIndex >= chords.size()) {
-            ToastHelper.showError(this, "选择的数据不存在，请重新选择");
-            loadLibraryData();
-            return;
-        }
-        
-        selectedMelody = melodies.get(melodyIndex).toMelody();
-        selectedChords = chords.get(chordIndex).toChordProgression();
-        
-        if (selectedMelody == null || selectedMelody.notes.isEmpty()) {
-            ToastHelper.showError(this, "旋律数据为空");
-            return;
-        }
-        
-        if (selectedChords == null || selectedChords.chords.isEmpty()) {
-            ToastHelper.showError(this, "和弦数据为空");
-            return;
-        }
         
         String style = (String) spStyle.getSelectedItem();
         
         isGenerating = true;
         btnGenerate.setEnabled(false);
         progressBar.setVisibility(View.VISIBLE);
+        resultSection.setVisibility(View.GONE);
         
         new Thread(() -> {
             try {
-                MusicData.Song song = musicGenerator.generateCompleteSong(style, selectedMelody, selectedChords);
+                MusicData.Melody melody = musicGenerator.generateMelodyWithDescription(style, 8, null, null);
+                
+                MusicData.ChordProgression chords = musicGenerator.generateChordsWithMelody(style, 4, null, melody);
+                
+                MusicData.Song song = musicGenerator.generateCompleteSong(style, melody, chords);
+                
+                String customName = etName.getText().toString().trim();
+                if (!customName.isEmpty()) {
+                    song.title = customName;
+                }
+                
+                currentSong = song;
+                currentSong.melody = melody;
+                currentSong.chords = chords;
                 
                 runOnUiThread(() -> {
-                    currentSong = song;
-                    updateResultList();
-                    ToastHelper.showSuccess(SongGeneratorActivity.this, "曲子生成成功！");
+                    updateResultDisplay();
+                    resultSection.setVisibility(View.VISIBLE);
                     
                     btnPlay.setEnabled(true);
                     tvPlaybackTime.setVisibility(View.VISIBLE);
                     playbackProgress.setVisibility(View.VISIBLE);
                     speedControlLayout.setVisibility(View.VISIBLE);
+                    
+                    ToastHelper.showSuccess(SongGeneratorActivity.this, "曲子生成成功！");
                     
                     isGenerating = false;
                     btnGenerate.setEnabled(true);
@@ -246,42 +197,37 @@ public class SongGeneratorActivity extends AppCompatActivity {
         }).start();
     }
     
-    private void updateResultList() {
-        resultList.clear();
+    private void updateResultDisplay() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("标题: ").append(currentSong.title != null ? currentSong.title : "未命名").append("\n\n");
+        sb.append("风格: ").append(currentSong.style).append("\n\n");
         
-        if (currentSong != null) {
-            if (currentSong.title != null && !currentSong.title.isEmpty()) {
-                resultList.add("标题: " + currentSong.title);
+        if (currentSong.melody != null && !currentSong.melody.notes.isEmpty()) {
+            sb.append("--- 旋律 (").append(currentSong.melody.notes.size()).append("个音符) ---\n");
+            int count = Math.min(currentSong.melody.notes.size(), 8);
+            for (int i = 0; i < count; i++) {
+                MusicData.Note note = currentSong.melody.notes.get(i);
+                sb.append(String.format("%d. %s%d | 时值:%d\n", i + 1, note.pitch, note.octave, note.duration));
             }
-            if (currentSong.artist != null && !currentSong.artist.isEmpty()) {
-                resultList.add("艺术家: " + currentSong.artist);
+            if (currentSong.melody.notes.size() > 8) {
+                sb.append("... (+").append(currentSong.melody.notes.size() - 8).append(")\n");
             }
-            resultList.add("风格: " + (currentSong.style != null ? currentSong.style : "未知"));
-            resultList.add("");
+            sb.append("\n");
         }
         
-        if (selectedMelody != null && !selectedMelody.notes.isEmpty()) {
-            resultList.add("--- 旋律 (" + selectedMelody.notes.size() + "个音符) ---");
-            int index = 1;
-            for (MusicData.Note note : selectedMelody.notes) {
-                resultList.add("  " + (index++) + ". " + note.toString());
-            }
-            resultList.add("");
-        }
-        
-        if (selectedChords != null && !selectedChords.chords.isEmpty()) {
-            resultList.add("--- 和弦 (" + selectedChords.chords.size() + "个) ---");
-            int index = 1;
-            for (MusicData.Chord chord : selectedChords.chords) {
-                resultList.add("  " + (index++) + ". " + chord.toString());
+        if (currentSong.chords != null && !currentSong.chords.chords.isEmpty()) {
+            sb.append("--- 和弦 (").append(currentSong.chords.chords.size()).append("个) ---\n");
+            for (int i = 0; i < currentSong.chords.chords.size(); i++) {
+                MusicData.Chord chord = currentSong.chords.chords.get(i);
+                sb.append(String.format("%d. %s %s\n", i + 1, chord.name, chord.type));
             }
         }
         
-        resultAdapter.notifyDataSetChanged();
+        tvResult.setText(sb.toString());
     }
     
     private void play() {
-        if (currentSong == null || currentSong.melody == null || currentSong.melody.notes.isEmpty()) {
+        if (currentSong.melody == null || currentSong.melody.notes.isEmpty()) {
             ToastHelper.showWarning(this, "暂无可播放内容");
             return;
         }
@@ -291,21 +237,22 @@ public class SongGeneratorActivity extends AppCompatActivity {
             return;
         }
         
-        playerService.playSong(currentSong);
-        playerService.setSpeed(playbackSpeed);
-        
-        btnPlay.setEnabled(false);
-        btnStop.setEnabled(true);
-        startProgressUpdater();
+        if (playerService.isPlaying()) {
+            playerService.pause();
+            btnPlay.setText("播放");
+        } else {
+            playerService.playSong(currentSong);
+            playerService.setSpeed(playbackSpeed);
+            btnPlay.setText("暂停");
+            startProgressUpdater();
+        }
     }
     
     private void stop() {
         if (isBound && playerService != null) {
             playerService.stopPlayback();
         }
-        
-        btnPlay.setEnabled(true);
-        btnStop.setEnabled(false);
+        btnPlay.setText("播放");
         playbackProgress.setProgress(0);
         tvPlaybackTime.setText("0:00 / 0:00");
         stopProgressUpdater();
@@ -317,6 +264,32 @@ public class SongGeneratorActivity extends AppCompatActivity {
             playerService.setSpeed(speed);
         }
         tvSpeed.setText(String.format("速度: %.2fx", speed));
+        
+        btnSpeed05.setBackgroundResource(R.drawable.apple_button_bg);
+        btnSpeed05.setTextColor(getColor(R.color.apple_text));
+        btnSpeed075.setBackgroundResource(R.drawable.apple_button_bg);
+        btnSpeed075.setTextColor(getColor(R.color.apple_text));
+        btnSpeed1.setBackgroundResource(R.drawable.apple_button_bg);
+        btnSpeed1.setTextColor(getColor(R.color.apple_text));
+        btnSpeed125.setBackgroundResource(R.drawable.apple_button_bg);
+        btnSpeed125.setTextColor(getColor(R.color.apple_text));
+        btnSpeed15.setBackgroundResource(R.drawable.apple_button_bg);
+        btnSpeed15.setTextColor(getColor(R.color.apple_text));
+        btnSpeed2.setBackgroundResource(R.drawable.apple_button_bg);
+        btnSpeed2.setTextColor(getColor(R.color.apple_text));
+        
+        Button selectedBtn;
+        switch ((int)(speed * 100)) {
+            case 50: selectedBtn = btnSpeed05; break;
+            case 75: selectedBtn = btnSpeed075; break;
+            case 100: selectedBtn = btnSpeed1; break;
+            case 125: selectedBtn = btnSpeed125; break;
+            case 150: selectedBtn = btnSpeed15; break;
+            case 200: selectedBtn = btnSpeed2; break;
+            default: selectedBtn = btnSpeed1;
+        }
+        selectedBtn.setBackgroundResource(R.drawable.apple_button_primary_bg);
+        selectedBtn.setTextColor(getColor(R.color.apple_white));
     }
     
     private void startProgressUpdater() {
@@ -357,12 +330,6 @@ public class SongGeneratorActivity extends AppCompatActivity {
         super.onStart();
         Intent intent = new Intent(this, MusicPlayerService.class);
         bindService(intent, connection, BIND_AUTO_CREATE);
-    }
-    
-    @Override
-    protected void onResume() {
-        super.onResume();
-        loadLibraryData();
     }
     
     @Override
