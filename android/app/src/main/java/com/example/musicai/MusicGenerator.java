@@ -406,25 +406,36 @@ public class MusicGenerator {
     }
     
     private String extractJsonFromResponse(String response) {
-        int jsonStart = response.indexOf('[');
-        int jsonObjectStart = response.indexOf('{');
+        String cleaned = response.trim();
+        
+        cleaned = cleaned.replaceAll("```json\\s*", "");
+        cleaned = cleaned.replaceAll("```javascript\\s*", "");
+        cleaned = cleaned.replaceAll("```\\s*", "");
+        cleaned = cleaned.replaceAll("`{3}", "");
+        
+        int jsonStart = cleaned.indexOf('[');
+        int jsonObjectStart = cleaned.indexOf('{');
         
         if (jsonStart == -1 && jsonObjectStart == -1) {
-            return response;
+            Log.w(TAG, "No JSON found in response, returning raw response");
+            return cleaned;
         }
         
         if (jsonStart != -1 && (jsonObjectStart == -1 || jsonStart < jsonObjectStart)) {
-            int jsonEnd = response.lastIndexOf(']');
-            if (jsonEnd != -1) {
-                return response.substring(jsonStart, jsonEnd + 1);
-            }
-        } else if (jsonObjectStart != -1) {
-            int jsonEnd = response.lastIndexOf('}');
-            if (jsonEnd != -1) {
-                return response.substring(jsonObjectStart, jsonEnd + 1);
+            int jsonEnd = cleaned.lastIndexOf(']');
+            if (jsonEnd != -1 && jsonEnd > jsonStart) {
+                return cleaned.substring(jsonStart, jsonEnd + 1);
             }
         }
         
-        return response;
+        if (jsonObjectStart != -1) {
+            int jsonEnd = cleaned.lastIndexOf('}');
+            if (jsonEnd != -1 && jsonEnd > jsonObjectStart) {
+                return cleaned.substring(jsonObjectStart, jsonEnd + 1);
+            }
+        }
+        
+        Log.w(TAG, "Failed to extract JSON, returning cleaned response");
+        return cleaned;
     }
 }
