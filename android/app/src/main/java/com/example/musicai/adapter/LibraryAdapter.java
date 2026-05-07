@@ -42,7 +42,7 @@ public class LibraryAdapter extends BaseAdapter {
         }
     }
     
-    public String getItemId(int position) {
+    public String getItemStringId(int position) {
         if (position >= 0 && position < itemIds.size()) {
             return itemIds.get(position);
         }
@@ -56,7 +56,10 @@ public class LibraryAdapter extends BaseAdapter {
     
     @Override
     public Object getItem(int position) {
-        return items.get(position);
+        if (position >= 0 && position < items.size()) {
+            return items.get(position);
+        }
+        return null;
     }
     
     @Override

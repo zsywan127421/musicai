@@ -62,7 +62,7 @@ public class LibraryActivity extends AppCompatActivity {
         lvLibrary.setOnItemClickListener((parent, view, position, id) -> {
             if (adapter == null) return;
             
-            String itemId = adapter.getItemId(position);
+            String itemId = adapter.getItemStringId(position);
             if (itemId == null) return;
             
             int type = isShowingMelodies ? LibraryDetailActivity.TYPE_MELODY : LibraryDetailActivity.TYPE_CHORD;

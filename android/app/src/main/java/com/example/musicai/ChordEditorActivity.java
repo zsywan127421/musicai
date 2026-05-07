@@ -24,3 +24,4 @@ public class ChordEditorActivity extends AppCompatActivity {
     private int currentMode = MODE_SELECT;
     private String selectedEntryId = null;
     private boolean isOriginalEntry = false;
+}

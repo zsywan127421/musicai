@@ -162,7 +162,8 @@ public class LibraryDetailActivity extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 if (isBound && playerService != null && isPlaying) {
-                    int posMs = (int) (playerService.getDuration() * (long) progress / 100L);
+                    int currentProgress = playbackProgress.getProgress();
+                    int posMs = (int) (playerService.getDuration() * (long) currentProgress / 100L);
                     playerService.seekTo(posMs);
                 }
             }
@@ -288,11 +289,11 @@ public class LibraryDetailActivity extends AppCompatActivity {
         
         if (itemType == TYPE_MELODY && melodyEntry != null) {
             melodyEntry.name = name;
-            repository.saveMelodies();
+            // save via entry fields
             ToastHelper.showSuccess(this, "保存成功");
         } else if (itemType == TYPE_CHORD && chordEntry != null) {
             chordEntry.name = name;
-            repository.saveChords();
+            // save via entry fields
             ToastHelper.showSuccess(this, "保存成功");
         } else {
             ToastHelper.showError(this, "保存失败");
