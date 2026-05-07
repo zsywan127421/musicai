@@ -149,9 +149,13 @@ public class ModelConfig {
         
         // 如果是 DeepSeek API，使用 DeepSeek 模型
         if (apiUrl.contains("deepseek")) {
-            // 如果用户没有指定 DeepSeek 模型，使用默认的 deepseek-chat
+            // 如果用户没有指定 DeepSeek 模型，使用 deepseek-v4-flash
             if (!modelName.contains("deepseek")) {
-                return "deepseek-chat";
+                return "deepseek-v4-flash";
+            }
+            // 确保使用 v4 模型
+            if (modelName.equals("deepseek-chat")) {
+                return "deepseek-v4-flash";
             }
         }
         
@@ -175,8 +179,20 @@ public class ModelConfig {
         JSONObject requestBody = new JSONObject();
         try {
             requestBody.put("model", modelName);
-            requestBody.put("temperature", temperature);
+            
+            // 对于需要严格格式输出的场景，使用较低的 temperature
+            double effectiveTemperature = temperature;
+            if (apiUrl.contains("deepseek")) {
+                effectiveTemperature = Math.min(0.3, temperature);
+            }
+            requestBody.put("temperature", effectiveTemperature);
+            
             requestBody.put("max_tokens", maxTokens);
+            
+            // 对于 DeepSeek API，不设置 reasoning_effort
+            if (!apiUrl.contains("deepseek")) {
+                requestBody.put("reasoning_effort", "none");
+            }
             
             JSONObject message = new JSONObject();
             message.put("role", "user");

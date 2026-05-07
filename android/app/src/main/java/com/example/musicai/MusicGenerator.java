@@ -87,7 +87,12 @@ public class MusicGenerator {
     
     public MusicData.ChordProgression generateChordsWithMelody(String style, int length, MusicData.ChordProgression userChords, MusicData.Melody melody) throws IOException {
         StringBuilder prompt = new StringBuilder();
-        prompt.append("你是一名和声编配师。根据以下主旋律配出适合的和弦走向。\n\n");
+        
+        prompt.append("/// ACTION: generate_chord_progression ///\n");
+        prompt.append("/// OUTPUT_FORMAT: JSON array of chords [{\"name\":\"C\",\"type\":\"major\",\"duration\":4,\"startTime\":0}]\n");
+        prompt.append("/// DO_NOT_GENERATE_ANY_OTHER_TEXT ///\n\n");
+        
+        prompt.append("你是一名专业的和声编配师。严格按照指定格式输出。\n\n");
         prompt.append("风格：").append(style).append("\n\n");
         
         if (melody != null && !melody.notes.isEmpty()) {
@@ -105,16 +110,21 @@ public class MusicGenerator {
         
         prompt.append("要求：\n");
         prompt.append("- 生成").append(length).append("个和弦的和弦进行\n");
-        prompt.append("- 和弦要与旋律配合和谐\n");
+        prompt.append("- 和弦必须与旋律配合和谐\n");
         prompt.append("- 遵循").append(style).append("风格的典型和弦进行\n\n");
         
-        prompt.append("返回格式要求：\n");
-        prompt.append("只返回纯JSON数组，不要包含任何解释文字。\n");
-        prompt.append("格式：[{\"name\":\"C\",\"type\":\"major\",\"duration\":4,\"startTime\":0}]\n");
-        prompt.append("- name：根音（C, D, E, F, G, A, B 可带升降号#）\n");
+        prompt.append("强制输出格式：\n");
+        prompt.append("==========\n");
+        prompt.append("只返回一个JSON数组，不包含任何其他文字、解释、注释或Markdown标记。\n");
+        prompt.append("如果无法生成，请返回空数组 []\n");
+        prompt.append("格式示例：[{\"name\":\"C\",\"type\":\"major\",\"duration\":4,\"startTime\":0}]\n");
+        prompt.append("==========\n\n");
+        prompt.append("字段说明：\n");
+        prompt.append("- name：根音（C, C#, D, D#, E, F, F#, G, G#, A, A#, B）\n");
         prompt.append("- type：和弦类型（major, minor, seventh, diminished, augmented, sus2, sus4）\n");
-        prompt.append("- duration：持续时值\n");
-        prompt.append("- startTime：开始时间");
+        prompt.append("- duration：持续时值（推荐4）\n");
+        prompt.append("- startTime：开始时间（从0开始递增）\n\n");
+        prompt.append("请直接输出JSON数组，不要输出任何其他内容！");
         
         try {
             String response = modelConfig.generateContent(prompt.toString());
@@ -406,36 +416,89 @@ public class MusicGenerator {
     }
     
     private String extractJsonFromResponse(String response) {
+        if (response == null || response.trim().isEmpty()) {
+            Log.w(TAG, "Empty response received");
+            return "[]";
+        }
+        
         String cleaned = response.trim();
         
-        cleaned = cleaned.replaceAll("```json\\s*", "");
-        cleaned = cleaned.replaceAll("```javascript\\s*", "");
-        cleaned = cleaned.replaceAll("```\\s*", "");
+        cleaned = cleaned.replaceAll("(?s)```json\\s*", "");
+        cleaned = cleaned.replaceAll("(?s)```javascript\\s*", "");
+        cleaned = cleaned.replaceAll("(?s)```\\s*", "");
         cleaned = cleaned.replaceAll("`{3}", "");
+        
+        cleaned = cleaned.replaceAll("^[^\\[\\{]*", "");
+        cleaned = cleaned.replaceAll("[^\\]\\}]*$", "");
+        
+        java.util.regex.Pattern jsonArrayPattern = java.util.regex.Pattern.compile("(\\[\\s*\\{.*?\\}\\s*\\])", java.util.regex.Pattern.DOTALL);
+        java.util.regex.Matcher matcher = jsonArrayPattern.matcher(cleaned);
+        if (matcher.find()) {
+            String matched = matcher.group(1);
+            if (isValidJsonArray(matched)) {
+                Log.d(TAG, "Extracted JSON array via regex: " + matched.substring(0, Math.min(100, matched.length())) + "...");
+                return matched;
+            }
+        }
         
         int jsonStart = cleaned.indexOf('[');
         int jsonObjectStart = cleaned.indexOf('{');
         
-        if (jsonStart == -1 && jsonObjectStart == -1) {
-            Log.w(TAG, "No JSON found in response, returning raw response");
-            return cleaned;
-        }
-        
         if (jsonStart != -1 && (jsonObjectStart == -1 || jsonStart < jsonObjectStart)) {
-            int jsonEnd = cleaned.lastIndexOf(']');
+            int jsonEnd = findMatchingBracket(cleaned, jsonStart, '[', ']');
             if (jsonEnd != -1 && jsonEnd > jsonStart) {
-                return cleaned.substring(jsonStart, jsonEnd + 1);
+                String result = cleaned.substring(jsonStart, jsonEnd + 1);
+                if (isValidJsonArray(result)) {
+                    return result;
+                }
             }
         }
         
         if (jsonObjectStart != -1) {
-            int jsonEnd = cleaned.lastIndexOf('}');
+            int jsonEnd = findMatchingBracket(cleaned, jsonObjectStart, '{', '}');
             if (jsonEnd != -1 && jsonEnd > jsonObjectStart) {
-                return cleaned.substring(jsonObjectStart, jsonEnd + 1);
+                String result = cleaned.substring(jsonObjectStart, jsonEnd + 1);
+                if (isValidJsonObject(result)) {
+                    return result;
+                }
             }
         }
         
-        Log.w(TAG, "Failed to extract JSON, returning cleaned response");
-        return cleaned;
+        Log.w(TAG, "Failed to extract valid JSON, returning empty array as fallback");
+        return "[]";
+    }
+    
+    private int findMatchingBracket(String text, int startIndex, char openBracket, char closeBracket) {
+        int count = 1;
+        for (int i = startIndex + 1; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c == openBracket) {
+                count++;
+            } else if (c == closeBracket) {
+                count--;
+                if (count == 0) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+    
+    private boolean isValidJsonArray(String json) {
+        try {
+            new JSONArray(json);
+            return true;
+        } catch (JSONException e) {
+            return false;
+        }
+    }
+    
+    private boolean isValidJsonObject(String json) {
+        try {
+            new JSONObject(json);
+            return true;
+        } catch (JSONException e) {
+            return false;
+        }
     }
 }
