@@ -18,24 +18,40 @@ public class MusicGenerator {
     private static final String TAG = "MusicGenerator";
     private ModelConfig modelConfig;
     
+    private static final String MUSIC_SYSTEM_PROMPT = 
+        "你是一个专业的音乐创作助手。你的任务是创作音乐数据。\n" +
+        "重要规则：\n" +
+        "1. 只返回有效的JSON数组或JSON对象，不要包含任何解释性文字\n" +
+        "2. 不要使用Markdown代码块标记（如```json```）\n" +
+        "3. 不要有任何开场白或自我介绍\n" +
+        "4. 直接输出JSON格式的数据";
+    
     public MusicGenerator(Context context) {
         this.modelConfig = new ModelConfig(context);
     }
     
     public MusicData.Melody generateMelodyWithDescription(String style, int length, MusicData.Melody userMelody, String description) throws IOException {
         StringBuilder prompt = new StringBuilder();
-        prompt.append("创作一段").append(style).append("风格的旋律。\n");
-        prompt.append("请严格按以下JSON格式返回，不要有任何其他内容：\n\n");
-        prompt.append("[{\"pitch\":\"C\",\"octave\":4,\"duration\":4}]\n\n");
-        prompt.append("说明：pitch可选C C# D D# E F F# G G# A A# B，duration为时值(1=全 2=二分 4=四分 8=八分 16=十六分)。\n");
-        prompt.append("请生成").append(length).append("个音符，确保旋律好听有起伏。");
+        prompt.append("请为").append(style).append("风格创作一段旋律。\n\n");
+        prompt.append("【输出格式要求】\n");
+        prompt.append("必须返回一个JSON数组，格式如下：\n");
+        prompt.append("[{\"pitch\":\"C\",\"octave\":4,\"duration\":4},{\"pitch\":\"E\",\"octave\":4,\"duration\":4}]\n\n");
+        prompt.append("【字段说明】\n");
+        prompt.append("- pitch: 音高，取值范围 C C# D D# E F F# G G# A A# B\n");
+        prompt.append("- octave: 八度，取值范围 2-7\n");
+        prompt.append("- duration: 时值，1=全音符 2=二分 4=四分 8=八分 16=十六分\n\n");
+        prompt.append("【创作要求】\n");
+        prompt.append("- 请创作").append(length).append("个音符的旋律\n");
+        prompt.append("- 旋律要有起伏，节奏要有变化\n");
+        prompt.append("- 确保音符数据完整且格式正确\n\n");
+        prompt.append("直接输出JSON数组，不要任何其他文字：");
         
         if (description != null && !description.isEmpty()) {
-            prompt.append("\n用户要求：").append(description);
+            prompt.append("\n\n用户补充要求：").append(description);
         }
         
         try {
-            AIResponse response = modelConfig.requestAI(prompt.toString());
+            AIResponse response = modelConfig.requestAIWithSystemPrompt(prompt.toString(), MUSIC_SYSTEM_PROMPT);
             
             if (!response.isSuccess()) {
                 throw new IOException(response.errorMessage);
@@ -58,12 +74,11 @@ public class MusicGenerator {
             int time = 0;
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject noteObj = jsonArray.getJSONObject(i);
-                MusicData.Note note = new MusicData.Note(
-                    noteObj.optString("pitch", "C"),
-                    noteObj.optInt("octave", 4),
-                    noteObj.optInt("duration", 4),
-                    time
-                );
+                String pitch = noteObj.optString("pitch", "C");
+                int octave = noteObj.optInt("octave", 4);
+                int duration = noteObj.optInt("duration", 4);
+                
+                MusicData.Note note = new MusicData.Note(pitch, octave, duration, time);
                 melody.notes.add(note);
                 time = note.startTime + note.duration;
             }
@@ -75,32 +90,37 @@ public class MusicGenerator {
             return melody;
         } catch (JSONException e) {
             Log.e(TAG, "Parse error", e);
-            throw new IOException("解析AI返回失败，请重试", e);
+            throw new IOException("解析AI返回失败: " + e.getMessage() + "，请重试");
         }
     }
     
     public MusicData.ChordProgression generateChordsWithMelody(String style, int length, MusicData.ChordProgression userChords, MusicData.Melody melody) throws IOException {
         StringBuilder prompt = new StringBuilder();
-        prompt.append("根据以下旋律生成").append(length).append("个和弦的和弦进行。\n");
-        prompt.append("请严格按JSON格式返回，不要有任何其他内容：\n\n");
-        prompt.append("[{\"name\":\"C\",\"type\":\"major\",\"duration\":4}]\n\n");
-        prompt.append("type可选：major minor seventh diminished augmented sus2 sus4\n");
+        prompt.append("请根据以下旋律生成对应的和弦进行。\n\n");
+        prompt.append("【输出格式要求】\n");
+        prompt.append("必须返回一个JSON数组，格式如下：\n");
+        prompt.append("[{\"name\":\"C\",\"type\":\"major\",\"duration\":4},{\"name\":\"G\",\"type\":\"major\",\"duration\":4}]\n\n");
+        prompt.append("【字段说明】\n");
+        prompt.append("- name: 根音，取值范围 C C# D D# E F F# G G# A A# B\n");
+        prompt.append("- type: 和弦类型，取值范围 major minor seventh diminished augmented sus2 sus4\n");
+        prompt.append("- duration: 时值\n\n");
+        prompt.append("【创作要求】\n");
+        prompt.append("- 请生成").append(length).append("个和弦\n");
+        prompt.append("- 和弦进行要符合音乐理论，与旋律风格匹配\n");
+        prompt.append("- 确保和弦数据完整且格式正确\n\n");
+        prompt.append("直接输出JSON数组，不要任何其他文字：");
         
         if (melody != null && !melody.notes.isEmpty()) {
-            prompt.append("\n旋律：");
-            try {
-                JSONArray melodyArray = new JSONArray();
-                for (MusicData.Note note : melody.notes) {
-                    melodyArray.put(note.toJson());
-                }
-                prompt.append(melodyArray.toString());
-            } catch (JSONException e) {
-                Log.e(TAG, "Serialize error", e);
+            prompt.append("\n\n参考旋律（").append(melody.notes.size()).append("个音符）：");
+            JSONArray melodyArray = new JSONArray();
+            for (MusicData.Note note : melody.notes) {
+                melodyArray.put(note.toJson());
             }
+            prompt.append("\n").append(melodyArray.toString());
         }
         
         try {
-            AIResponse response = modelConfig.requestAI(prompt.toString());
+            AIResponse response = modelConfig.requestAIWithSystemPrompt(prompt.toString(), MUSIC_SYSTEM_PROMPT);
             
             if (!response.isSuccess()) {
                 throw new IOException(response.errorMessage);
@@ -123,12 +143,11 @@ public class MusicGenerator {
             int time = 0;
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject chordObj = jsonArray.getJSONObject(i);
-                MusicData.Chord chord = new MusicData.Chord(
-                    chordObj.optString("name", "C"),
-                    chordObj.optString("type", "major"),
-                    chordObj.optInt("duration", 4),
-                    time
-                );
+                String name = chordObj.optString("name", "C");
+                String type = chordObj.optString("type", "major");
+                int duration = chordObj.optInt("duration", 4);
+                
+                MusicData.Chord chord = new MusicData.Chord(name, type, duration, time);
                 progression.chords.add(chord);
                 time = chord.startTime + chord.duration;
             }
@@ -140,7 +159,7 @@ public class MusicGenerator {
             return progression;
         } catch (JSONException e) {
             Log.e(TAG, "Parse error", e);
-            throw new IOException("解析AI返回失败，请重试", e);
+            throw new IOException("解析AI返回失败: " + e.getMessage() + "，请重试");
         }
     }
     
@@ -152,14 +171,19 @@ public class MusicGenerator {
             throw new IOException("和弦数据不能为空");
         }
         
-        StringBuilder prompt = new StringBuilder();
-        prompt.append("根据以下信息生成歌曲标题。\n");
-        prompt.append("请严格按JSON格式返回，不要有任何其他内容：\n\n");
-        prompt.append("{\"title\":\"歌曲标题\",\"artist\":\"艺术家名\"}\n\n");
-        prompt.append("风格：").append(style);
+        String prompt = 
+            "请根据以下歌曲信息生成一个标题。\n\n" +
+            "【输出格式要求】\n" +
+            "必须返回一个JSON对象，格式如下：\n" +
+            "{\"title\":\"歌曲标题\",\"artist\":\"艺术家名\"}\n\n" +
+            "【歌曲信息】\n" +
+            "- 风格：" + style + "\n" +
+            "- 旋律音符数：" + melody.notes.size() + "\n" +
+            "- 和弦数：" + chords.chords.size() + "\n\n" +
+            "直接输出JSON对象，不要任何其他文字：";
         
         try {
-            AIResponse response = modelConfig.requestAI(prompt.toString());
+            AIResponse response = modelConfig.requestAIWithSystemPrompt(prompt, MUSIC_SYSTEM_PROMPT);
             
             if (!response.isSuccess()) {
                 throw new IOException(response.errorMessage);
@@ -170,7 +194,7 @@ public class MusicGenerator {
             JSONObject jsonObj = extractMusicJsonObject(response.content);
             
             if (jsonObj == null) {
-                throw new IOException("AI未生成有效歌曲信息，请重试");
+                throw new IOException("AI未生成有效歌曲信息，使用默认标题");
             }
             
             MusicData.Song song = new MusicData.Song();
@@ -183,19 +207,33 @@ public class MusicGenerator {
             return song;
         } catch (Exception e) {
             Log.e(TAG, "Parse error", e);
-            throw new IOException("解析AI返回失败，请重试", e);
+            MusicData.Song song = new MusicData.Song();
+            song.title = "AI创作歌曲";
+            song.artist = "MusicAI";
+            song.style = style;
+            song.melody = melody;
+            song.chords = chords;
+            return song;
         }
     }
     
     public MusicData.ChordProgression generateCustomChords(String style, int length, String keySignature, String mood, String description) throws IOException {
         StringBuilder prompt = new StringBuilder();
-        prompt.append("生成").append(length).append("个").append(style).append("风格的和弦。\n");
-        prompt.append("请严格按JSON格式返回，不要有任何其他内容：\n\n");
-        prompt.append("[{\"name\":\"C\",\"type\":\"major\",\"duration\":4}]\n\n");
-        prompt.append("type可选：major minor seventh diminished augmented sus2 sus4");
+        prompt.append("请为").append(style).append("风格创作一组和弦。\n\n");
+        prompt.append("【输出格式要求】\n");
+        prompt.append("必须返回一个JSON数组，格式如下：\n");
+        prompt.append("[{\"name\":\"C\",\"type\":\"major\",\"duration\":4},{\"name\":\"G\",\"type\":\"major\",\"duration\":4}]\n\n");
+        prompt.append("【字段说明】\n");
+        prompt.append("- name: 根音，取值范围 C C# D D# E F F# G G# A A# B\n");
+        prompt.append("- type: 和弦类型 major minor seventh diminished augmented sus2 sus4\n");
+        prompt.append("- duration: 时值\n\n");
+        prompt.append("【创作要求】\n");
+        prompt.append("- 请生成").append(length).append("个和弦\n");
+        prompt.append("- 确保和弦进行自然流畅\n");
+        prompt.append("直接输出JSON数组，不要任何其他文字：");
         
         try {
-            AIResponse response = modelConfig.requestAI(prompt.toString());
+            AIResponse response = modelConfig.requestAIWithSystemPrompt(prompt.toString(), MUSIC_SYSTEM_PROMPT);
             
             if (!response.isSuccess()) {
                 throw new IOException(response.errorMessage);
@@ -235,7 +273,7 @@ public class MusicGenerator {
             return progression;
         } catch (JSONException e) {
             Log.e(TAG, "Parse error", e);
-            throw new IOException("解析AI返回失败，请重试", e);
+            throw new IOException("解析AI返回失败: " + e.getMessage() + "，请重试");
         }
     }
     
@@ -244,54 +282,7 @@ public class MusicGenerator {
     }
     
     public MusicData.ChordProgression generateChords(String style, int length, MusicData.ChordProgression userChords) throws IOException {
-        StringBuilder prompt = new StringBuilder();
-        prompt.append("Generate ").append(length).append(" chords for ").append(style).append(" style.\n");
-        prompt.append("Return ONLY valid JSON array: [{\"name\":\"C\",\"type\":\"major\",\"duration\":4}]\n");
-        prompt.append("type: major minor seventh diminished augmented sus2 sus4");
-        
-        try {
-            AIResponse response = modelConfig.requestAI(prompt.toString());
-            
-            if (!response.isSuccess()) {
-                throw new IOException(response.errorMessage);
-            }
-            
-            Log.d(TAG, "Chords response: " + response.content);
-            
-            JSONArray jsonArray = extractMusicJsonArray(response.content);
-            
-            if (jsonArray == null || jsonArray.length() == 0) {
-                throw new IOException("AI未生成有效和弦内容，请重试");
-            }
-            
-            MusicData.ChordProgression progression = new MusicData.ChordProgression();
-            progression.id = String.valueOf(System.currentTimeMillis());
-            progression.createdAt = System.currentTimeMillis();
-            progression.style = style;
-            progression.name = "AI Generated " + style;
-            
-            int time = 0;
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject chordObj = jsonArray.getJSONObject(i);
-                MusicData.Chord chord = new MusicData.Chord(
-                    chordObj.optString("name", "C"),
-                    chordObj.optString("type", "major"),
-                    chordObj.optInt("duration", 4),
-                    time
-                );
-                progression.chords.add(chord);
-                time = chord.startTime + chord.duration;
-            }
-            
-            if (progression.chords.isEmpty()) {
-                throw new IOException("生成失败：AI返回内容为空，请重试");
-            }
-            
-            return progression;
-        } catch (JSONException e) {
-            Log.e(TAG, "Parse error", e);
-            throw new IOException("解析AI返回失败，请重试", e);
-        }
+        return generateCustomChords(style, length, null, null, null);
     }
     
     public MusicData.Song generateSong(String style, MusicData.Melody melody, MusicData.ChordProgression chords) throws IOException {
@@ -305,26 +296,12 @@ public class MusicGenerator {
         }
         
         String text = response.trim();
-        Log.d(TAG, "Processing response length: " + text.length());
+        Log.d(TAG, "Processing response, length: " + text.length());
         
         text = text.replaceAll("(?i)```json", "");
         text = text.replaceAll("(?i)```javascript", "");
         text = text.replaceAll("(?i)```", "");
         text = text.replaceAll("`+", "");
-        
-        Pattern arrayPattern = Pattern.compile("\\[\\s*\\{[^\\}]+\\}\\s*(,\\s*\\{[^\\}]+\\}\\s*)*\\]");
-        Matcher arrayMatcher = arrayPattern.matcher(text);
-        
-        if (arrayMatcher.find()) {
-            String found = arrayMatcher.group();
-            try {
-                JSONArray arr = new JSONArray(found);
-                Log.d(TAG, "Extracted array with " + arr.length() + " items");
-                return arr;
-            } catch (JSONException e) {
-                Log.w(TAG, "Array found but parse failed: " + found.substring(0, Math.min(100, found.length())));
-            }
-        }
         
         int firstBracket = text.indexOf('[');
         int lastBracket = text.lastIndexOf(']');
@@ -334,10 +311,25 @@ public class MusicGenerator {
             try {
                 JSONArray arr = new JSONArray(potential);
                 if (arr.length() > 0) {
-                    Log.d(TAG, "Extracted array from brackets, length: " + arr.length());
+                    Log.d(TAG, "Extracted JSON array with " + arr.length() + " items");
                     return arr;
                 }
             } catch (JSONException e) {
+                Log.w(TAG, "Failed to parse extracted JSON: " + e.getMessage());
+            }
+        }
+        
+        Pattern arrayPattern = Pattern.compile("\\[\\s*\\{[^\\}]+\\}\\s*(,\\s*\\{[^\\}]+\\}\\s*)*\\]");
+        Matcher arrayMatcher = arrayPattern.matcher(text);
+        
+        if (arrayMatcher.find()) {
+            String found = arrayMatcher.group();
+            try {
+                JSONArray arr = new JSONArray(found);
+                Log.d(TAG, "Extracted JSON array via pattern, length: " + arr.length());
+                return arr;
+            } catch (JSONException e) {
+                Log.w(TAG, "Pattern match parse failed: " + e.getMessage());
             }
         }
         
@@ -358,13 +350,14 @@ public class MusicGenerator {
         if (found) {
             try {
                 JSONArray arr = new JSONArray(jsonBuilder.toString());
-                Log.d(TAG, "Extracted array from lines, length: " + arr.length());
+                Log.d(TAG, "Extracted JSON array from lines, length: " + arr.length());
                 return arr;
             } catch (JSONException e) {
+                Log.w(TAG, "Lines parse failed: " + e.getMessage());
             }
         }
         
-        Log.w(TAG, "Failed to extract JSON array");
+        Log.w(TAG, "Failed to extract JSON array from response");
         return null;
     }
     
@@ -391,6 +384,7 @@ public class MusicGenerator {
                 Log.d(TAG, "Extracted JSON object");
                 return obj;
             } catch (JSONException e) {
+                Log.w(TAG, "Object parse failed: " + e.getMessage());
             }
         }
         
@@ -403,10 +397,11 @@ public class MusicGenerator {
                 Log.d(TAG, "Extracted JSON object via pattern");
                 return obj;
             } catch (JSONException e) {
+                Log.w(TAG, "Pattern object parse failed: " + e.getMessage());
             }
         }
         
-        Log.w(TAG, "Failed to extract JSON object");
+        Log.w(TAG, "Failed to extract JSON object from response");
         return null;
     }
 }

@@ -28,10 +28,13 @@ public class ModelConfig {
     private static final String KEY_TEMPERATURE = "temperature";
     private static final String KEY_MAX_TOKENS = "max_tokens";
     
-    private static final String DEFAULT_API_URL = "https://api.openai.com/v1/chat/completions";
-    private static final String DEFAULT_MODEL_NAME = "gpt-3.5-turbo";
+    private static final String DEFAULT_API_URL = "https://api.deepseek.com/v1";
+    private static final String DEFAULT_MODEL_NAME = "deepseek-chat";
     private static final double DEFAULT_TEMPERATURE = 0.7;
-    private static final int DEFAULT_MAX_TOKENS = 500;
+    private static final int DEFAULT_MAX_TOKENS = 4096;
+    
+    private static final int TIMEOUT_SECONDS = 60;
+    private static final int MAX_RETRIES = 2;
     
     private Context context;
     private SharedPreferences prefs;
@@ -98,202 +101,224 @@ public class ModelConfig {
             return apiUrl;
         }
         
-        if (apiUrl.contains("deepseek.com")) {
-            if (apiUrl.startsWith("http://")) {
-                apiUrl = apiUrl.replace("http://", "https://");
-            }
-            
-            if (apiUrl.endsWith("/v1")) {
-                return apiUrl + "/chat/completions";
-            }
-            
-            if (apiUrl.equals("https://api.deepseek.com") || 
-                apiUrl.equals("https://api.deepseek.com/")) {
-                return "https://api.deepseek.com/v1/chat/completions";
-            }
-            
-            if (!apiUrl.contains("/v1/")) {
-                if (apiUrl.endsWith("/")) {
-                    return apiUrl + "v1/chat/completions";
-                } else {
-                    return apiUrl + "/v1/chat/completions";
-                }
-            }
+        if (apiUrl.endsWith("/v1")) {
+            return apiUrl + "/chat/completions";
         }
         
-        if (!apiUrl.endsWith("/chat/completions")) {
+        if (apiUrl.equals("https://api.deepseek.com") || 
+            apiUrl.equals("https://api.deepseek.com/")) {
+            return "https://api.deepseek.com/v1/chat/completions";
+        }
+        
+        if (!apiUrl.contains("/v1/")) {
             if (apiUrl.endsWith("/")) {
-                return apiUrl + "chat/completions";
+                return apiUrl + "v1/chat/completions";
             } else {
-                return apiUrl + "/chat/completions";
+                return apiUrl + "/v1/chat/completions";
             }
         }
         
         return apiUrl;
     }
     
-    private String getAppropriateModelName() {
-        String modelName = getModelName();
-        String apiUrl = getApiUrl();
-        
-        if (apiUrl.contains("deepseek")) {
-            if (!modelName.contains("deepseek")) {
-                return "deepseek-v4-flash";
-            }
-            if (modelName.equals("deepseek-chat")) {
-                return "deepseek-v4-flash";
-            }
-        }
-        
-        return modelName;
+    public AIResponse requestAI(String userPrompt) {
+        return requestAIWithSystemPrompt(userPrompt, null);
     }
     
-    public AIResponse requestAI(String prompt) {
+    public AIResponse requestAIWithSystemPrompt(String userPrompt, String systemPrompt) {
         String apiUrl = getFullApiUrl();
         String apiKey = getApiKey();
-        String modelName = getAppropriateModelName();
+        String modelName = getModelName();
         double temperature = getTemperature();
         int maxTokens = getMaxTokens();
         
         Log.d(TAG, "API URL: " + apiUrl);
         Log.d(TAG, "Model: " + modelName);
+        Log.d(TAG, "Max tokens: " + maxTokens);
         
         if (apiKey.isEmpty()) {
-            return new AIResponse(AIResponse.ErrorType.CONFIG_ERROR, "API Key 未配置");
+            return new AIResponse(AIResponse.ErrorType.CONFIG_ERROR, "API Key 未配置，请在设置中配置");
         }
         
         if (apiUrl.isEmpty()) {
             return new AIResponse(AIResponse.ErrorType.CONFIG_ERROR, "API 地址未配置");
         }
         
-        JSONObject requestBody = new JSONObject();
-        try {
-            requestBody.put("model", modelName);
+        int retryCount = 0;
+        String lastError = "";
+        
+        while (retryCount <= MAX_RETRIES) {
+            AIResponse response = doRequest(apiUrl, apiKey, modelName, temperature, maxTokens, userPrompt, systemPrompt);
             
-            double effectiveTemperature = temperature;
-            if (apiUrl.contains("deepseek")) {
-                effectiveTemperature = Math.min(0.3, temperature);
-            }
-            requestBody.put("temperature", effectiveTemperature);
-            
-            requestBody.put("max_tokens", maxTokens);
-            
-            if (!apiUrl.contains("deepseek")) {
-                requestBody.put("reasoning_effort", "none");
+            if (response.isSuccess()) {
+                return response;
             }
             
-            JSONObject message = new JSONObject();
-            message.put("role", "user");
-            message.put("content", prompt);
+            lastError = response.errorMessage;
             
-            org.json.JSONArray messages = new org.json.JSONArray();
-            messages.put(message);
-            requestBody.put("messages", messages);
-        } catch (JSONException e) {
-            Log.e(TAG, "Failed to build request", e);
-            return new AIResponse(AIResponse.ErrorType.PARSE_ERROR, "构建请求失败: " + e.getMessage());
+            if (response.errorType == AIResponse.ErrorType.API_ERROR ||
+                response.errorType == AIResponse.ErrorType.CONFIG_ERROR ||
+                response.errorType == AIResponse.ErrorType.NETWORK_ERROR) {
+                return response;
+            }
+            
+            retryCount++;
+            if (retryCount <= MAX_RETRIES) {
+                Log.w(TAG, "Request failed, retrying... (" + retryCount + "/" + MAX_RETRIES + ")");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
         }
         
-        OkHttpClient client = new OkHttpClient.Builder()
-            .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
-            .readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
-            .writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
-            .build();
-        
-        RequestBody body = RequestBody.create(
-            requestBody.toString(),
-            MediaType.parse("application/json")
-        );
-        
-        Request request = new Request.Builder()
-            .url(apiUrl)
-            .header("Content-Type", "application/json")
-            .header("Accept", "application/json")
-            .header("Authorization", "Bearer " + apiKey)
-            .post(body)
-            .build();
-        
-        Log.d(TAG, "Request URL: " + apiUrl);
-        Log.d(TAG, "Request Body: " + requestBody.toString());
-        
-        try (Response response = client.newCall(request).execute()) {
-            String responseBody = response.body() != null ? response.body().string() : "";
+        return new AIResponse(AIResponse.ErrorType.EMPTY_CONTENT, "生成失败（已重试" + MAX_RETRIES + "次）: " + lastError);
+    }
+    
+    private AIResponse doRequest(String apiUrl, String apiKey, String modelName, double temperature, 
+                                 int maxTokens, String userPrompt, String systemPrompt) {
+        try {
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("model", modelName);
+            requestBody.put("temperature", Math.min(0.3, temperature));
+            requestBody.put("max_tokens", maxTokens);
             
-            Log.d(TAG, "Response code: " + response.code());
-            Log.d(TAG, "Response body: " + responseBody);
+            org.json.JSONArray messages = new org.json.JSONArray();
             
-            if (!response.isSuccessful()) {
-                Log.e(TAG, "API request failed: " + response.code() + " - " + responseBody);
-                String errorMsg = getApiErrorMessage(response.code(), responseBody);
-                return new AIResponse(AIResponse.ErrorType.API_ERROR, errorMsg);
+            if (systemPrompt != null && !systemPrompt.isEmpty()) {
+                JSONObject sysMsg = new JSONObject();
+                sysMsg.put("role", "system");
+                sysMsg.put("content", systemPrompt);
+                messages.put(sysMsg);
             }
             
-            try {
-                JSONObject jsonResponse = new JSONObject(responseBody);
+            JSONObject userMsg = new JSONObject();
+            userMsg.put("role", "user");
+            userMsg.put("content", userPrompt);
+            messages.put(userMsg);
+            
+            requestBody.put("messages", messages);
+            
+            OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(TIMEOUT_SECONDS, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(TIMEOUT_SECONDS, java.util.concurrent.TimeUnit.SECONDS)
+                .writeTimeout(TIMEOUT_SECONDS, java.util.concurrent.TimeUnit.SECONDS)
+                .build();
+            
+            RequestBody body = RequestBody.create(
+                requestBody.toString(),
+                MediaType.parse("application/json")
+            );
+            
+            Request.Builder requestBuilder = new Request.Builder()
+                .url(apiUrl)
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .header("Authorization", "Bearer " + apiKey)
+                .post(body);
+            
+            Log.d(TAG, "Request URL: " + apiUrl);
+            Log.d(TAG, "Request Body: " + requestBody.toString().substring(0, Math.min(500, requestBody.toString().length())));
+            
+            try (Response response = client.newCall(requestBuilder.build()).execute()) {
+                String responseBody = response.body() != null ? response.body().string() : "";
                 
-                if (jsonResponse.has("error")) {
-                    JSONObject error = jsonResponse.getJSONObject("error");
-                    String errorMessage = error.optString("message", "未知API错误");
-                    return new AIResponse(AIResponse.ErrorType.API_ERROR, "API返回错误: " + errorMessage);
+                Log.d(TAG, "Response code: " + response.code());
+                Log.d(TAG, "Response body length: " + responseBody.length());
+                
+                if (!response.isSuccessful()) {
+                    String errorMsg = getApiErrorMessage(response.code(), responseBody);
+                    return new AIResponse(AIResponse.ErrorType.API_ERROR, errorMsg);
                 }
                 
-                org.json.JSONArray choices = jsonResponse.getJSONArray("choices");
-                if (choices.length() > 0) {
-                    JSONObject choice = choices.getJSONObject(0);
-                    JSONObject message = choice.getJSONObject("message");
-                    String content = message.getString("content").trim();
+                try {
+                    JSONObject jsonResponse = new JSONObject(responseBody);
                     
-                    if (content.isEmpty()) {
-                        return new AIResponse(AIResponse.ErrorType.EMPTY_CONTENT, "AI未生成有效内容，请调整条件后重试");
+                    if (jsonResponse.has("error")) {
+                        JSONObject error = jsonResponse.getJSONObject("error");
+                        String errorMessage = error.optString("message", "未知API错误");
+                        return new AIResponse(AIResponse.ErrorType.API_ERROR, "API错误: " + errorMessage);
                     }
                     
+                    org.json.JSONArray choices = jsonResponse.optJSONArray("choices");
+                    if (choices == null || choices.length() == 0) {
+                        return new AIResponse(AIResponse.ErrorType.EMPTY_CONTENT, "AI未返回有效内容，请重试");
+                    }
+                    
+                    JSONObject choice = choices.getJSONObject(0);
+                    JSONObject message = choice.optJSONObject("message");
+                    if (message == null) {
+                        return new AIResponse(AIResponse.ErrorType.PARSE_ERROR, "AI返回格式异常：缺少message字段");
+                    }
+                    
+                    String content = message.optString("content", "").trim();
+                    
+                    if (content.isEmpty()) {
+                        return new AIResponse(AIResponse.ErrorType.EMPTY_CONTENT, "AI生成为空内容，请重试");
+                    }
+                    
+                    Log.d(TAG, "Content length: " + content.length());
                     return new AIResponse(content);
-                } else {
-                    return new AIResponse(AIResponse.ErrorType.EMPTY_CONTENT, "AI未生成有效内容，请调整条件后重试");
+                    
+                } catch (JSONException e) {
+                    Log.e(TAG, "Parse error: " + responseBody, e);
+                    return new AIResponse(AIResponse.ErrorType.PARSE_ERROR, "解析AI返回失败: " + e.getMessage());
                 }
-            } catch (JSONException e) {
-                Log.e(TAG, "Failed to parse response: " + responseBody, e);
-                return new AIResponse(AIResponse.ErrorType.PARSE_ERROR, "AI返回格式异常，请重试");
             }
         } catch (SocketTimeoutException e) {
             Log.e(TAG, "Connection timeout", e);
-            return new AIResponse(AIResponse.ErrorType.NETWORK_ERROR, "网络连接超时，请检查网络或稍后重试");
+            return new AIResponse(AIResponse.ErrorType.NETWORK_ERROR, "网络连接超时（" + TIMEOUT_SECONDS + "秒），请检查网络后重试");
         } catch (UnknownHostException e) {
             Log.e(TAG, "Unknown host", e);
-            return new AIResponse(AIResponse.ErrorType.NETWORK_ERROR, "地址解析失败，请检查API地址是否正确");
+            return new AIResponse(AIResponse.ErrorType.NETWORK_ERROR, "无法解析地址，请检查API地址是否正确");
         } catch (ConnectException e) {
             Log.e(TAG, "Connection failed", e);
-            return new AIResponse(AIResponse.ErrorType.NETWORK_ERROR, "网络连接失败，请检查网络或API地址");
+            return new AIResponse(AIResponse.ErrorType.NETWORK_ERROR, "连接服务器失败，请检查网络或API地址");
         } catch (IOException e) {
             Log.e(TAG, "IO exception", e);
             return new AIResponse(AIResponse.ErrorType.NETWORK_ERROR, "网络异常: " + e.getMessage());
+        } catch (Exception e) {
+            Log.e(TAG, "Unexpected error", e);
+            return new AIResponse(AIResponse.ErrorType.PARSE_ERROR, "发生错误: " + e.getMessage());
         }
     }
     
     private String getApiErrorMessage(int statusCode, String responseBody) {
+        String detail = "";
+        try {
+            if (responseBody != null && !responseBody.isEmpty()) {
+                JSONObject errorJson = new JSONObject(responseBody);
+                if (errorJson.has("error")) {
+                    JSONObject error = errorJson.getJSONObject("error");
+                    detail = error.optString("message", "");
+                }
+            }
+        } catch (Exception e) {
+        }
+        
         switch (statusCode) {
             case 401:
-                return "API返回错误: 401 认证失败 - API Key 无效或已过期";
+                return "401 认证失败 - API Key无效或已过期，请检查设置";
             case 403:
-                return "API返回错误: 403 禁止访问 - 权限不足";
+                return "403 禁止访问 - 权限不足或账号异常";
             case 404:
-                return "API返回错误: 404 地址错误 - 请检查API地址是否正确";
+                return "404 地址错误 - API地址配置不正确";
             case 429:
-                return "API返回错误: 429 请求过多 - 请稍后再试";
+                return "429 请求过于频繁 - 请稍后重试";
             case 500:
-                return "API返回错误: 500 服务器内部错误";
+                return "500 服务器错误 - DeepSeek服务暂时不可用";
             case 502:
-                return "API返回错误: 502 网关错误";
             case 503:
-                return "API返回错误: 503 服务不可用";
+                return statusCode + " 服务异常 - 请稍后重试";
             default:
-                return "API返回错误: " + statusCode + (responseBody.isEmpty() ? "" : " - " + responseBody);
+                return statusCode + (detail.isEmpty() ? "" : ": " + detail);
         }
     }
     
     public String generateContent(String prompt) throws IOException {
         AIResponse response = requestAI(prompt);
-        
         if (response.isSuccess()) {
             return response.content;
         } else {
@@ -301,20 +326,19 @@ public class ModelConfig {
         }
     }
     
-    public String testConnection() throws IOException {
+    public String testConnection() {
         String apiUrl = getApiUrl();
         String apiKey = getApiKey();
-        String modelName = getAppropriateModelName();
+        String modelName = getModelName();
         
         Log.d(TAG, "Testing connection to: " + apiUrl);
-        Log.d(TAG, "Model: " + modelName);
         
         if (apiKey.isEmpty()) {
-            return "ERROR:API Key 不能为空";
+            return "ERROR:API Key不能为空";
         }
         
         if (apiUrl.isEmpty()) {
-            return "ERROR:API 地址不能为空";
+            return "ERROR:API地址不能为空";
         }
         
         String fullUrl = getFullApiUrl();
@@ -322,12 +346,12 @@ public class ModelConfig {
         JSONObject requestBody = new JSONObject();
         try {
             requestBody.put("model", modelName);
-            requestBody.put("max_tokens", 10);
+            requestBody.put("max_tokens", 50);
             requestBody.put("temperature", 0.1);
             
             JSONObject message = new JSONObject();
             message.put("role", "user");
-            message.put("content", "Hi");
+            message.put("content", "Say 'OK' if you can hear me.");
             
             org.json.JSONArray messages = new org.json.JSONArray();
             messages.put(message);
@@ -359,37 +383,18 @@ public class ModelConfig {
             int statusCode = response.code();
             String responseBody = response.body() != null ? response.body().string() : "";
             
-            Log.d(TAG, "Response code: " + statusCode);
-            Log.d(TAG, "Response body: " + responseBody);
+            Log.d(TAG, "Test Response code: " + statusCode);
+            Log.d(TAG, "Test Response body: " + responseBody);
             
             if (statusCode == 200) {
-                try {
-                    JSONObject jsonResponse = new JSONObject(responseBody);
-                    if (jsonResponse.has("model")) {
-                        String responseModel = jsonResponse.getString("model");
-                        return "SUCCESS:连接成功！模型: " + responseModel;
-                    }
-                    return "SUCCESS:连接成功！";
-                } catch (JSONException e) {
-                    return "SUCCESS:连接成功（响应解析异常）";
-                }
-            } else if (statusCode == 401) {
-                return "ERROR:401 认证失败 - API Key 无效或已过期";
-            } else if (statusCode == 403) {
-                return "ERROR:403 禁止访问 - 权限不足";
-            } else if (statusCode == 404) {
-                return "ERROR:404 地址错误 - 请检查 API 地址是否正确";
-            } else if (statusCode == 429) {
-                return "ERROR:429 请求过多 - 请稍后再试";
-            } else if (statusCode >= 500) {
-                return "ERROR:" + statusCode + " 服务器错误 - 请检查 API 服务状态";
+                return "SUCCESS:连接成功！模型: " + modelName;
             } else {
-                return "ERROR:" + statusCode + " - " + responseBody;
+                return "ERROR:" + getApiErrorMessage(statusCode, responseBody);
             }
         } catch (SocketTimeoutException e) {
             return "ERROR:连接超时 - 网络缓慢或服务器无响应";
         } catch (UnknownHostException e) {
-            return "ERROR:地址解析失败 - 请检查 API 地址是否正确";
+            return "ERROR:地址解析失败 - 请检查API地址";
         } catch (ConnectException e) {
             return "ERROR:连接失败 - 无法连接到服务器";
         } catch (Exception e) {
