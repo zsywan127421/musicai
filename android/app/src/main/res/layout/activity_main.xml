@@ -86,7 +86,7 @@
             android:textColor="@color/apple_text"
             android:background="@drawable/apple_button_primary_bg"
             android:layout_marginBottom="16dp"
-            android:cornerRadius="12dp"/>
+           />
 
         <Button
             android:id="@+id/btn_chord_editor"
@@ -97,7 +97,7 @@
             android:textColor="@color/apple_text"
             android:background="@drawable/apple_button_bg"
             android:layout_marginBottom="16dp"
-            android:cornerRadius="12dp"/>
+           />
 
         <Button
             android:id="@+id/btn_song_generator"
@@ -108,7 +108,7 @@
             android:textColor="@color/apple_text"
             android:background="@drawable/apple_button_bg"
             android:layout_marginBottom="16dp"
-            android:cornerRadius="12dp"/>
+           />
 
         <Button
             android:id="@+id/btn_settings"
@@ -118,7 +118,7 @@
             android:textSize="18sp"
             android:textColor="@color/apple_text"
             android:background="@drawable/apple_button_bg"
-            android:cornerRadius="12dp"/>
+           />
 
     </LinearLayout>
 

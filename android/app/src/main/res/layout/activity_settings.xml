@@ -58,7 +58,7 @@
                 android:hint="https://api.openai.com/v1/chat/completions"
                 android:textSize="16sp"
                 android:textColor="@color/apple_text"
-                android:hintTextColor="@color/apple_light_gray"
+               
                 android:background="@drawable/apple_edittext_bg"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="12dp"/>
@@ -88,7 +88,7 @@
                 android:hint="sk-..."
                 android:textSize="16sp"
                 android:textColor="@color/apple_text"
-                android:hintTextColor="@color/apple_light_gray"
+               
                 android:background="@drawable/apple_edittext_bg"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="12dp"
@@ -119,7 +119,7 @@
                 android:hint="gpt-3.5-turbo"
                 android:textSize="16sp"
                 android:textColor="@color/apple_text"
-                android:hintTextColor="@color/apple_light_gray"
+               
                 android:background="@drawable/apple_edittext_bg"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="12dp"/>
@@ -241,7 +241,7 @@
             android:textColor="@color/apple_text"
             android:background="@drawable/apple_button_primary_bg"
             android:layout_marginBottom="12dp"
-            android:cornerRadius="12dp"/>
+           />
 
         <Button
             android:id="@+id/btn_reset"
@@ -251,7 +251,7 @@
             android:textSize="17sp"
             android:textColor="@color/apple_text"
             android:background="@drawable/apple_button_bg"
-            android:cornerRadius="12dp"/>
+           />
 
     </LinearLayout>
 </ScrollView>

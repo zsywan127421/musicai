@@ -37,7 +37,7 @@
             android:textColor="@color/apple_text"
             android:background="@drawable/apple_button_primary_bg"
             android:layout_marginLeft="12dp"
-            android:cornerRadius="10dp"/>
+           />
 
     </LinearLayout>
 
@@ -150,7 +150,7 @@
             android:textSize="17sp"
             android:textColor="@color/apple_text"
             android:background="@drawable/apple_button_primary_bg"
-            android:cornerRadius="12dp"/>
+           />
 
     </LinearLayout>
 

@@ -42,7 +42,7 @@
                 android:textColor="@color/apple_text"
                 android:background="@drawable/apple_button_primary_bg"
                 android:layout_marginLeft="12dp"
-                android:cornerRadius="10dp"/>
+               />
 
         </LinearLayout>
 
@@ -114,7 +114,7 @@
                 android:textSize="15sp"
                 android:textColor="@color/apple_text"
                 android:background="@drawable/apple_button_bg"
-                android:cornerRadius="10dp"
+               
                 android:layout_marginBottom="12dp"/>
 
             <TextView
@@ -126,7 +126,7 @@
                 android:textColor="@color/apple_text_secondary"
                 android:padding="8dp"
                 android:background="@color/apple_mid_gray"
-                android:cornerRadius="8dp"
+               
                 android:minHeight="40dp"/>
 
             <Button
@@ -137,7 +137,7 @@
                 android:textSize="13sp"
                 android:textColor="@color/apple_error"
                 android:background="@drawable/apple_button_danger_bg"
-                android:cornerRadius="8dp"
+               
                 android:layout_marginTop="8dp"/>
 
         </LinearLayout>
@@ -185,7 +185,7 @@
                 android:textColor="@color/apple_text"
                 android:background="@drawable/apple_button_bg"
                 android:layout_marginRight="8dp"
-                android:cornerRadius="10dp"/>
+               />
 
             <Button
                 android:id="@+id/btn_play"
@@ -197,7 +197,7 @@
                 android:textColor="@color/apple_text"
                 android:background="@drawable/apple_button_primary_bg"
                 android:layout_marginRight="8dp"
-                android:cornerRadius="10dp"/>
+               />
 
             <Button
                 android:id="@+id/btn_delete"
@@ -208,7 +208,7 @@
                 android:textSize="14sp"
                 android:textColor="@color/apple_text"
                 android:background="@drawable/apple_button_danger_bg"
-                android:cornerRadius="10dp"/>
+               />
 
         </LinearLayout>
 
