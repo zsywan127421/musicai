@@ -2,7 +2,6 @@ package com.example.musicai;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -20,8 +19,6 @@ public class MainActivity extends AppCompatActivity {
         
         modelConfig = new ModelConfig(this);
         
-        Button btnMelodyEditor = findViewById(R.id.btn_melody_editor);
-        Button btnChordEditor = findViewById(R.id.btn_chord_editor);
         Button btnSongGenerator = findViewById(R.id.btn_song_generator);
         Button btnNewSongGenerator = findViewById(R.id.btn_new_song_generator);
         Button btnLibrary = findViewById(R.id.btn_library);
@@ -30,20 +27,12 @@ public class MainActivity extends AppCompatActivity {
         
         updateModelStatus();
         
-        btnMelodyEditor.setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, MelodyEditorActivity.class));
-        });
-        
-        btnChordEditor.setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, ChordEditorActivity.class));
+        btnNewSongGenerator.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, NewSongGeneratorActivity.class));
         });
         
         btnSongGenerator.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, SongGeneratorActivity.class));
-        });
-        
-        btnNewSongGenerator.setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, NewSongGeneratorActivity.class));
         });
         
         btnLibrary.setOnClickListener(v -> {

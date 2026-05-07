@@ -9,8 +9,6 @@ import android.os.IBinder;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -19,43 +17,39 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.musicai.util.ToastHelper;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class SongGeneratorActivity extends AppCompatActivity {
     
-    private static final int STEP_NOT_STARTED = 0;
-    private static final int STEP_ACTIVE = 1;
-    private static final int STEP_COMPLETED = 2;
-    
+    private MusicRepository repository;
     private MusicGenerator musicGenerator;
     
-    private MusicData.Melody melodyData;
-    private MusicData.ChordProgression chordProgression;
-    private MusicData.Song currentSong;
+    private Spinner spStyle, spMelody, spChords;
+    private ListView lvResult;
+    private ArrayAdapter<String> resultAdapter;
+    private List<String> resultList;
     
-    private ListView lvSong;
-    private ArrayAdapter<String> songAdapter;
-    private List<String> songList;
-    private ProgressBar progressBar;
-    private ProgressBar playbackProgress;
+    private Button btnGenerate, btnPlay, btnStop;
     private TextView tvPlaybackTime;
+    private CursorSeekBar playbackProgress;
+    private ProgressBar progressBar;
+    private View speedControlLayout;
+    private TextView tvSpeed;
     
-    private View step1Indicator, step2Indicator, step3Indicator, step4Indicator;
-    private TextView step1Status, step2Status, step3Status, step4Status;
-    private TextView tvMelodyPreview, tvChordsPreview, tvSongTitle;
-    private EditText etDescription;
-    private Button btnGenerateMelody, btnGenerateChords, btnGenerateSong;
-    private Button btnPlay, btnStop;
-    private CheckBox cbAutoChain;
+    private MusicData.Melody selectedMelody;
+    private MusicData.ChordProgression selectedChords;
+    private MusicData.Song currentSong;
     
     private MusicPlayerService playerService;
     private boolean isBound = false;
     private boolean isGenerating = false;
-    private boolean autoChainEnabled = false;
+    private float playbackSpeed = 1.0f;
     
-    private Handler progressHandler = new Handler();
-    private Runnable progressUpdateRunnable;
+    private Handler handler = new Handler();
+    private Runnable progressUpdater;
     
     private ServiceConnection connection = new ServiceConnection() {
         @Override
@@ -76,70 +70,286 @@ public class SongGeneratorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song_generator);
         
+        repository = MusicRepository.getInstance(this);
         musicGenerator = new MusicGenerator(this);
-        melodyData = new MusicData.Melody();
-        chordProgression = new MusicData.ChordProgression();
+        
         currentSong = new MusicData.Song();
         
         initViews();
+        setupSpinners();
         setupListeners();
-        setupStyleSpinner();
-        updateUI();
+        loadLibraryData();
     }
     
     private void initViews() {
-        step1Indicator = findViewById(R.id.step1_indicator);
-        step2Indicator = findViewById(R.id.step2_indicator);
-        step3Indicator = findViewById(R.id.step3_indicator);
-        step4Indicator = findViewById(R.id.step4_indicator);
-        
-        step1Status = findViewById(R.id.step1_status);
-        step2Status = findViewById(R.id.step2_status);
-        step3Status = findViewById(R.id.step3_status);
-        step4Status = findViewById(R.id.step4_status);
-        
-        tvMelodyPreview = findViewById(R.id.tv_melody_preview);
-        tvChordsPreview = findViewById(R.id.tv_chords_preview);
-        tvSongTitle = findViewById(R.id.tv_song_title);
-        etDescription = findViewById(R.id.et_description);
-        
-        btnGenerateMelody = findViewById(R.id.btn_generate_melody);
-        btnGenerateChords = findViewById(R.id.btn_generate_chords);
-        btnGenerateSong = findViewById(R.id.btn_generate_song);
+        spStyle = findViewById(R.id.sp_style);
+        spMelody = findViewById(R.id.sp_melody);
+        spChords = findViewById(R.id.sp_chords);
+        lvResult = findViewById(R.id.lv_result);
+        btnGenerate = findViewById(R.id.btn_generate);
         btnPlay = findViewById(R.id.btn_play);
         btnStop = findViewById(R.id.btn_stop);
-        
-        cbAutoChain = findViewById(R.id.cb_auto_chain);
-        
-        lvSong = findViewById(R.id.lv_song);
-        progressBar = findViewById(R.id.progress_bar);
-        playbackProgress = findViewById(R.id.playback_progress);
         tvPlaybackTime = findViewById(R.id.tv_playback_time);
+        playbackProgress = findViewById(R.id.playback_progress);
+        progressBar = findViewById(R.id.progress_bar);
+        speedControlLayout = findViewById(R.id.speed_control_layout);
+        tvSpeed = findViewById(R.id.tv_speed);
         
-        songList = new ArrayList<>();
-        songAdapter = new ArrayAdapter<>(this, R.layout.list_item_note, songList);
-        lvSong.setAdapter(songAdapter);
+        resultList = new ArrayList<>();
+        resultAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, resultList);
+        lvResult.setAdapter(resultAdapter);
+        
+        tvPlaybackTime.setVisibility(View.GONE);
+        playbackProgress.setVisibility(View.GONE);
+        speedControlLayout.setVisibility(View.GONE);
+        
+        btnPlay.setEnabled(false);
+        btnStop.setEnabled(false);
+    }
+    
+    private void setupSpinners() {
+        ArrayAdapter<String> styleAdapter = new ArrayAdapter<>(this, 
+            android.R.layout.simple_spinner_item, MusicData.MUSIC_STYLES);
+        styleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spStyle.setAdapter(styleAdapter);
+        
+        ArrayAdapter<String> melodyAdapter = new ArrayAdapter<>(this,
+            android.R.layout.simple_spinner_item, new String[]{"从资源库选择旋律"});
+        melodyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spMelody.setAdapter(melodyAdapter);
+        
+        ArrayAdapter<String> chordAdapter = new ArrayAdapter<>(this,
+            android.R.layout.simple_spinner_item, new String[]{"从资源库选择和弦"});
+        chordAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spChords.setAdapter(chordAdapter);
     }
     
     private void setupListeners() {
-        btnGenerateMelody.setOnClickListener(v -> generateMelody());
-        btnGenerateChords.setOnClickListener(v -> generateChords());
-        btnGenerateSong.setOnClickListener(v -> generateSong());
+        btnGenerate.setOnClickListener(v -> generate());
+        btnPlay.setOnClickListener(v -> play());
+        btnStop.setOnClickListener(v -> stop());
         
-        btnPlay.setOnClickListener(v -> playSong());
-        btnStop.setOnClickListener(v -> stopSong());
+        Button btnSpeed05 = findViewById(R.id.btn_speed_05);
+        Button btnSpeed075 = findViewById(R.id.btn_speed_075);
+        Button btnSpeed1 = findViewById(R.id.btn_speed_1);
+        Button btnSpeed125 = findViewById(R.id.btn_speed_125);
+        Button btnSpeed15 = findViewById(R.id.btn_speed_15);
+        Button btnSpeed2 = findViewById(R.id.btn_speed_2);
         
-        cbAutoChain.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            autoChainEnabled = isChecked;
-        });
+        btnSpeed05.setOnClickListener(v -> setSpeed(0.5f));
+        btnSpeed075.setOnClickListener(v -> setSpeed(0.75f));
+        btnSpeed1.setOnClickListener(v -> setSpeed(1.0f));
+        btnSpeed125.setOnClickListener(v -> setSpeed(1.25f));
+        btnSpeed15.setOnClickListener(v -> setSpeed(1.5f));
+        btnSpeed2.setOnClickListener(v -> setSpeed(2.0f));
     }
     
-    private void setupStyleSpinner() {
-        Spinner spStyle = findViewById(R.id.sp_style);
-        ArrayAdapter<String> styleAdapter = new ArrayAdapter<>(this, 
-            R.layout.spinner_item, MusicData.MUSIC_STYLES);
-        styleAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        spStyle.setAdapter(styleAdapter);
+    private void loadLibraryData() {
+        List<MusicRepository.MelodyEntry> melodies = repository.getMelodyLibrary();
+        List<String> melodyNames = new ArrayList<>();
+        melodyNames.add("从资源库选择旋律");
+        for (MusicRepository.MelodyEntry entry : melodies) {
+            melodyNames.add(entry.name);
+        }
+        
+        ArrayAdapter<String> melodyAdapter = new ArrayAdapter<>(this,
+            android.R.layout.simple_spinner_item, melodyNames);
+        melodyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spMelody.setAdapter(melodyAdapter);
+        
+        List<MusicRepository.ChordEntry> chords = repository.getChordLibrary();
+        List<String> chordNames = new ArrayList<>();
+        chordNames.add("从资源库选择和弦");
+        for (MusicRepository.ChordEntry entry : chords) {
+            chordNames.add(entry.name);
+        }
+        
+        ArrayAdapter<String> chordAdapter = new ArrayAdapter<>(this,
+            android.R.layout.simple_spinner_item, chordNames);
+        chordAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spChords.setAdapter(chordAdapter);
+    }
+    
+    private void generate() {
+        if (isGenerating) return;
+        
+        int melodyPos = spMelody.getSelectedItemPosition();
+        int chordPos = spChords.getSelectedItemPosition();
+        
+        if (melodyPos <= 0) {
+            ToastHelper.showWarning(this, "请选择一条旋律");
+            return;
+        }
+        
+        if (chordPos <= 0) {
+            ToastHelper.showWarning(this, "请选择一组和弦");
+            return;
+        }
+        
+        List<MusicRepository.MelodyEntry> melodies = repository.getMelodyLibrary();
+        List<MusicRepository.ChordEntry> chords = repository.getChordLibrary();
+        
+        int melodyIndex = melodyPos - 1;
+        int chordIndex = chordPos - 1;
+        
+        if (melodyIndex >= melodies.size() || chordIndex >= chords.size()) {
+            ToastHelper.showError(this, "选择的数据不存在，请重新选择");
+            loadLibraryData();
+            return;
+        }
+        
+        selectedMelody = melodies.get(melodyIndex).toMelody();
+        selectedChords = chords.get(chordIndex).toChordProgression();
+        
+        if (selectedMelody == null || selectedMelody.notes.isEmpty()) {
+            ToastHelper.showError(this, "旋律数据为空");
+            return;
+        }
+        
+        if (selectedChords == null || selectedChords.chords.isEmpty()) {
+            ToastHelper.showError(this, "和弦数据为空");
+            return;
+        }
+        
+        String style = (String) spStyle.getSelectedItem();
+        
+        isGenerating = true;
+        btnGenerate.setEnabled(false);
+        progressBar.setVisibility(View.VISIBLE);
+        
+        new Thread(() -> {
+            try {
+                MusicData.Song song = musicGenerator.generateCompleteSong(style, selectedMelody, selectedChords);
+                
+                runOnUiThread(() -> {
+                    currentSong = song;
+                    updateResultList();
+                    ToastHelper.showSuccess(SongGeneratorActivity.this, "曲子生成成功！");
+                    
+                    btnPlay.setEnabled(true);
+                    tvPlaybackTime.setVisibility(View.VISIBLE);
+                    playbackProgress.setVisibility(View.VISIBLE);
+                    speedControlLayout.setVisibility(View.VISIBLE);
+                    
+                    isGenerating = false;
+                    btnGenerate.setEnabled(true);
+                    progressBar.setVisibility(View.GONE);
+                });
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    ToastHelper.showError(SongGeneratorActivity.this, "生成失败: " + e.getMessage());
+                    isGenerating = false;
+                    btnGenerate.setEnabled(true);
+                    progressBar.setVisibility(View.GONE);
+                });
+            }
+        }).start();
+    }
+    
+    private void updateResultList() {
+        resultList.clear();
+        
+        if (currentSong != null) {
+            if (currentSong.title != null && !currentSong.title.isEmpty()) {
+                resultList.add("标题: " + currentSong.title);
+            }
+            if (currentSong.artist != null && !currentSong.artist.isEmpty()) {
+                resultList.add("艺术家: " + currentSong.artist);
+            }
+            resultList.add("风格: " + (currentSong.style != null ? currentSong.style : "未知"));
+            resultList.add("");
+        }
+        
+        if (selectedMelody != null && !selectedMelody.notes.isEmpty()) {
+            resultList.add("--- 旋律 (" + selectedMelody.notes.size() + "个音符) ---");
+            int index = 1;
+            for (MusicData.Note note : selectedMelody.notes) {
+                resultList.add("  " + (index++) + ". " + note.toString());
+            }
+            resultList.add("");
+        }
+        
+        if (selectedChords != null && !selectedChords.chords.isEmpty()) {
+            resultList.add("--- 和弦 (" + selectedChords.chords.size() + "个) ---");
+            int index = 1;
+            for (MusicData.Chord chord : selectedChords.chords) {
+                resultList.add("  " + (index++) + ". " + chord.toString());
+            }
+        }
+        
+        resultAdapter.notifyDataSetChanged();
+    }
+    
+    private void play() {
+        if (currentSong == null || currentSong.melody == null || currentSong.melody.notes.isEmpty()) {
+            ToastHelper.showWarning(this, "暂无可播放内容");
+            return;
+        }
+        
+        if (!isBound || playerService == null) {
+            ToastHelper.showError(this, "播放器服务未连接");
+            return;
+        }
+        
+        playerService.playSong(currentSong);
+        playerService.setSpeed(playbackSpeed);
+        
+        btnPlay.setEnabled(false);
+        btnStop.setEnabled(true);
+        startProgressUpdater();
+    }
+    
+    private void stop() {
+        if (isBound && playerService != null) {
+            playerService.stopPlayback();
+        }
+        
+        btnPlay.setEnabled(true);
+        btnStop.setEnabled(false);
+        playbackProgress.setProgress(0);
+        tvPlaybackTime.setText("0:00 / 0:00");
+        stopProgressUpdater();
+    }
+    
+    private void setSpeed(float speed) {
+        playbackSpeed = speed;
+        if (isBound && playerService != null) {
+            playerService.setSpeed(speed);
+        }
+        tvSpeed.setText(String.format("速度: %.2fx", speed));
+    }
+    
+    private void startProgressUpdater() {
+        stopProgressUpdater();
+        progressUpdater = new Runnable() {
+            @Override
+            public void run() {
+                if (isBound && playerService != null && playerService.isPlaying()) {
+                    int current = playerService.getCurrentPosition();
+                    int total = playerService.getDuration();
+                    if (total > 0) {
+                        int progress = (int) ((current / (float) total) * 100);
+                        playbackProgress.setProgress(progress);
+                        tvPlaybackTime.setText(formatTime(current) + " / " + formatTime(total));
+                    }
+                    handler.postDelayed(this, 100);
+                }
+            }
+        };
+        handler.post(progressUpdater);
+    }
+    
+    private void stopProgressUpdater() {
+        if (progressUpdater != null) {
+            handler.removeCallbacks(progressUpdater);
+        }
+    }
+    
+    private String formatTime(int millis) {
+        int seconds = millis / 1000;
+        int minutes = seconds / 60;
+        seconds = seconds % 60;
+        return String.format("%d:%02d", minutes, seconds);
     }
     
     @Override
@@ -150,311 +360,18 @@ public class SongGeneratorActivity extends AppCompatActivity {
     }
     
     @Override
+    protected void onResume() {
+        super.onResume();
+        loadLibraryData();
+    }
+    
+    @Override
     protected void onStop() {
         super.onStop();
-        if (progressUpdateRunnable != null) {
-            progressHandler.removeCallbacks(progressUpdateRunnable);
-        }
+        stopProgressUpdater();
         if (isBound) {
             unbindService(connection);
             isBound = false;
         }
-    }
-    
-    private void updateStepIndicator(View indicator, TextView status, int state, String statusText) {
-        indicator.setBackgroundResource(
-            state == STEP_COMPLETED ? R.drawable.step_indicator_completed :
-            state == STEP_ACTIVE ? R.drawable.step_indicator_active :
-            R.drawable.step_indicator_pending
-        );
-        status.setText(statusText);
-    }
-    
-    private void updateUI() {
-        boolean hasMelody = melodyData != null && !melodyData.notes.isEmpty();
-        boolean hasChords = chordProgression != null && !chordProgression.chords.isEmpty();
-        boolean hasSong = currentSong.melody != null && !currentSong.melody.notes.isEmpty();
-        
-        btnGenerateChords.setEnabled(hasMelody && !isGenerating);
-        btnGenerateSong.setEnabled(hasMelody && hasChords && !isGenerating);
-        btnPlay.setEnabled(hasSong && !isGenerating);
-        btnStop.setEnabled(playerService != null && playerService.isPlaying());
-        
-        btnGenerateMelody.setEnabled(!isGenerating);
-        btnGenerateMelody.setText(isGenerating ? "生成中..." : "生成旋律");
-        btnGenerateChords.setText(isGenerating ? "生成中..." : "生成和弦");
-        btnGenerateSong.setText(isGenerating ? "生成中..." : "生成完整曲子");
-        
-        progressBar.setVisibility(isGenerating ? View.VISIBLE : View.GONE);
-        
-        if (hasMelody) {
-            updateMelodyPreview();
-        }
-        if (hasChords) {
-            updateChordsPreview();
-        }
-        if (hasSong) {
-            tvSongTitle.setText("标题: " + currentSong.title);
-        }
-    }
-    
-    private void updateMelodyPreview() {
-        if (melodyData == null || melodyData.notes.isEmpty()) {
-            tvMelodyPreview.setText("尚未生成旋律");
-            return;
-        }
-        
-        StringBuilder sb = new StringBuilder();
-        int count = Math.min(melodyData.notes.size(), 8);
-        for (int i = 0; i < count; i++) {
-            MusicData.Note note = melodyData.notes.get(i);
-            if (sb.length() > 0) sb.append(" → ");
-            sb.append(note.toString());
-        }
-        if (melodyData.notes.size() > 8) {
-            sb.append(" ... (+").append(melodyData.notes.size() - 8).append(")");
-        }
-        tvMelodyPreview.setText(sb.toString());
-    }
-    
-    private void updateChordsPreview() {
-        if (chordProgression == null || chordProgression.chords.isEmpty()) {
-            tvChordsPreview.setText("尚未生成和弦");
-            return;
-        }
-        
-        StringBuilder sb = new StringBuilder();
-        for (MusicData.Chord chord : chordProgression.chords) {
-            if (sb.length() > 0) sb.append(" → ");
-            sb.append(chord.toString());
-        }
-        tvChordsPreview.setText(sb.toString());
-    }
-    
-    private void generateMelody() {
-        if (isGenerating) return;
-        
-        isGenerating = true;
-        updateUI();
-        
-        updateStepIndicator(step1Indicator, step1Status, STEP_COMPLETED, "已完成");
-        updateStepIndicator(step2Indicator, step2Status, STEP_ACTIVE, "生成中...");
-        
-        String style = (String) ((Spinner) findViewById(R.id.sp_style)).getSelectedItem();
-        String description = etDescription.getText().toString().trim();
-        
-        new Thread(() -> {
-            try {
-                melodyData = musicGenerator.generateMelodyWithDescription(style, 8, null, description);
-                
-                runOnUiThread(() -> {
-                    updateStepIndicator(step2Indicator, step2Status, STEP_COMPLETED, "已完成");
-                    updateMelodyPreview();
-                    updateSongList();
-                    Toast.makeText(SongGeneratorActivity.this, "旋律生成完成！", Toast.LENGTH_SHORT).show();
-                    
-                    isGenerating = false;
-                    updateUI();
-                    
-                    if (autoChainEnabled && btnGenerateChords.isEnabled()) {
-                        generateChords();
-                    }
-                });
-            } catch (Exception e) {
-                runOnUiThread(() -> {
-                    updateStepIndicator(step2Indicator, step2Status, STEP_NOT_STARTED, "失败");
-                    Toast.makeText(SongGeneratorActivity.this, "旋律生成失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                    isGenerating = false;
-                    updateUI();
-                });
-            }
-        }).start();
-    }
-    
-    private void generateChords() {
-        if (isGenerating) return;
-        if (melodyData == null || melodyData.notes.isEmpty()) {
-            Toast.makeText(this, "请先生成旋律", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        
-        isGenerating = true;
-        updateUI();
-        
-        updateStepIndicator(step3Indicator, step3Status, STEP_ACTIVE, "生成中...");
-        
-        String style = (String) ((Spinner) findViewById(R.id.sp_style)).getSelectedItem();
-        
-        new Thread(() -> {
-            try {
-                chordProgression = musicGenerator.generateChordsWithMelody(style, 4, null, melodyData);
-                
-                runOnUiThread(() -> {
-                    updateStepIndicator(step3Indicator, step3Status, STEP_COMPLETED, "已完成");
-                    updateChordsPreview();
-                    updateSongList();
-                    Toast.makeText(SongGeneratorActivity.this, "和弦生成完成！", Toast.LENGTH_SHORT).show();
-                    
-                    isGenerating = false;
-                    updateUI();
-                    
-                    if (autoChainEnabled && btnGenerateSong.isEnabled()) {
-                        generateSong();
-                    }
-                });
-            } catch (Exception e) {
-                runOnUiThread(() -> {
-                    updateStepIndicator(step3Indicator, step3Status, STEP_NOT_STARTED, "失败");
-                    Toast.makeText(SongGeneratorActivity.this, "和弦生成失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                    isGenerating = false;
-                    updateUI();
-                });
-            }
-        }).start();
-    }
-    
-    private void generateSong() {
-        if (isGenerating) return;
-        if (melodyData == null || melodyData.notes.isEmpty()) {
-            Toast.makeText(this, "请先生成旋律", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (chordProgression == null || chordProgression.chords.isEmpty()) {
-            Toast.makeText(this, "请先生成和弦", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        
-        isGenerating = true;
-        updateUI();
-        
-        updateStepIndicator(step4Indicator, step4Status, STEP_ACTIVE, "生成中...");
-        
-        String style = (String) ((Spinner) findViewById(R.id.sp_style)).getSelectedItem();
-        
-        new Thread(() -> {
-            try {
-                currentSong = musicGenerator.generateCompleteSong(style, melodyData, chordProgression);
-                
-                runOnUiThread(() -> {
-                    updateStepIndicator(step4Indicator, step4Status, STEP_COMPLETED, "已完成");
-                    tvSongTitle.setText("标题: " + currentSong.title);
-                    updateSongList();
-                    Toast.makeText(SongGeneratorActivity.this, "曲子生成完成！", Toast.LENGTH_SHORT).show();
-                    isGenerating = false;
-                    updateUI();
-                });
-            } catch (Exception e) {
-                runOnUiThread(() -> {
-                    updateStepIndicator(step4Indicator, step4Status, STEP_NOT_STARTED, "失败");
-                    Toast.makeText(SongGeneratorActivity.this, "曲子生成失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                    isGenerating = false;
-                    updateUI();
-                });
-            }
-        }).start();
-    }
-    
-    private void playSong() {
-        if (currentSong.melody == null || currentSong.melody.notes.isEmpty()) {
-            Toast.makeText(this, "没有可播放的歌曲", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        
-        if (isBound && playerService != null) {
-            playerService.playSong(currentSong);
-            playbackProgress.setVisibility(View.VISIBLE);
-            tvPlaybackTime.setVisibility(View.VISIBLE);
-            startProgressUpdate();
-            btnPlay.setEnabled(false);
-            btnStop.setEnabled(true);
-            Toast.makeText(this, "开始播放", Toast.LENGTH_SHORT).show();
-        }
-    }
-    
-    private void stopSong() {
-        if (isBound && playerService != null) {
-            playerService.stopPlayback();
-            playbackProgress.setVisibility(View.GONE);
-            tvPlaybackTime.setVisibility(View.GONE);
-            playbackProgress.setProgress(0);
-            if (progressUpdateRunnable != null) {
-                progressHandler.removeCallbacks(progressUpdateRunnable);
-            }
-            btnPlay.setEnabled(true);
-            btnStop.setEnabled(false);
-            Toast.makeText(this, "已停止", Toast.LENGTH_SHORT).show();
-        }
-    }
-    
-    private void startProgressUpdate() {
-        if (progressUpdateRunnable != null) {
-            progressHandler.removeCallbacks(progressUpdateRunnable);
-        }
-        
-        progressUpdateRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (isBound && playerService != null && playerService.isPlaying()) {
-                    updateProgressDisplay();
-                    progressHandler.postDelayed(this, 100);
-                } else {
-                    playbackProgress.setProgress(0);
-                    tvPlaybackTime.setText("0:00 / 0:00");
-                    btnPlay.setEnabled(true);
-                    btnStop.setEnabled(false);
-                }
-            }
-        };
-        
-        progressHandler.post(progressUpdateRunnable);
-    }
-    
-    private void updateProgressDisplay() {
-        int currentPosition = playerService.getCurrentPosition();
-        int totalDuration = playerService.getDuration();
-        
-        if (totalDuration > 0) {
-            int progress = (currentPosition * 100) / totalDuration;
-            playbackProgress.setProgress(progress);
-            
-            String currentTime = formatTime(currentPosition);
-            String totalTime = formatTime(totalDuration);
-            tvPlaybackTime.setText(currentTime + " / " + totalTime);
-        }
-    }
-    
-    private String formatTime(int milliseconds) {
-        int seconds = (milliseconds / 1000) % 60;
-        int minutes = (milliseconds / (1000 * 60)) % 60;
-        return String.format("%d:%02d", minutes, seconds);
-    }
-    
-    private void updateSongList() {
-        songList.clear();
-        
-        if (currentSong != null && currentSong.title != null && !currentSong.title.isEmpty()) {
-            songList.add("标题: " + currentSong.title);
-            songList.add("风格: " + currentSong.style);
-            songList.add("");
-        }
-        
-        if (melodyData != null && !melodyData.notes.isEmpty()) {
-            songList.add("--- 旋律 (" + melodyData.notes.size() + "个音符) ---");
-            int noteIndex = 1;
-            for (MusicData.Note note : melodyData.notes) {
-                songList.add("  " + noteIndex++ + ". " + note.toString());
-            }
-        }
-        
-        if (chordProgression != null && !chordProgression.chords.isEmpty()) {
-            songList.add("");
-            songList.add("--- 和弦 ---");
-            int chordIndex = 1;
-            for (MusicData.Chord chord : chordProgression.chords) {
-                songList.add("  " + chordIndex++ + ". " + chord.toString());
-            }
-        }
-        
-        songAdapter.notifyDataSetChanged();
     }
 }

@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
@@ -14,9 +13,6 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.musicai.adapter.LibraryAdapter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class LibraryActivity extends AppCompatActivity {
     
@@ -59,29 +55,17 @@ public class LibraryActivity extends AppCompatActivity {
     
     private void setupListeners() {
         rgType.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId == R.id.rb_melodies) {
-                isShowingMelodies = true;
-                loadData();
-            } else {
-                isShowingMelodies = false;
-                loadData();
-            }
+            isShowingMelodies = (checkedId == R.id.rb_melodies);
+            loadData();
         });
         
         lvLibrary.setOnItemClickListener((parent, view, position, id) -> {
-            Object item = adapter.getItem(position);
-            String itemId;
-            int type;
+            if (adapter == null) return;
             
-            if (isShowingMelodies && item instanceof MusicData.Melody) {
-                itemId = ((MusicData.Melody) item).id;
-                type = LibraryDetailActivity.TYPE_MELODY;
-            } else if (!isShowingMelodies && item instanceof MusicData.ChordProgression) {
-                itemId = ((MusicData.ChordProgression) item).id;
-                type = LibraryDetailActivity.TYPE_CHORD;
-            } else {
-                return;
-            }
+            String itemId = adapter.getItemId(position);
+            if (itemId == null) return;
+            
+            int type = isShowingMelodies ? LibraryDetailActivity.TYPE_MELODY : LibraryDetailActivity.TYPE_CHORD;
             
             Intent intent = new Intent(this, LibraryDetailActivity.class);
             intent.putExtra(LibraryDetailActivity.EXTRA_TYPE, type);
@@ -104,21 +88,12 @@ public class LibraryActivity extends AppCompatActivity {
             
             runOnUiThread(() -> {
                 if (isShowingMelodies) {
-                    List<Object> melodyItems = new ArrayList<>();
-                    for (MusicRepository.MelodyEntry entry : repository.getMelodyLibrary()) {
-                        melodyItems.add(entry.toMelody());
-                    }
-                    adapter = new LibraryAdapter(this, melodyItems, true);
+                    adapter = new LibraryAdapter(this, repository.getMelodyLibrary(), true);
                 } else {
-                    List<Object> chordItems = new ArrayList<>();
-                    for (MusicRepository.ChordEntry entry : repository.getChordLibrary()) {
-                        chordItems.add(entry.toChordProgression());
-                    }
-                    adapter = new LibraryAdapter(this, chordItems, false);
+                    adapter = new LibraryAdapter(this, repository.getChordLibrary(), false);
                 }
                 
                 lvLibrary.setAdapter(adapter);
-                
                 progressBar.setVisibility(View.GONE);
                 
                 if (adapter.getCount() == 0) {
