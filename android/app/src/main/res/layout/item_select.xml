@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingVertical="14dp"
+    android:paddingHorizontal="8dp"
+    android:background="?attr/selectableItemBackground">
+
+    <TextView
+        android:id="@+id/tv_index"
+        android:layout_width="36dp"
+        android:layout_height="wrap_content"
+        android:text="1."
+        android:textSize="15sp"
+        android:textColor="@color/apple_text_secondary"
+        android:fontFamily="monospace"/>
+
+    <TextView
+        android:id="@+id/tv_content"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="C4 | 时值:4"
+        android:textSize="15sp"
+        android:textColor="@color/apple_text"
+        android:fontFamily="monospace"/>
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/ic_arrow_right"
+        android:tint="@color/apple_text_tertiary"/>
+
+</LinearLayout>

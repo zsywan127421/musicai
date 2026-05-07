@@ -287,17 +287,13 @@ public class LibraryDetailActivity extends AppCompatActivity implements Playback
             return;
         }
         
-        String[] items = new String[melodyEntry.notes.size()];
+        java.util.List<String> items = new java.util.ArrayList<>();
         for (int i = 0; i < melodyEntry.notes.size(); i++) {
             MusicRepository.NoteData note = melodyEntry.notes.get(i);
-            items[i] = String.format("%d. %s%d | 时值:%d", i + 1, note.pitch, note.octave, note.duration);
+            items.add(String.format("%s%d | 时值:%d", note.pitch, note.octave, note.duration));
         }
         
-        new android.app.AlertDialog.Builder(this)
-            .setTitle("选择要编辑的音符")
-            .setItems(items, (dialog, which) -> showNoteEditBottomSheet(which))
-            .setNegativeButton("取消", null)
-            .show();
+        SelectItemBottomSheet.showNoteSelection(this, items, this::showNoteEditBottomSheet);
     }
     
     private void showNoteEditBottomSheet(int index) {
@@ -336,17 +332,13 @@ public class LibraryDetailActivity extends AppCompatActivity implements Playback
             return;
         }
         
-        String[] items = new String[chordEntry.chords.size()];
+        java.util.List<String> items = new java.util.ArrayList<>();
         for (int i = 0; i < chordEntry.chords.size(); i++) {
             MusicRepository.ChordData chord = chordEntry.chords.get(i);
-            items[i] = String.format("%d. %s %s | 时值:%d", i + 1, chord.name, chord.type, chord.duration);
+            items.add(String.format("%s %s | 时值:%d", chord.name, chord.type, chord.duration));
         }
         
-        new android.app.AlertDialog.Builder(this)
-            .setTitle("选择要编辑的和弦")
-            .setItems(items, (dialog, which) -> showChordEditBottomSheet(which))
-            .setNegativeButton("取消", null)
-            .show();
+        SelectItemBottomSheet.showChordSelection(this, items, this::showChordEditBottomSheet);
     }
     
     private void showChordEditBottomSheet(int index) {
