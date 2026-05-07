@@ -253,11 +253,11 @@ public class SongGeneratorActivity extends AppCompatActivity {
                     updateSongList();
                     Toast.makeText(SongGeneratorActivity.this, "旋律生成完成！", Toast.LENGTH_SHORT).show();
                     
+                    isGenerating = false;
+                    updateUI();
+                    
                     if (autoChainEnabled && btnGenerateChords.isEnabled()) {
                         generateChords();
-                    } else {
-                        isGenerating = false;
-                        updateUI();
                     }
                 });
             } catch (Exception e) {
@@ -295,11 +295,11 @@ public class SongGeneratorActivity extends AppCompatActivity {
                     updateSongList();
                     Toast.makeText(SongGeneratorActivity.this, "和弦生成完成！", Toast.LENGTH_SHORT).show();
                     
+                    isGenerating = false;
+                    updateUI();
+                    
                     if (autoChainEnabled && btnGenerateSong.isEnabled()) {
                         generateSong();
-                    } else {
-                        isGenerating = false;
-                        updateUI();
                     }
                 });
             } catch (Exception e) {
