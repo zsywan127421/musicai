@@ -48,6 +48,10 @@
             android:name=".LibraryActivity"
             android:exported="false" />
             
+        <activity
+            android:name=".GeneratorTestActivity"
+            android:exported="false" />
+            
         <service
             android:name=".MusicPlayerService"
             android:exported="false" />

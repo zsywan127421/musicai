@@ -53,11 +53,21 @@ public class MusicGenerator {
         prompt.append("- startTime表示开始时间，从0开始递增");
         
         try {
-            String response = modelConfig.generateContent(prompt.toString());
-            Log.d(TAG, "Melody response: " + response);
+            AIResponse response = modelConfig.requestAI(prompt.toString());
             
-            String cleanedResponse = extractJsonFromResponse(response);
+            if (!response.isSuccess()) {
+                throw new IOException(response.errorMessage);
+            }
+            
+            Log.d(TAG, "Melody response: " + response.content);
+            
+            String cleanedResponse = extractJsonFromResponse(response.content);
             JSONArray jsonArray = new JSONArray(cleanedResponse);
+            
+            if (jsonArray.length() == 0) {
+                throw new IOException("AI未生成有效旋律内容，请调整条件后重试");
+            }
+            
             MusicData.Melody melody = new MusicData.Melody();
             melody.style = style;
             melody.name = "AI Generated " + style;
@@ -76,6 +86,10 @@ public class MusicGenerator {
                 }
                 melody.notes.add(note);
                 time = note.startTime + note.duration;
+            }
+            
+            if (melody.notes.isEmpty()) {
+                throw new IOException("生成失败：AI返回内容为空，请重试");
             }
             
             return melody;
@@ -127,11 +141,21 @@ public class MusicGenerator {
         prompt.append("请直接输出JSON数组，不要输出任何其他内容！");
         
         try {
-            String response = modelConfig.generateContent(prompt.toString());
-            Log.d(TAG, "Chords response: " + response);
+            AIResponse response = modelConfig.requestAI(prompt.toString());
             
-            String cleanedResponse = extractJsonFromResponse(response);
+            if (!response.isSuccess()) {
+                throw new IOException(response.errorMessage);
+            }
+            
+            Log.d(TAG, "Chords response: " + response.content);
+            
+            String cleanedResponse = extractJsonFromResponse(response.content);
             JSONArray jsonArray = new JSONArray(cleanedResponse);
+            
+            if (jsonArray.length() == 0) {
+                throw new IOException("AI未生成有效和弦内容，请调整条件后重试");
+            }
+            
             MusicData.ChordProgression progression = new MusicData.ChordProgression();
             progression.style = style;
             progression.name = "AI Generated " + style;
@@ -150,6 +174,10 @@ public class MusicGenerator {
                 }
                 progression.chords.add(chord);
                 time = chord.startTime + chord.duration;
+            }
+            
+            if (progression.chords.isEmpty()) {
+                throw new IOException("生成失败：AI返回内容为空，请重试");
             }
             
             return progression;
@@ -205,10 +233,20 @@ public class MusicGenerator {
         prompt.append("- artist：艺术家名（1-5个字）");
         
         try {
-            String response = modelConfig.generateContent(prompt.toString());
-            Log.d(TAG, "Song response: " + response);
+            AIResponse response = modelConfig.requestAI(prompt.toString());
             
-            String cleanedResponse = extractJsonFromResponse(response);
+            if (!response.isSuccess()) {
+                throw new IOException(response.errorMessage);
+            }
+            
+            Log.d(TAG, "Song response: " + response.content);
+            
+            String cleanedResponse = extractJsonFromResponse(response.content);
+            
+            if (cleanedResponse.isEmpty() || cleanedResponse.equals("{}") || cleanedResponse.equals("[]")) {
+                throw new IOException("AI未生成有效歌曲信息，请调整条件后重试");
+            }
+            
             JSONObject jsonObj = new JSONObject(cleanedResponse);
             
             MusicData.Song song = new MusicData.Song();
@@ -262,11 +300,21 @@ public class MusicGenerator {
         prompt.append("- startTime：开始时间");
         
         try {
-            String response = modelConfig.generateContent(prompt.toString());
-            Log.d(TAG, "Custom chords response: " + response);
+            AIResponse response = modelConfig.requestAI(prompt.toString());
             
-            String cleanedResponse = extractJsonFromResponse(response);
+            if (!response.isSuccess()) {
+                throw new IOException(response.errorMessage);
+            }
+            
+            Log.d(TAG, "Custom chords response: " + response.content);
+            
+            String cleanedResponse = extractJsonFromResponse(response.content);
             JSONArray jsonArray = new JSONArray(cleanedResponse);
+            
+            if (jsonArray.length() == 0) {
+                throw new IOException("AI未生成有效和弦内容，请调整条件后重试");
+            }
+            
             MusicData.ChordProgression progression = new MusicData.ChordProgression();
             progression.style = style;
             progression.name = "自定义和弦 " + style;
@@ -285,6 +333,10 @@ public class MusicGenerator {
                 }
                 progression.chords.add(chord);
                 time = chord.startTime + chord.duration;
+            }
+            
+            if (progression.chords.isEmpty()) {
+                throw new IOException("生成失败：AI返回内容为空，请重试");
             }
             
             return progression;
@@ -322,11 +374,21 @@ public class MusicGenerator {
         prompt.append("Use common chord progressions appropriate for the ").append(style).append(" style.");
         
         try {
-            String response = modelConfig.generateContent(prompt.toString());
-            Log.d(TAG, "Chords response: " + response);
+            AIResponse response = modelConfig.requestAI(prompt.toString());
             
-            String cleanedResponse = extractJsonFromResponse(response);
+            if (!response.isSuccess()) {
+                throw new IOException(response.errorMessage);
+            }
+            
+            Log.d(TAG, "Chords response: " + response.content);
+            
+            String cleanedResponse = extractJsonFromResponse(response.content);
             JSONArray jsonArray = new JSONArray(cleanedResponse);
+            
+            if (jsonArray.length() == 0) {
+                throw new IOException("AI未生成有效和弦内容，请调整条件后重试");
+            }
+            
             MusicData.ChordProgression progression = new MusicData.ChordProgression();
             progression.style = style;
             progression.name = "AI Generated " + style;
@@ -345,6 +407,10 @@ public class MusicGenerator {
                 }
                 progression.chords.add(chord);
                 time = chord.startTime + chord.duration;
+            }
+            
+            if (progression.chords.isEmpty()) {
+                throw new IOException("生成失败：AI返回内容为空，请重试");
             }
             
             return progression;
@@ -380,10 +446,20 @@ public class MusicGenerator {
         prompt.append("Make the melody and chords work together harmonically in ").append(style).append(" style.");
         
         try {
-            String response = modelConfig.generateContent(prompt.toString());
-            Log.d(TAG, "Song response: " + response);
+            AIResponse response = modelConfig.requestAI(prompt.toString());
             
-            String cleanedResponse = extractJsonFromResponse(response);
+            if (!response.isSuccess()) {
+                throw new IOException(response.errorMessage);
+            }
+            
+            Log.d(TAG, "Song response: " + response.content);
+            
+            String cleanedResponse = extractJsonFromResponse(response.content);
+            
+            if (cleanedResponse.isEmpty() || cleanedResponse.equals("{}") || cleanedResponse.equals("[]")) {
+                throw new IOException("AI未生成有效歌曲信息，请调整条件后重试");
+            }
+            
             JSONObject jsonObj = new JSONObject(cleanedResponse);
             MusicData.Song song = new MusicData.Song();
             song.title = jsonObj.optString("title", "AI Generated Song");

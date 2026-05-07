@@ -148,7 +148,7 @@ public class ModelConfig {
         return modelName;
     }
     
-    public String generateContent(String prompt) throws IOException {
+    public AIResponse requestAI(String prompt) {
         String apiUrl = getFullApiUrl();
         String apiKey = getApiKey();
         String modelName = getAppropriateModelName();
@@ -159,7 +159,11 @@ public class ModelConfig {
         Log.d(TAG, "Model: " + modelName);
         
         if (apiKey.isEmpty()) {
-            throw new IOException("API key not configured");
+            return new AIResponse(AIResponse.ErrorType.CONFIG_ERROR, "API Key 未配置");
+        }
+        
+        if (apiUrl.isEmpty()) {
+            return new AIResponse(AIResponse.ErrorType.CONFIG_ERROR, "API 地址未配置");
         }
         
         JSONObject requestBody = new JSONObject();
@@ -186,12 +190,14 @@ public class ModelConfig {
             messages.put(message);
             requestBody.put("messages", messages);
         } catch (JSONException e) {
-            throw new IOException("Failed to build request", e);
+            Log.e(TAG, "Failed to build request", e);
+            return new AIResponse(AIResponse.ErrorType.PARSE_ERROR, "构建请求失败: " + e.getMessage());
         }
         
         OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(java.util.concurrent.TimeUnit.MINUTES.toMillis(1), java.util.concurrent.TimeUnit.MILLISECONDS)
             .readTimeout(java.util.concurrent.TimeUnit.MINUTES.toMillis(1), java.util.concurrent.TimeUnit.MILLISECONDS)
+            .writeTimeout(java.util.concurrent.TimeUnit.MINUTES.toMillis(1), java.util.concurrent.TimeUnit.MILLISECONDS)
             .build();
         
         RequestBody body = RequestBody.create(
@@ -213,35 +219,86 @@ public class ModelConfig {
         try (Response response = client.newCall(request).execute()) {
             String responseBody = response.body() != null ? response.body().string() : "";
             
+            Log.d(TAG, "Response code: " + response.code());
+            Log.d(TAG, "Response body: " + responseBody);
+            
             if (!response.isSuccessful()) {
                 Log.e(TAG, "API request failed: " + response.code() + " - " + responseBody);
-                throw new IOException("API request failed: " + response.code() + " - " + responseBody);
+                String errorMsg = getApiErrorMessage(response.code(), responseBody);
+                return new AIResponse(AIResponse.ErrorType.API_ERROR, errorMsg);
             }
-            
-            Log.d(TAG, "API response: " + responseBody);
             
             try {
                 JSONObject jsonResponse = new JSONObject(responseBody);
                 
                 if (jsonResponse.has("error")) {
                     JSONObject error = jsonResponse.getJSONObject("error");
-                    String errorMessage = error.optString("message", "Unknown API error");
-                    throw new IOException("API error: " + errorMessage);
+                    String errorMessage = error.optString("message", "未知API错误");
+                    return new AIResponse(AIResponse.ErrorType.API_ERROR, "API返回错误: " + errorMessage);
                 }
                 
                 org.json.JSONArray choices = jsonResponse.getJSONArray("choices");
                 if (choices.length() > 0) {
                     JSONObject choice = choices.getJSONObject(0);
                     JSONObject message = choice.getJSONObject("message");
-                    return message.getString("content").trim();
+                    String content = message.getString("content").trim();
+                    
+                    if (content.isEmpty()) {
+                        return new AIResponse(AIResponse.ErrorType.EMPTY_CONTENT, "AI未生成有效内容，请调整条件后重试");
+                    }
+                    
+                    return new AIResponse(content);
+                } else {
+                    return new AIResponse(AIResponse.ErrorType.EMPTY_CONTENT, "AI未生成有效内容，请调整条件后重试");
                 }
             } catch (JSONException e) {
                 Log.e(TAG, "Failed to parse response: " + responseBody, e);
-                throw new IOException("Failed to parse response: " + e.getMessage());
+                return new AIResponse(AIResponse.ErrorType.PARSE_ERROR, "AI返回格式异常，请重试");
             }
+        } catch (SocketTimeoutException e) {
+            Log.e(TAG, "Connection timeout", e);
+            return new AIResponse(AIResponse.ErrorType.NETWORK_ERROR, "网络连接超时，请检查网络或稍后重试");
+        } catch (UnknownHostException e) {
+            Log.e(TAG, "Unknown host", e);
+            return new AIResponse(AIResponse.ErrorType.NETWORK_ERROR, "地址解析失败，请检查API地址是否正确");
+        } catch (ConnectException e) {
+            Log.e(TAG, "Connection failed", e);
+            return new AIResponse(AIResponse.ErrorType.NETWORK_ERROR, "网络连接失败，请检查网络或API地址");
+        } catch (IOException e) {
+            Log.e(TAG, "IO exception", e);
+            return new AIResponse(AIResponse.ErrorType.NETWORK_ERROR, "网络异常: " + e.getMessage());
         }
+    }
+    
+    private String getApiErrorMessage(int statusCode, String responseBody) {
+        switch (statusCode) {
+            case 401:
+                return "API返回错误: 401 认证失败 - API Key 无效或已过期";
+            case 403:
+                return "API返回错误: 403 禁止访问 - 权限不足";
+            case 404:
+                return "API返回错误: 404 地址错误 - 请检查API地址是否正确";
+            case 429:
+                return "API返回错误: 429 请求过多 - 请稍后再试";
+            case 500:
+                return "API返回错误: 500 服务器内部错误";
+            case 502:
+                return "API返回错误: 502 网关错误";
+            case 503:
+                return "API返回错误: 503 服务不可用";
+            default:
+                return "API返回错误: " + statusCode + (responseBody.isEmpty() ? "" : " - " + responseBody);
+        }
+    }
+    
+    public String generateContent(String prompt) throws IOException {
+        AIResponse response = requestAI(prompt);
         
-        return "";
+        if (response.isSuccess()) {
+            return response.content;
+        } else {
+            throw new IOException(response.errorMessage);
+        }
     }
     
     public String testConnection() throws IOException {

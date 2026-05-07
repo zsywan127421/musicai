@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
         Button btnNewSongGenerator = findViewById(R.id.btn_new_song_generator);
         Button btnLibrary = findViewById(R.id.btn_library);
         Button btnSettings = findViewById(R.id.btn_settings);
+        Button btnGeneratorTest = findViewById(R.id.btn_generator_test);
         
         updateModelStatus();
         
@@ -51,6 +52,10 @@ public class MainActivity extends AppCompatActivity {
         
         btnSettings.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+        });
+        
+        btnGeneratorTest.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, GeneratorTestActivity.class));
         });
     }
     
