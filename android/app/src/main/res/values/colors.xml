@@ -37,7 +37,6 @@
     <color name="apple_separator">@color/light_separator</color>
     <color name="apple_accent">@color/light_accent</color>
     <color name="apple_accent_light">@color/light_accent_light</color>
-    <color name="apple_danger">@color/light_danger</color>
     <color name="apple_white">#FFFFFF</color>
     <color name="apple_button_bg_color">#FFFFFF</color>
     <color name="apple_button_pressed">#E5E5EA</color>
@@ -55,10 +54,7 @@
     <color name="apple_dark">@color/dark_background</color>
     <color name="apple_black">#000000</color>
     <color name="apple_mid_gray">#3A3A3C</color>
-    <color name="apple_accent_active">#0056CC</color>
-    <color name="apple_success">@color/light_success</color>
     <color name="apple_error">@color/light_danger</color>
-    <color name="apple_warning">@color/light_warning</color>
     <color name="colorPrimary">@color/apple_accent</color>
     <color name="colorPrimaryDark">@color/apple_accent</color>
     <color name="colorAccent">@color/apple_accent</color>
