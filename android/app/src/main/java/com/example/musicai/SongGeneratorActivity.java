@@ -109,18 +109,18 @@ public class SongGeneratorActivity extends AppCompatActivity {
     
     private void setupSpinners() {
         ArrayAdapter<String> styleAdapter = new ArrayAdapter<>(this, 
-            android.R.layout.simple_spinner_item, MusicData.MUSIC_STYLES);
-        styleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            R.layout.spinner_item, MusicData.MUSIC_STYLES);
+        styleAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spStyle.setAdapter(styleAdapter);
         
         ArrayAdapter<String> melodyAdapter = new ArrayAdapter<>(this,
-            android.R.layout.simple_spinner_item, new String[]{"从资源库选择旋律"});
-        melodyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            R.layout.spinner_item, new String[]{"从资源库选择旋律"});
+        melodyAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spMelody.setAdapter(melodyAdapter);
         
         ArrayAdapter<String> chordAdapter = new ArrayAdapter<>(this,
-            android.R.layout.simple_spinner_item, new String[]{"从资源库选择和弦"});
-        chordAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            R.layout.spinner_item, new String[]{"从资源库选择和弦"});
+        chordAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spChords.setAdapter(chordAdapter);
     }
     
@@ -153,8 +153,8 @@ public class SongGeneratorActivity extends AppCompatActivity {
         }
         
         ArrayAdapter<String> melodyAdapter = new ArrayAdapter<>(this,
-            android.R.layout.simple_spinner_item, melodyNames);
-        melodyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            R.layout.spinner_item, melodyNames);
+        melodyAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spMelody.setAdapter(melodyAdapter);
         
         List<MusicRepository.ChordEntry> chords = repository.getChordLibrary();
@@ -165,8 +165,8 @@ public class SongGeneratorActivity extends AppCompatActivity {
         }
         
         ArrayAdapter<String> chordAdapter = new ArrayAdapter<>(this,
-            android.R.layout.simple_spinner_item, chordNames);
-        chordAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            R.layout.spinner_item, chordNames);
+        chordAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spChords.setAdapter(chordAdapter);
     }
     

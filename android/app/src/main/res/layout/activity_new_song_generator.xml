@@ -80,8 +80,9 @@
                 android:id="@+id/sp_style"
                 android:layout_width="0dp"
                 android:layout_height="44dp"
+                android:minHeight="44dp"
                 android:layout_weight="1"
-                android:background="@drawable/apple_edittext_bg"
+                android:background="@drawable/spinner_bg"
                 android:paddingStart="14dp"
                 android:paddingEnd="14dp"/>
 
@@ -154,11 +155,12 @@
                     <Spinner
                         android:id="@+id/sp_melody_length"
                         android:layout_width="0dp"
-                        android:layout_height="40dp"
+                        android:layout_height="44dp"
+                        android:minHeight="44dp"
                         android:layout_weight="1"
-                        android:background="@drawable/apple_edittext_bg"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp"/>
+                        android:background="@drawable/spinner_bg"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"/>
 
                 </LinearLayout>
 
@@ -257,10 +259,11 @@
                 <Spinner
                     android:id="@+id/sp_melody_select"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:background="@drawable/apple_edittext_bg"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
+                    android:layout_height="44dp"
+                    android:minHeight="44dp"
+                    android:background="@drawable/spinner_bg"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
                     android:layout_marginBottom="10dp"/>
 
                 <EditText
@@ -360,11 +363,12 @@
                     <Spinner
                         android:id="@+id/sp_song_melody"
                         android:layout_width="0dp"
-                        android:layout_height="40dp"
+                        android:layout_height="44dp"
+                        android:minHeight="44dp"
                         android:layout_weight="1"
-                        android:background="@drawable/apple_edittext_bg"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp"/>
+                        android:background="@drawable/spinner_bg"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"/>
 
                     <Button
                         android:id="@+id/btn_preview_melody"
@@ -397,11 +401,12 @@
                     <Spinner
                         android:id="@+id/sp_song_chords"
                         android:layout_width="0dp"
-                        android:layout_height="40dp"
+                        android:layout_height="44dp"
+                        android:minHeight="44dp"
                         android:layout_weight="1"
-                        android:background="@drawable/apple_edittext_bg"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp"/>
+                        android:background="@drawable/spinner_bg"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"/>
 
                     <Button
                         android:id="@+id/btn_preview_chords"

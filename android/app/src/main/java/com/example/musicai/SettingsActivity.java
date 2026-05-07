@@ -23,7 +23,6 @@ public class SettingsActivity extends AppCompatActivity {
     private TextView tvTemperature;
     private TextView tvMaxTokens;
     private Button btnSave;
-    private Button btnReset;
     private Button btnTestConnection;
     private ProgressBar progressBar;
     private TextView tvConnectionStatus;
@@ -44,7 +43,6 @@ public class SettingsActivity extends AppCompatActivity {
         tvMaxTokens = findViewById(R.id.tv_max_tokens_value);
         
         btnSave = findViewById(R.id.btn_save);
-        btnReset = findViewById(R.id.btn_reset);
         btnTestConnection = findViewById(R.id.btn_test_connection);
         progressBar = findViewById(R.id.progress_bar);
         tvConnectionStatus = findViewById(R.id.tv_test_result);
@@ -79,30 +77,13 @@ public class SettingsActivity extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
         
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveSettings();
-                Toast.makeText(SettingsActivity.this, "设置已保存", Toast.LENGTH_SHORT).show();
-                finish();
-            }
+        btnSave.setOnClickListener(v -> {
+            saveSettings();
+            Toast.makeText(SettingsActivity.this, "设置已保存", Toast.LENGTH_SHORT).show();
+            finish();
         });
         
-        btnReset.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                modelConfig.resetToDefaults();
-                loadSettings();
-                Toast.makeText(SettingsActivity.this, "已重置为默认值", Toast.LENGTH_SHORT).show();
-            }
-        });
-        
-        btnTestConnection.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                testConnection();
-            }
-        });
+        btnTestConnection.setOnClickListener(v -> testConnection());
     }
     
     private void loadSettings() {

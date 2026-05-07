@@ -175,12 +175,15 @@ public class NewSongGeneratorActivity extends AppCompatActivity implements Music
         styleAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spStyle.setAdapter(styleAdapter);
         
-        String[] melodyLengths = {"4音符", "8音符", "16音符", "32音符"};
+        String[] melodyLengths = new String[24];
+        for (int i = 0; i < 24; i++) {
+            melodyLengths[i] = String.valueOf(i + 1);
+        }
         ArrayAdapter<String> lengthAdapter = new ArrayAdapter<>(this, 
             R.layout.spinner_item, melodyLengths);
         lengthAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spMelodyLength.setAdapter(lengthAdapter);
-        spMelodyLength.setSelection(1);
+        spMelodyLength.setSelection(7);
     }
     
     private void setupSpeedControls() {
@@ -342,10 +345,13 @@ public class NewSongGeneratorActivity extends AppCompatActivity implements Music
         
         String lengthStr = (String) spMelodyLength.getSelectedItem();
         int length = 8;
-        if (lengthStr.contains("4")) length = 4;
-        else if (lengthStr.contains("8")) length = 8;
-        else if (lengthStr.contains("16")) length = 16;
-        else if (lengthStr.contains("32")) length = 32;
+        try {
+            length = Integer.parseInt(lengthStr);
+        } catch (NumberFormatException e) {
+            length = 8;
+        }
+        if (length < 1) length = 1;
+        if (length > 24) length = 24;
         
         final int finalLength = length;
         new Thread(() -> {
