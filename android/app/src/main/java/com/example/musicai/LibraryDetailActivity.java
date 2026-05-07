@@ -19,6 +19,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.musicai.util.ChordEditBottomSheet;
+import com.example.musicai.util.NoteEditBottomSheet;
 import com.example.musicai.util.TimeUtils;
 import com.example.musicai.util.ToastHelper;
 import com.example.musicai.util.ConfirmDialog;
@@ -300,68 +302,23 @@ public class LibraryDetailActivity extends AppCompatActivity {
             items[i] = String.format("%d. %s%d | 时值:%d", i + 1, note.pitch, note.octave, note.duration);
         }
         
-        new AlertDialog.Builder(this)
+        new android.app.AlertDialog.Builder(this)
             .setTitle("选择要编辑的音符")
-            .setItems(items, (dialog, which) -> showNoteEditDialogForIndex(which))
+            .setItems(items, (dialog, which) -> showNoteEditBottomSheet(which))
             .setNegativeButton("取消", null)
             .show();
     }
     
-    private void showNoteEditDialogForIndex(int index) {
+    private void showNoteEditBottomSheet(int index) {
         if (melodyEntry == null || index >= melodyEntry.notes.size()) return;
         
         MusicRepository.NoteData note = melodyEntry.notes.get(index);
         
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_note, null);
-        TextView tvIndex = dialogView.findViewById(R.id.tv_note_index);
-        Spinner spPitch = dialogView.findViewById(R.id.sp_pitch);
-        Spinner spOctave = dialogView.findViewById(R.id.sp_octave);
-        Spinner spDuration = dialogView.findViewById(R.id.sp_duration);
-        
-        tvIndex.setText(String.valueOf(index + 1));
-        
-        ArrayAdapter<String> pitchAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, PITCHES);
-        pitchAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        spPitch.setAdapter(pitchAdapter);
-        for (int i = 0; i < PITCHES.length; i++) {
-            if (PITCHES[i].equals(note.pitch)) {
-                spPitch.setSelection(i);
-                break;
-            }
-        }
-        
-        ArrayAdapter<String> octaveAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, OCTAVES);
-        octaveAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        spOctave.setAdapter(octaveAdapter);
-        for (int i = 0; i < OCTAVES.length; i++) {
-            if (OCTAVES[i].equals(String.valueOf(note.octave))) {
-                spOctave.setSelection(i);
-                break;
-            }
-        }
-        
-        ArrayAdapter<String> durationAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, DURATIONS);
-        durationAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        spDuration.setAdapter(durationAdapter);
-        for (int i = 0; i < DURATIONS.length; i++) {
-            if (DURATIONS[i].equals(String.valueOf(note.duration))) {
-                spDuration.setSelection(i);
-                break;
-            }
-        }
-        
-        new AlertDialog.Builder(this)
-            .setView(dialogView)
-            .setPositiveButton("保存", (dialog, which) -> {
-                note.pitch = PITCHES[spPitch.getSelectedItemPosition()];
-                note.octave = Integer.parseInt(OCTAVES[spOctave.getSelectedItemPosition()]);
-                note.duration = Integer.parseInt(DURATIONS[spDuration.getSelectedItemPosition()]);
-                updateNotesDisplay();
-                repository.saveMelodiesToPrefs();
-                ToastHelper.showSuccess(this, "音符已更新");
-            })
-            .setNegativeButton("取消", null)
-            .show();
+        NoteEditBottomSheet.show(this, index, note, (updatedNote) -> {
+            updateNotesDisplay();
+            repository.saveMelodiesToPrefs();
+            ToastHelper.showSuccess(this, "音符已更新");
+        });
     }
     
     private void showChordEditDialog() {
@@ -376,68 +333,23 @@ public class LibraryDetailActivity extends AppCompatActivity {
             items[i] = String.format("%d. %s %s | 时值:%d", i + 1, chord.name, chord.type, chord.duration);
         }
         
-        new AlertDialog.Builder(this)
+        new android.app.AlertDialog.Builder(this)
             .setTitle("选择要编辑的和弦")
-            .setItems(items, (dialog, which) -> showChordEditDialogForIndex(which))
+            .setItems(items, (dialog, which) -> showChordEditBottomSheet(which))
             .setNegativeButton("取消", null)
             .show();
     }
     
-    private void showChordEditDialogForIndex(int index) {
+    private void showChordEditBottomSheet(int index) {
         if (chordEntry == null || index >= chordEntry.chords.size()) return;
         
         MusicRepository.ChordData chord = chordEntry.chords.get(index);
         
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_chord, null);
-        TextView tvIndex = dialogView.findViewById(R.id.tv_chord_index);
-        Spinner spName = dialogView.findViewById(R.id.sp_chord_name);
-        Spinner spType = dialogView.findViewById(R.id.sp_chord_type);
-        Spinner spDuration = dialogView.findViewById(R.id.sp_chord_duration);
-        
-        tvIndex.setText(String.valueOf(index + 1));
-        
-        ArrayAdapter<String> nameAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, CHORD_NAMES);
-        nameAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        spName.setAdapter(nameAdapter);
-        for (int i = 0; i < CHORD_NAMES.length; i++) {
-            if (CHORD_NAMES[i].equals(chord.name)) {
-                spName.setSelection(i);
-                break;
-            }
-        }
-        
-        ArrayAdapter<String> typeAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, CHORD_TYPES);
-        typeAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        spType.setAdapter(typeAdapter);
-        for (int i = 0; i < CHORD_TYPES.length; i++) {
-            if (CHORD_TYPES[i].equals(chord.type)) {
-                spType.setSelection(i);
-                break;
-            }
-        }
-        
-        ArrayAdapter<String> durationAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, DURATIONS);
-        durationAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        spDuration.setAdapter(durationAdapter);
-        for (int i = 0; i < DURATIONS.length; i++) {
-            if (DURATIONS[i].equals(String.valueOf(chord.duration))) {
-                spDuration.setSelection(i);
-                break;
-            }
-        }
-        
-        new AlertDialog.Builder(this)
-            .setView(dialogView)
-            .setPositiveButton("保存", (dialog, which) -> {
-                chord.name = CHORD_NAMES[spName.getSelectedItemPosition()];
-                chord.type = CHORD_TYPES[spType.getSelectedItemPosition()];
-                chord.duration = Integer.parseInt(DURATIONS[spDuration.getSelectedItemPosition()]);
-                updateChordsDisplay();
-                repository.saveChordsToPrefs();
-                ToastHelper.showSuccess(this, "和弦已更新");
-            })
-            .setNegativeButton("取消", null)
-            .show();
+        ChordEditBottomSheet.show(this, index, chord, (updatedChord) -> {
+            updateChordsDisplay();
+            repository.saveChordsToPrefs();
+            ToastHelper.showSuccess(this, "和弦已更新");
+        });
     }
     
     private void confirmDelete() {
