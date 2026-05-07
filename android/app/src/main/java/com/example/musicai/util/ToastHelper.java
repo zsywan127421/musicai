@@ -47,7 +47,7 @@ public class ToastHelper {
                                         R.drawable.toast_info_bg);
         
         currentToast = new Toast(context);
-        currentToast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 200);
+        currentToast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 100);
         currentToast.setDuration(Toast.LENGTH_SHORT);
         currentToast.setView(layout);
         currentToast.show();

@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.musicai.util.NetworkUtils;
 import com.example.musicai.util.ToastHelper;
 
 public class SongGeneratorActivity extends AppCompatActivity {
@@ -27,11 +28,11 @@ public class SongGeneratorActivity extends AppCompatActivity {
     private View resultSection;
     
     private Button btnGenerate, btnPlay, btnStop;
-    private Button btnSpeed05, btnSpeed075, btnSpeed1, btnSpeed125, btnSpeed15, btnSpeed2;
-    private TextView tvSpeed, tvPlaybackTime;
+    private TextView tvSpeed, tvPlaybackTime, tvGeneratingTip;
     private CursorSeekBar playbackProgress;
     private ProgressBar progressBar;
     private View speedControlLayout;
+    private SeekBar seekBarSpeed;
     
     private MusicGenerator musicGenerator;
     private MusicData.Song currentSong;
@@ -39,6 +40,7 @@ public class SongGeneratorActivity extends AppCompatActivity {
     private MusicPlayerService playerService;
     private boolean isBound = false;
     private boolean isGenerating = false;
+    private boolean isPaused = false;
     private float playbackSpeed = 1.0f;
     
     private Handler handler = new Handler();
@@ -85,20 +87,20 @@ public class SongGeneratorActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progress_bar);
         speedControlLayout = findViewById(R.id.speed_control_layout);
         tvSpeed = findViewById(R.id.tv_speed);
-        
-        btnSpeed05 = findViewById(R.id.btn_speed_05);
-        btnSpeed075 = findViewById(R.id.btn_speed_075);
-        btnSpeed1 = findViewById(R.id.btn_speed_1);
-        btnSpeed125 = findViewById(R.id.btn_speed_125);
-        btnSpeed15 = findViewById(R.id.btn_speed_15);
-        btnSpeed2 = findViewById(R.id.btn_speed_2);
+        tvGeneratingTip = findViewById(R.id.tv_generating_tip);
+        seekBarSpeed = findViewById(R.id.seekbar_speed);
         
         tvPlaybackTime.setVisibility(View.GONE);
         playbackProgress.setVisibility(View.GONE);
         speedControlLayout.setVisibility(View.GONE);
+        tvGeneratingTip.setVisibility(View.GONE);
         
         btnPlay.setEnabled(false);
         btnStop.setEnabled(false);
+        
+        seekBarSpeed.setMax(70);
+        seekBarSpeed.setProgress(10);
+        tvSpeed.setText("速度: 1.0x");
     }
     
     private void setupSpinners() {
@@ -113,12 +115,23 @@ public class SongGeneratorActivity extends AppCompatActivity {
         btnPlay.setOnClickListener(v -> play());
         btnStop.setOnClickListener(v -> stop());
         
-        btnSpeed05.setOnClickListener(v -> setSpeed(0.5f));
-        btnSpeed075.setOnClickListener(v -> setSpeed(0.75f));
-        btnSpeed1.setOnClickListener(v -> setSpeed(1.0f));
-        btnSpeed125.setOnClickListener(v -> setSpeed(1.25f));
-        btnSpeed15.setOnClickListener(v -> setSpeed(1.5f));
-        btnSpeed2.setOnClickListener(v -> setSpeed(2.0f));
+        seekBarSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                float speed = 0.5f + (progress / 10.0f);
+                speed = Math.round(speed * 100) / 100.0f;
+                tvSpeed.setText(String.format("速度: %.2fx", speed));
+                if (fromUser) {
+                    setSpeed(speed);
+                }
+            }
+            
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
         
         playbackProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -141,11 +154,18 @@ public class SongGeneratorActivity extends AppCompatActivity {
     private void generate() {
         if (isGenerating) return;
         
+        if (!NetworkUtils.isNetworkAvailable(this)) {
+            ToastHelper.showError(this, "当前无网络连接，请检查网络后重试");
+            return;
+        }
+        
         String style = (String) spStyle.getSelectedItem();
         
         isGenerating = true;
         btnGenerate.setEnabled(false);
+        btnGenerate.setText("生成中...");
         progressBar.setVisibility(View.VISIBLE);
+        tvGeneratingTip.setVisibility(View.VISIBLE);
         resultSection.setVisibility(View.GONE);
         
         new Thread(() -> {
@@ -178,14 +198,23 @@ public class SongGeneratorActivity extends AppCompatActivity {
                     
                     isGenerating = false;
                     btnGenerate.setEnabled(true);
+                    btnGenerate.setText("一键生成完整曲子");
                     progressBar.setVisibility(View.GONE);
+                    tvGeneratingTip.setVisibility(View.GONE);
                 });
             } catch (Exception e) {
+                final String errorMsg = e.getMessage();
                 runOnUiThread(() -> {
-                    ToastHelper.showError(SongGeneratorActivity.this, "生成失败: " + e.getMessage());
+                    if (errorMsg != null && errorMsg.contains("timeout")) {
+                        ToastHelper.showError(SongGeneratorActivity.this, "网络超时（超过30秒），请稍后重试");
+                    } else {
+                        ToastHelper.showError(SongGeneratorActivity.this, "生成失败: " + errorMsg);
+                    }
                     isGenerating = false;
                     btnGenerate.setEnabled(true);
+                    btnGenerate.setText("一键生成完整曲子");
                     progressBar.setVisibility(View.GONE);
+                    tvGeneratingTip.setVisibility(View.GONE);
                 });
             }
         }).start();
@@ -233,10 +262,12 @@ public class SongGeneratorActivity extends AppCompatActivity {
         
         if (playerService.isPlaying()) {
             playerService.pause();
-            btnPlay.setText("播放");
+            isPaused = true;
+            btnPlay.setText("继续");
         } else {
             playerService.playSong(currentSong);
             playerService.setSpeed(playbackSpeed);
+            isPaused = false;
             btnPlay.setText("暂停");
             startProgressUpdater();
         }
@@ -246,6 +277,7 @@ public class SongGeneratorActivity extends AppCompatActivity {
         if (isBound && playerService != null) {
             playerService.stopPlayback();
         }
+        isPaused = false;
         btnPlay.setText("播放");
         playbackProgress.setProgress(0);
         tvPlaybackTime.setText("0:00 / 0:00");
@@ -257,33 +289,6 @@ public class SongGeneratorActivity extends AppCompatActivity {
         if (isBound && playerService != null) {
             playerService.setSpeed(speed);
         }
-        tvSpeed.setText(String.format("速度: %.2fx", speed));
-        
-        btnSpeed05.setBackgroundResource(R.drawable.apple_button_bg);
-        btnSpeed05.setTextColor(getColor(R.color.apple_text));
-        btnSpeed075.setBackgroundResource(R.drawable.apple_button_bg);
-        btnSpeed075.setTextColor(getColor(R.color.apple_text));
-        btnSpeed1.setBackgroundResource(R.drawable.apple_button_bg);
-        btnSpeed1.setTextColor(getColor(R.color.apple_text));
-        btnSpeed125.setBackgroundResource(R.drawable.apple_button_bg);
-        btnSpeed125.setTextColor(getColor(R.color.apple_text));
-        btnSpeed15.setBackgroundResource(R.drawable.apple_button_bg);
-        btnSpeed15.setTextColor(getColor(R.color.apple_text));
-        btnSpeed2.setBackgroundResource(R.drawable.apple_button_bg);
-        btnSpeed2.setTextColor(getColor(R.color.apple_text));
-        
-        Button selectedBtn;
-        switch ((int)(speed * 100)) {
-            case 50: selectedBtn = btnSpeed05; break;
-            case 75: selectedBtn = btnSpeed075; break;
-            case 100: selectedBtn = btnSpeed1; break;
-            case 125: selectedBtn = btnSpeed125; break;
-            case 150: selectedBtn = btnSpeed15; break;
-            case 200: selectedBtn = btnSpeed2; break;
-            default: selectedBtn = btnSpeed1;
-        }
-        selectedBtn.setBackgroundResource(R.drawable.apple_button_primary_bg);
-        selectedBtn.setTextColor(getColor(R.color.apple_white));
     }
     
     private void startProgressUpdater() {

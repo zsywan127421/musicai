@@ -49,21 +49,87 @@
 
         </RadioGroup>
 
+        <EditText
+            android:id="@+id/et_search"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:minHeight="40dp"
+            android:hint="搜索名称..."
+            android:textSize="15sp"
+            android:textColor="@color/apple_text"
+            android:textColorHint="@color/apple_text_tertiary"
+            android:background="@drawable/apple_edittext_bg"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:layout_marginTop="12dp"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:drawableStart="@drawable/ic_search"
+            android:drawablePadding="8dp"/>
+
     </LinearLayout>
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="vertical"
         android:paddingHorizontal="16dp"
         android:paddingBottom="16dp">
 
-        <TextView
-            android:id="@+id/tv_empty"
+        <LinearLayout
+            android:id="@+id/empty_state_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="暂无内容\n请先生成旋律或和弦"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/ic_empty_music"
+                android:alpha="0.5"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:id="@+id/tv_empty_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暂无内容"
+                android:textSize="18sp"
+                android:textColor="@color/apple_text"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tv_empty_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="还没有生成过旋律\n快去创作吧"
+                android:textSize="14sp"
+                android:textColor="@color/apple_text_secondary"
+                android:gravity="center"
+                android:layout_marginBottom="20dp"/>
+
+            <Button
+                android:id="@+id/btn_go_create"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:minHeight="44dp"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                android:text="去创作"
+                android:textSize="15sp"
+                android:textColor="@color/apple_white"
+                android:background="@drawable/apple_button_primary_bg"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_no_results"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="未找到匹配的条目"
             android:textSize="15sp"
             android:textColor="@color/apple_text_secondary"
             android:gravity="center"
@@ -77,7 +143,7 @@
             android:divider="@color/apple_separator"
             android:dividerHeight="1dp"/>
 
-    </LinearLayout>
+    </FrameLayout>
 
     <ProgressBar
         android:id="@+id/progress_bar"

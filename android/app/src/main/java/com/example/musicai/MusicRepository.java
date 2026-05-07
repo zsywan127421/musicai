@@ -419,6 +419,24 @@ public class MusicRepository {
         }
     }
     
+    public boolean melodyNameExists(String name) {
+        for (MelodyEntry entry : melodyLibrary) {
+            if (entry.name.equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public boolean chordNameExists(String name) {
+        for (ChordEntry entry : chordLibrary) {
+            if (entry.name.equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public MusicData.Melody getMelody(String id) {
         MelodyEntry entry = getMelodyById(id);
         return entry != null ? entry.toMelody() : null;

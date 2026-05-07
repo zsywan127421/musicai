@@ -151,28 +151,60 @@
                 android:id="@+id/tv_speed"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="速度: 1x"
+                android:text="速度: 1.0x"
                 android:textSize="13sp"
                 android:textColor="@color/apple_text_secondary"
                 android:gravity="center"
                 android:layout_marginBottom="8dp"/>
 
+            <SeekBar
+                android:id="@+id/seekbar_speed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="70"
+                android:progress="10"
+                android:progressTint="@color/apple_accent"
+                android:thumbTint="@color/apple_accent"/>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center">
+                android:layout_marginTop="4dp">
 
-                <Button android:id="@+id/btn_speed_05" android:layout_width="0dp" android:layout_height="32dp" android:layout_weight="1" android:text="0.5x" android:textSize="12sp" android:textColor="@color/apple_text" android:background="@drawable/apple_button_bg" android:layout_marginEnd="4dp"/>
-                <Button android:id="@+id/btn_speed_075" android:layout_width="0dp" android:layout_height="32dp" android:layout_weight="1" android:text="0.75x" android:textSize="12sp" android:textColor="@color/apple_text" android:background="@drawable/apple_button_bg" android:layout_marginEnd="4dp"/>
-                <Button android:id="@+id/btn_speed_1" android:layout_width="0dp" android:layout_height="32dp" android:layout_weight="1" android:text="1x" android:textSize="12sp" android:textColor="@color/apple_white" android:background="@drawable/apple_button_primary_bg" android:layout_marginEnd="4dp"/>
-                <Button android:id="@+id/btn_speed_125" android:layout_width="0dp" android:layout_height="32dp" android:layout_weight="1" android:text="1.25x" android:textSize="12sp" android:textColor="@color/apple_text" android:background="@drawable/apple_button_bg" android:layout_marginEnd="4dp"/>
-                <Button android:id="@+id/btn_speed_15" android:layout_width="0dp" android:layout_height="32dp" android:layout_weight="1" android:text="1.5x" android:textSize="12sp" android:textColor="@color/apple_text" android:background="@drawable/apple_button_bg" android:layout_marginEnd="4dp"/>
-                <Button android:id="@+id/btn_speed_2" android:layout_width="0dp" android:layout_height="32dp" android:layout_weight="1" android:text="2x" android:textSize="12sp" android:textColor="@color/apple_text" android:background="@drawable/apple_button_bg"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0.5x"
+                    android:textSize="11sp"
+                    android:textColor="@color/apple_text_tertiary"/>
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="4.0x"
+                    android:textSize="11sp"
+                    android:textColor="@color/apple_text_tertiary"/>
 
             </LinearLayout>
 
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_generating_tip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="正在生成旋律，预计需要 5-10 秒…"
+            android:textSize="13sp"
+            android:textColor="@color/apple_text_secondary"
+            android:gravity="center"
+            android:visibility="gone"
+            android:layout_marginBottom="8dp"/>
 
         <Button
             android:id="@+id/btn_generate"

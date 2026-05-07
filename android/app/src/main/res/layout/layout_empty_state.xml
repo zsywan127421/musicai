@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="32dp">
+
+    <ImageView
+        android:id="@+id/iv_empty"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:src="@drawable/ic_empty_music"
+        android:alpha="0.6"
+        android:layout_marginBottom="24dp"/>
+
+    <TextView
+        android:id="@+id/tv_empty_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="暂无内容"
+        android:textSize="18sp"
+        android:textColor="@color/apple_text"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/tv_empty_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="还没有生成过旋律，快去创作吧"
+        android:textSize="14sp"
+        android:textColor="@color/apple_text_secondary"
+        android:gravity="center"
+        android:layout_marginBottom="24dp"/>
+
+    <Button
+        android:id="@+id/btn_go_create"
+        android:layout_width="wrap_content"
+        android:layout_height="44dp"
+        android:minHeight="44dp"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:text="去创作"
+        android:textSize="15sp"
+        android:textColor="@color/apple_white"
+        android:background="@drawable/apple_button_primary_bg"/>
+
+</LinearLayout>

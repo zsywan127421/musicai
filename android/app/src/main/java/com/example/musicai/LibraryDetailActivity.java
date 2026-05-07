@@ -1,6 +1,5 @@
 package com.example.musicai;
 
-import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -9,12 +8,10 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,11 +32,11 @@ public class LibraryDetailActivity extends AppCompatActivity {
     private TextView tvStyle, tvCreated, tvNotes, tvChords;
     private EditText etName;
     private Button btnPlay, btnStop, btnEdit, btnDelete, btnSave;
-    private Button btnSpeed05, btnSpeed075, btnSpeed1, btnSpeed125, btnSpeed15, btnSpeed2;
     private TextView tvSpeed, tvPlaybackTime;
     private CursorSeekBar playbackProgress;
     private ProgressBar progressBar;
-    private View notesSection, chordsSection, playbackSection;
+    private SeekBar seekBarSpeed;
+    private View notesSection, chordsSection, playbackSection, speedSection;
     
     private MusicRepository repository;
     private MusicData.Melody melody;
@@ -54,6 +51,7 @@ public class LibraryDetailActivity extends AppCompatActivity {
     private Handler handler = new Handler(Looper.getMainLooper());
     private Runnable progressUpdater;
     private boolean isPlaying = false;
+    private boolean isPaused = false;
     private float playbackSpeed = 1.0f;
     
     private static final String[] PITCHES = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
@@ -98,26 +96,30 @@ public class LibraryDetailActivity extends AppCompatActivity {
         notesSection = findViewById(R.id.notes_section);
         chordsSection = findViewById(R.id.chords_section);
         playbackSection = findViewById(R.id.playback_section);
-        
-        btnSpeed05 = findViewById(R.id.btn_speed_05);
-        btnSpeed075 = findViewById(R.id.btn_speed_075);
-        btnSpeed1 = findViewById(R.id.btn_speed_1);
-        btnSpeed125 = findViewById(R.id.btn_speed_125);
-        btnSpeed15 = findViewById(R.id.btn_speed_15);
-        btnSpeed2 = findViewById(R.id.btn_speed_2);
+        speedSection = findViewById(R.id.speed_section);
+        seekBarSpeed = findViewById(R.id.seekbar_speed);
         
         if (itemType == TYPE_MELODY) {
             notesSection.setVisibility(View.VISIBLE);
             chordsSection.setVisibility(View.GONE);
             btnEdit.setVisibility(View.VISIBLE);
+            playbackSection.setVisibility(View.VISIBLE);
+            speedSection.setVisibility(View.VISIBLE);
+            btnPlay.setVisibility(View.VISIBLE);
+            btnStop.setVisibility(View.VISIBLE);
         } else {
             notesSection.setVisibility(View.GONE);
             chordsSection.setVisibility(View.VISIBLE);
             playbackSection.setVisibility(View.GONE);
+            speedSection.setVisibility(View.GONE);
             btnEdit.setVisibility(View.VISIBLE);
             btnPlay.setVisibility(View.GONE);
             btnStop.setVisibility(View.GONE);
         }
+        
+        seekBarSpeed.setMax(70);
+        seekBarSpeed.setProgress(10);
+        tvSpeed.setText("速度: 1.0x");
     }
     
     private void loadData() {
@@ -178,6 +180,24 @@ public class LibraryDetailActivity extends AppCompatActivity {
         btnDelete.setOnClickListener(v -> confirmDelete());
         btnSave.setOnClickListener(v -> save());
         
+        seekBarSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                float speed = 0.5f + (progress / 10.0f);
+                speed = Math.round(speed * 100) / 100.0f;
+                tvSpeed.setText(String.format("速度: %.2fx", speed));
+                if (fromUser) {
+                    setSpeed(speed);
+                }
+            }
+            
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+        
         playbackProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {}
@@ -194,17 +214,6 @@ public class LibraryDetailActivity extends AppCompatActivity {
                 }
             }
         });
-        
-        setupSpeedButtons();
-    }
-    
-    private void setupSpeedButtons() {
-        btnSpeed05.setOnClickListener(v -> setSpeed(0.5f));
-        btnSpeed075.setOnClickListener(v -> setSpeed(0.75f));
-        btnSpeed1.setOnClickListener(v -> setSpeed(1.0f));
-        btnSpeed125.setOnClickListener(v -> setSpeed(1.25f));
-        btnSpeed15.setOnClickListener(v -> setSpeed(1.5f));
-        btnSpeed2.setOnClickListener(v -> setSpeed(2.0f));
     }
     
     private void setSpeed(float speed) {
@@ -212,33 +221,6 @@ public class LibraryDetailActivity extends AppCompatActivity {
         if (isBound && playerService != null) {
             playerService.setSpeed(speed);
         }
-        tvSpeed.setText(String.format("速度: %.2fx", speed));
-        
-        btnSpeed05.setBackgroundResource(R.drawable.apple_button_bg);
-        btnSpeed05.setTextColor(getColor(R.color.apple_text));
-        btnSpeed075.setBackgroundResource(R.drawable.apple_button_bg);
-        btnSpeed075.setTextColor(getColor(R.color.apple_text));
-        btnSpeed1.setBackgroundResource(R.drawable.apple_button_bg);
-        btnSpeed1.setTextColor(getColor(R.color.apple_text));
-        btnSpeed125.setBackgroundResource(R.drawable.apple_button_bg);
-        btnSpeed125.setTextColor(getColor(R.color.apple_text));
-        btnSpeed15.setBackgroundResource(R.drawable.apple_button_bg);
-        btnSpeed15.setTextColor(getColor(R.color.apple_text));
-        btnSpeed2.setBackgroundResource(R.drawable.apple_button_bg);
-        btnSpeed2.setTextColor(getColor(R.color.apple_text));
-        
-        Button selectedBtn;
-        switch ((int)(speed * 100)) {
-            case 50: selectedBtn = btnSpeed05; break;
-            case 75: selectedBtn = btnSpeed075; break;
-            case 100: selectedBtn = btnSpeed1; break;
-            case 125: selectedBtn = btnSpeed125; break;
-            case 150: selectedBtn = btnSpeed15; break;
-            case 200: selectedBtn = btnSpeed2; break;
-            default: selectedBtn = btnSpeed1;
-        }
-        selectedBtn.setBackgroundResource(R.drawable.apple_button_primary_bg);
-        selectedBtn.setTextColor(getColor(R.color.apple_white));
     }
     
     private void play() {
@@ -254,8 +236,9 @@ public class LibraryDetailActivity extends AppCompatActivity {
         
         if (isPlaying) {
             playerService.pause();
+            isPaused = true;
             isPlaying = false;
-            btnPlay.setText("播放");
+            btnPlay.setText("继续");
             stopProgressUpdater();
         } else {
             if (itemType == TYPE_MELODY && melody != null) {
@@ -266,6 +249,7 @@ public class LibraryDetailActivity extends AppCompatActivity {
             }
             playerService.setSpeed(playbackSpeed);
             isPlaying = true;
+            isPaused = false;
             btnPlay.setText("暂停");
             startProgressUpdater();
         }
@@ -276,6 +260,7 @@ public class LibraryDetailActivity extends AppCompatActivity {
             playerService.stopPlayback();
         }
         isPlaying = false;
+        isPaused = false;
         btnPlay.setText("播放");
         playbackProgress.setProgress(0);
         tvPlaybackTime.setText("0:00 / 0:00");
@@ -353,9 +338,17 @@ public class LibraryDetailActivity extends AppCompatActivity {
     }
     
     private void confirmDelete() {
-        ConfirmDialog.show(this, "确定删除此条目？", "删除后不可恢复", () -> {
-            delete();
-        });
+        String itemName = "";
+        if (itemType == TYPE_MELODY && melodyEntry != null) {
+            itemName = melodyEntry.name;
+        } else if (itemType == TYPE_CHORD && chordEntry != null) {
+            itemName = chordEntry.name;
+        }
+        
+        ConfirmDialog.show(this, 
+            "确定删除《" + itemName + "》吗？", 
+            "此操作不可恢复", 
+            () -> delete());
     }
     
     private void delete() {
@@ -376,6 +369,30 @@ public class LibraryDetailActivity extends AppCompatActivity {
         }
         
         if (itemType == TYPE_MELODY && melodyEntry != null) {
+            if (!name.equals(melodyEntry.name) && repository.melodyNameExists(name)) {
+                ConfirmDialog.show(this,
+                    "已有同名条目",
+                    "是否覆盖《" + name + "》？",
+                    () -> doSave(name));
+            } else {
+                doSave(name);
+            }
+        } else if (itemType == TYPE_CHORD && chordEntry != null) {
+            if (!name.equals(chordEntry.name) && repository.chordNameExists(name)) {
+                ConfirmDialog.show(this,
+                    "已有同名条目",
+                    "是否覆盖《" + name + "》？",
+                    () -> doSave(name));
+            } else {
+                doSave(name);
+            }
+        } else {
+            ToastHelper.showError(this, "保存失败");
+        }
+    }
+    
+    private void doSave(String name) {
+        if (itemType == TYPE_MELODY && melodyEntry != null) {
             melodyEntry.name = name;
             repository.saveMelodiesToPrefs();
             ToastHelper.showSuccess(this, "保存成功");
@@ -383,8 +400,6 @@ public class LibraryDetailActivity extends AppCompatActivity {
             chordEntry.name = name;
             repository.saveChordsToPrefs();
             ToastHelper.showSuccess(this, "保存成功");
-        } else {
-            ToastHelper.showError(this, "保存失败");
         }
     }
     

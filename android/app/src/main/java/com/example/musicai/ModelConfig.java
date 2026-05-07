@@ -195,9 +195,9 @@ public class ModelConfig {
         }
         
         OkHttpClient client = new OkHttpClient.Builder()
-            .connectTimeout(java.util.concurrent.TimeUnit.MINUTES.toMillis(1), java.util.concurrent.TimeUnit.MILLISECONDS)
-            .readTimeout(java.util.concurrent.TimeUnit.MINUTES.toMillis(1), java.util.concurrent.TimeUnit.MILLISECONDS)
-            .writeTimeout(java.util.concurrent.TimeUnit.MINUTES.toMillis(1), java.util.concurrent.TimeUnit.MILLISECONDS)
+            .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+            .readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+            .writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
             .build();
         
         RequestBody body = RequestBody.create(

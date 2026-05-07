@@ -39,6 +39,7 @@ public class MusicPlayerService extends Service {
     private volatile int currentPositionMs = 0;
     private int totalDurationMs = 0;
     private int currentNoteIndex = -1;
+    private int pausedPositionMs = 0;
     
     public class LocalBinder extends Binder {
         MusicPlayerService getService() {
@@ -87,6 +88,7 @@ public class MusicPlayerService extends Service {
         currentSong = new MusicData.Song();
         currentSong.melody = melody;
         currentPositionMs = 0;
+        pausedPositionMs = 0;
         currentNoteIndex = -1;
         calculateTotalDuration();
         startPlayback();
@@ -110,8 +112,36 @@ public class MusicPlayerService extends Service {
     
     public void play() {
         if (currentSong != null && currentSong.melody != null && !currentSong.melody.notes.isEmpty()) {
-            startPlayback();
+            if (pausedPositionMs > 0) {
+                resumeFromPosition();
+            } else {
+                startPlayback();
+            }
         }
+    }
+    
+    private void resumeFromPosition() {
+        if (currentSong == null || currentSong.melody == null || currentSong.melody.notes.isEmpty()) {
+            return;
+        }
+        
+        int bufferSize = AudioTrack.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT);
+        audioTrack = new AudioTrack(
+            AudioManager.STREAM_MUSIC,
+            SAMPLE_RATE,
+            CHANNEL_CONFIG,
+            AUDIO_FORMAT,
+            bufferSize,
+            AudioTrack.MODE_STREAM
+        );
+        
+        audioTrack.setVolume(volume);
+        audioTrack.play();
+        isPlaying = true;
+        
+        notifyStateChanged(true);
+        playbackThread = new Thread(new PlaybackRunnable(pausedPositionMs));
+        playbackThread.start();
     }
     
     public void stop() {
@@ -135,6 +165,9 @@ public class MusicPlayerService extends Service {
     }
     
     public void pause() {
+        if (isPlaying) {
+            pausedPositionMs = currentPositionMs;
+        }
         isPlaying = false;
         if (audioTrack != null) {
             audioTrack.pause();
@@ -143,7 +176,11 @@ public class MusicPlayerService extends Service {
     }
     
     public void resume() {
-        if (audioTrack != null && !isPlaying) {
+        if (audioTrack != null && pausedPositionMs > 0) {
+            isPlaying = true;
+            audioTrack.play();
+            notifyStateChanged(true);
+        } else if (audioTrack != null && !isPlaying) {
             isPlaying = true;
             audioTrack.play();
             notifyStateChanged(true);
@@ -268,19 +305,31 @@ public class MusicPlayerService extends Service {
         audioTrack.play();
         isPlaying = true;
         currentPositionMs = 0;
+        pausedPositionMs = 0;
         currentNoteIndex = 0;
         
         notifyStateChanged(true);
-        playbackThread = new Thread(new PlaybackRunnable());
+        playbackThread = new Thread(new PlaybackRunnable(0));
         playbackThread.start();
     }
     
     private class PlaybackRunnable implements Runnable {
+        private int startPositionMs;
+        
+        public PlaybackRunnable(int startPositionMs) {
+            this.startPositionMs = startPositionMs;
+        }
+        
         @Override
         public void run() {
             List<MusicData.Note> notes = currentSong.melody.notes;
             int samplePos = 0;
             int noteIndex = 0;
+            int skipSamples = 0;
+            
+            if (startPositionMs > 0) {
+                skipSamples = (int) (SAMPLE_RATE * (startPositionMs / 1000.0));
+            }
             
             try {
                 for (MusicData.Note note : notes) {
@@ -297,7 +346,14 @@ public class MusicPlayerService extends Service {
                     int noteSamples = (int) (SAMPLE_RATE * (noteDurationMs / 1000.0));
                     
                     short[] buffer = new short[noteSamples * 2];
-                    for (int i = 0; i < noteSamples; i++) {
+                    int samplesToSkip = 0;
+                    
+                    if (skipSamples > 0) {
+                        samplesToSkip = Math.min(skipSamples, noteSamples);
+                        skipSamples -= samplesToSkip;
+                    }
+                    
+                    for (int i = samplesToSkip; i < noteSamples; i++) {
                         if (!isPlaying) break;
                         
                         double t = (double) i / SAMPLE_RATE;
@@ -309,15 +365,15 @@ public class MusicPlayerService extends Service {
                         buffer[i * 2 + 1] = value;
                         
                         if (i % 100 == 0) {
-                            int progressMs = (int) ((note.startTime * 250 / speed) + (i * 1000.0 / SAMPLE_RATE));
-                            currentPositionMs = progressMs;
-                            notifyProgress(progressMs, noteIndex);
+                            int progressMs = (int) ((note.startTime * 250 / speed) + ((i - samplesToSkip) * 1000.0 / SAMPLE_RATE));
+                            currentPositionMs = progressMs + startPositionMs;
+                            notifyProgress(currentPositionMs, noteIndex);
                         }
                     }
                     
-                    audioTrack.write(buffer, 0, buffer.length);
-                    samplePos += noteSamples;
-                    int endMs = (int) ((note.startTime + note.duration) * 250 / speed);
+                    audioTrack.write(buffer, samplesToSkip * 2, (noteSamples - samplesToSkip) * 2);
+                    samplePos += noteSamples - samplesToSkip;
+                    int endMs = (int) ((note.startTime + note.duration) * 250 / speed) + startPositionMs;
                     currentPositionMs = endMs;
                     notifyProgress(endMs, noteIndex);
                 }
@@ -327,6 +383,8 @@ public class MusicPlayerService extends Service {
             
             isPlaying = false;
             currentNoteIndex = -1;
+            currentPositionMs = 0;
+            pausedPositionMs = 0;
             if (audioTrack != null) {
                 audioTrack.stop();
             }
