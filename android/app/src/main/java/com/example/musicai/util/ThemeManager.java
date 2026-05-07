@@ -19,8 +19,11 @@ public class ThemeManager {
     private SharedPreferences prefs;
     private int currentThemeMode = THEME_SYSTEM;
     
+    private Context appContext;
+    
     private ThemeManager(Context context) {
-        prefs = context.getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        appContext = context.getApplicationContext();
+        prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         currentThemeMode = prefs.getInt(KEY_THEME_MODE, THEME_SYSTEM);
     }
     
@@ -52,8 +55,7 @@ public class ThemeManager {
     }
     
     private boolean isSystemDarkMode() {
-        Context context = prefs.getContext();
-        int nightModeFlags = context.getResources().getConfiguration().uiMode
+        int nightModeFlags = appContext.getResources().getConfiguration().uiMode
                 & Configuration.UI_MODE_NIGHT_MASK;
         return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
     }

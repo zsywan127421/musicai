@@ -40,6 +40,18 @@
     <color name="apple_danger">@color/light_danger</color>
     <color name="apple_white">#FFFFFF</color>
 
+    <!-- 兼容旧颜色名称 -->
+    <color name="apple_dark">@color/dark_background</color>
+    <color name="apple_black">#000000</color>
+    <color name="apple_mid_gray">#3A3A3C</color>
+    <color name="apple_accent_active">#0056CC</color>
+    <color name="apple_success">@color/light_success</color>
+    <color name="apple_error">@color/light_danger</color>
+    <color name="apple_warning">@color/light_warning</color>
+    <color name="colorPrimary">@color/apple_accent</color>
+    <color name="colorPrimaryDark">@color/apple_accent</color>
+    <color name="colorAccent">@color/apple_accent</color>
+
     <!-- 动态主题颜色（运行时会被代码替换） -->
     <color name="theme_background">@color/light_background</color>
     <color name="theme_surface">@color/light_surface</color>

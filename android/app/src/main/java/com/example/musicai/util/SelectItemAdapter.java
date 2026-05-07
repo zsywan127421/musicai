@@ -58,7 +58,7 @@ public class SelectItemAdapter extends RecyclerView.Adapter<SelectItemAdapter.Vi
             
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
-                    listener.onItemClick(getAdapterPosition());
+                    listener.onItemClick(getBindingAdapterPosition());
                 }
             });
         }

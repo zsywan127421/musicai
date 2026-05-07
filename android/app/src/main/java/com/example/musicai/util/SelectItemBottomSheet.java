@@ -32,7 +32,11 @@ public class SelectItemBottomSheet {
         show(context, "选择要编辑的和弦", items, listener);
     }
     
-    private static void show(Context context, String title, List<String> items, OnItemSelectedListener listener) {
+    public static void show(Context context, List<String> items, OnItemSelectedListener listener) {
+        show(context, "选择项目", items, listener);
+    }
+    
+    public static void show(Context context, String title, List<String> items, OnItemSelectedListener listener) {
         Dialog dialog = new Dialog(context);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.bottom_sheet_select_item);

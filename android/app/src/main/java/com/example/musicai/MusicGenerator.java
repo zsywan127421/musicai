@@ -114,7 +114,7 @@ public class MusicGenerator {
             prompt.append("\n\n参考旋律（").append(melody.notes.size()).append("个音符）：");
             JSONArray melodyArray = new JSONArray();
             for (MusicData.Note note : melody.notes) {
-                melodyArray.put(note.toJson());
+                try { melodyArray.put(note.toJson()); } catch (Exception ignored) { }
             }
             prompt.append("\n").append(melodyArray.toString());
         }

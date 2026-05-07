@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.musicai.util.ChordEditBottomSheet;
 import com.example.musicai.util.NoteEditBottomSheet;
 import com.example.musicai.util.TimeUtils;
+import com.example.musicai.util.SelectItemBottomSheet;
 import com.example.musicai.util.ToastHelper;
 import com.example.musicai.util.ConfirmDialog;
 import com.example.musicai.MusicPlayerService.PlaybackListener;
@@ -293,18 +294,19 @@ public class LibraryDetailActivity extends AppCompatActivity implements Playback
             items.add(String.format("%s%d | 时值:%d", note.pitch, note.octave, note.duration));
         }
         
-        SelectItemBottomSheet.showNoteSelection(this, items, this::showNoteEditBottomSheet);
+        SelectItemBottomSheet.show(this, "选择音符", items, this::showNoteEditBottomSheet);
     }
     
     private void showNoteEditBottomSheet(int index) {
         if (melodyEntry == null || index >= melodyEntry.notes.size()) return;
+        final int[] idxHolder = new int[]{index};
         
         MusicRepository.NoteData note = melodyEntry.notes.get(index);
         
-        NoteEditBottomSheet.show(this, index, melodyEntry.notes.size(), note, new NoteEditBottomSheet.OnNoteUpdateListener() {
+        NoteEditBottomSheet.show(this, idxHolder[0], melodyEntry.notes.size(), note, new NoteEditBottomSheet.OnNoteUpdateListener() {
             @Override
             public void onUpdated(MusicRepository.NoteData updatedNote, int newIndex) {
-                melodyEntry.notes.remove(index);
+                melodyEntry.notes.remove(idxHolder[0]);
                 melodyEntry.notes.add(newIndex, updatedNote);
                 melody = melodyEntry.toMelody();
                 updateNotesDisplay();
@@ -314,11 +316,11 @@ public class LibraryDetailActivity extends AppCompatActivity implements Playback
             
             @Override
             public void onPositionChanged(int newIndex) {
-                if (newIndex != index) {
-                    MusicRepository.NoteData currentNote = melodyEntry.notes.get(index);
-                    melodyEntry.notes.remove(index);
+                if (newIndex != idxHolder[0]) {
+                    MusicRepository.NoteData currentNote = melodyEntry.notes.get(idxHolder[0]);
+                    melodyEntry.notes.remove(idxHolder[0]);
                     melodyEntry.notes.add(newIndex, currentNote);
-                    index = newIndex;
+                    idxHolder[0] = newIndex;
                     melody = melodyEntry.toMelody();
                     updateNotesDisplay();
                 }
@@ -338,7 +340,7 @@ public class LibraryDetailActivity extends AppCompatActivity implements Playback
             items.add(String.format("%s %s | 时值:%d", chord.name, chord.type, chord.duration));
         }
         
-        SelectItemBottomSheet.showChordSelection(this, items, this::showChordEditBottomSheet);
+        SelectItemBottomSheet.show(this, "选择和弦", items, this::showChordEditBottomSheet);
     }
     
     private void showChordEditBottomSheet(int index) {
