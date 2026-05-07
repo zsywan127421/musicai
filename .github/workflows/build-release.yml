@@ -19,6 +19,17 @@ jobs:
         node-version: '20'
         cache: 'npm'
         
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build web app
+      run: npm run build
+      
+    - name: Sync to Android
+      run: |
+        npx cap add android || true
+        npx cap sync android
+        
     - name: Setup JDK
       uses: actions/setup-java@v4
       with:
@@ -39,39 +50,28 @@ jobs:
           ~/.gradle/caches
           ~/.gradle/wrapper
         key: ${{ runner.os }}-gradle-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties') }}
-        restore-keys: ${{ runner.os }}-gradle
-        
-    - name: Install npm dependencies
-      run: npm ci
-      
-    - name: Build web app
-      run: npm run build
-      
-    - name: Sync Capacitor
-      run: |
-        export ANDROID_HOME="$ANDROID_HOME"
-        npx cap add android || true
-        npx cap sync android
-        
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
     - name: Create local.properties
       run: |
         echo "sdk.dir=$ANDROID_HOME" > android/local.properties
-        ls -la android/
         
     - name: Build debug APK
       working-directory: ./android
       run: |
         chmod +x gradlew
-        ./gradlew assembleDebug --no-daemon --stacktrace
+        ./gradlew assembleDebug --no-daemon
         
-    - name: Verify APK exists
+    - name: Verify APK
       run: |
         if [ -f "android/app/build/outputs/apk/debug/app-debug.apk" ]; then
           echo "✅ APK构建成功！"
-          ls -lh android/app/build/outputs/apk/debug/
+          ls -lh android/app/build/outputs/apk/debug/app-debug.apk
         else
           echo "❌ APK构建失败"
-          ls -la android/app/build/outputs/ 2>/dev/null || true
+          ls -la android/app/build/outputs/ 2>/dev/null || echo "Output directory not found"
+          exit 1
         fi
         
     - name: Upload APK artifact
@@ -83,10 +83,10 @@ jobs:
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v1.0.1
-        name: Release v1.0.1 - APK包
+        tag_name: v1.0.2
+        name: Release v1.0.2 - APK安装包
         body: |
-          🎵 **音乐创作大师 v1.0.1** - APK安装包发布
+          🎵 **音乐创作大师 v1.0.2** - APK安装包发布
           
           ## 📥 下载APK
           点击上方 `app-debug.apk` 文件进行下载
@@ -97,14 +97,24 @@ jobs:
           3. 点击APK文件安装
           
           ## 🎵 功能特性
-          - 旋律编辑器：手动输入或AI生成旋律
-          - 和弦走向编辑器：手动配置或AI生成和弦
-          - 曲子生成器：一键生成完整歌曲
-          - 播放控制：音频播放、音量调节
-          - 多种风格：流行、古典、爵士、电子
+          - ✅ 旋律编辑器：手动输入或AI生成旋律
+          - ✅ 和弦走向编辑器：手动配置或AI生成和弦
+          - ✅ 曲子生成器：一键生成完整歌曲
+          - ✅ 播放控制：音频播放、音量调节
+          - ✅ 多种风格：流行、古典、爵士、电子
           
-          ## ⚠️ 注意
-          - 需要Android 6.0或更高版本
+          ## ⚠️ 系统要求
+          - Android 6.0 (API 23) 或更高版本
+          - 约50MB存储空间
+          
+          ## 🔧 技术栈
+          - React 18 + TypeScript
+          - TailwindCSS 3
+          - Web Audio API
+          - Capacitor (Android)
+          
+          ## 📖 源码
+          访问 https://github.com/zsywan127421/musicai 查看完整源码
         files: |
           android/app/build/outputs/apk/debug/app-debug.apk
       env:
