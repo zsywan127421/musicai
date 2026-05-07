@@ -28,7 +28,7 @@
             android:textColor="#ffffff"
             android:background="#4a90d9"
             android:layout_marginLeft="12dp"
-            android:cornerRadius="8dp"/>
+           />
 
     </LinearLayout>
 
@@ -69,7 +69,7 @@
             android:textSize="18sp"
             android:textColor="#ffffff"
             android:background="#4a90d9"
-            android:cornerRadius="8dp"/>
+           />
 
     </LinearLayout>
 

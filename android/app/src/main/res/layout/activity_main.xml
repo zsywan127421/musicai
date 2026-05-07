@@ -36,7 +36,7 @@
         android:textColor="#ffffff"
         android:background="#4a4a6a"
         android:layout_marginBottom="12dp"
-        android:cornerRadius="8dp"/>
+       />
 
     <Button
         android:id="@+id/btn_chord_editor"
@@ -47,7 +47,7 @@
         android:textColor="#ffffff"
         android:background="#4a4a6a"
         android:layout_marginBottom="12dp"
-        android:cornerRadius="8dp"/>
+       />
 
     <Button
         android:id="@+id/btn_song_generator"
@@ -58,7 +58,7 @@
         android:textColor="#ffffff"
         android:background="#4a4a6a"
         android:layout_marginBottom="12dp"
-        android:cornerRadius="8dp"/>
+       />
 
     <Button
         android:id="@+id/btn_settings"
@@ -68,6 +68,6 @@
         android:textSize="18sp"
         android:textColor="#ffffff"
         android:background="#4a4a6a"
-        android:cornerRadius="8dp"/>
+       />
 
 </LinearLayout>

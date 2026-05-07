@@ -28,7 +28,7 @@
             android:textColor="#ffffff"
             android:background="#4a90d9"
             android:layout_marginLeft="12dp"
-            android:cornerRadius="8dp"/>
+           />
 
     </LinearLayout>
 
@@ -60,7 +60,7 @@
             android:textColor="#ffffff"
             android:background="#4a4a6a"
             android:layout_marginRight="8dp"
-            android:cornerRadius="8dp"/>
+           />
 
         <Button
             android:id="@+id/btn_delete"
@@ -71,7 +71,7 @@
             android:textSize="16sp"
             android:textColor="#ffffff"
             android:background="#d94a4a"
-            android:cornerRadius="8dp"/>
+           />
 
     </LinearLayout>
 
