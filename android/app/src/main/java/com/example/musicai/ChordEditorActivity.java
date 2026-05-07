@@ -15,7 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChordEditorActivity extends AppCompatActivity {
+public class ChordEditorActivity extends BaseActivity {
     
     public static final String EXTRA_CHORD_ID = "chord_id";
     public static final int MODE_SELECT = 0;

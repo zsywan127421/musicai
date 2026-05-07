@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class NewSongGeneratorActivity extends AppCompatActivity implements MusicPlayerService.PlaybackListener {
+public class NewSongGeneratorActivity extends BaseActivity implements MusicPlayerService.PlaybackListener {
     
     private static final int MODE_MELODY = 0;
     private static final int MODE_CHORDS = 1;

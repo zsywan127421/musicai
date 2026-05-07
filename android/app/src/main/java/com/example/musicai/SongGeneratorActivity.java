@@ -21,7 +21,7 @@ import com.example.musicai.util.NetworkUtils;
 import com.example.musicai.util.ToastHelper;
 import com.example.musicai.MusicPlayerService.PlaybackListener;
 
-public class SongGeneratorActivity extends AppCompatActivity implements PlaybackListener {
+public class SongGeneratorActivity extends BaseActivity implements PlaybackListener {
     
     private Spinner spStyle;
     private EditText etName;

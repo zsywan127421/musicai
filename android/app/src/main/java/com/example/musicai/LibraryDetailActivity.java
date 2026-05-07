@@ -24,7 +24,7 @@ import com.example.musicai.util.ToastHelper;
 import com.example.musicai.util.ConfirmDialog;
 import com.example.musicai.MusicPlayerService.PlaybackListener;
 
-public class LibraryDetailActivity extends AppCompatActivity implements PlaybackListener {
+public class LibraryDetailActivity extends BaseActivity implements PlaybackListener {
     
     public static final String EXTRA_TYPE = "type";
     public static final String EXTRA_ID = "id";

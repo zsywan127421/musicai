@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.os.BuildCompat;
 
 import com.example.musicai.util.ConfirmDialog;
+import com.example.musicai.util.LanguageManager;
 import com.example.musicai.util.SelectItemBottomSheet;
 import com.example.musicai.util.ThemeManager;
 import com.example.musicai.util.ToastHelper;
@@ -28,9 +29,10 @@ public class SettingsActivity extends BaseActivity {
     public static final int FONT_SIZE_MEDIUM = 1;
     public static final int FONT_SIZE_LARGE = 2;
     
-    private TextView tvThemeValue, tvFontSizeValue, tvCacheSize, tvVersion;
+    private TextView tvThemeValue, tvFontSizeValue, tvCacheSize, tvVersion, tvLanguageValue;
     private View switchAutoSave;
     private SharedPreferences settingsPrefs;
+    private LanguageManager languageManager;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +40,7 @@ public class SettingsActivity extends BaseActivity {
         setContentView(R.layout.activity_settings);
         
         settingsPrefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        languageManager = LanguageManager.getInstance(this);
         
         initViews();
         updateUI();
@@ -49,10 +52,12 @@ public class SettingsActivity extends BaseActivity {
         tvFontSizeValue = findViewById(R.id.tv_font_size_value);
         tvCacheSize = findViewById(R.id.tv_cache_size);
         tvVersion = findViewById(R.id.tv_version);
+        tvLanguageValue = findViewById(R.id.tv_language_value);
         switchAutoSave = findViewById(R.id.switch_auto_save);
         
         findViewById(R.id.item_theme).setOnClickListener(v -> showThemeSelector());
         findViewById(R.id.item_font_size).setOnClickListener(v -> showFontSizeSelector());
+        findViewById(R.id.item_language).setOnClickListener(v -> showLanguageSelector());
         findViewById(R.id.item_clear_cache).setOnClickListener(v -> confirmClearCache());
         findViewById(R.id.item_license).setOnClickListener(v -> showLicense());
         
@@ -75,6 +80,7 @@ public class SettingsActivity extends BaseActivity {
     
     private void updateUI() {
         tvThemeValue.setText(themeManager.getThemeModeString());
+        tvLanguageValue.setText(languageManager.getLanguageString());
         
         int fontSize = settingsPrefs.getInt(KEY_FONT_SIZE, FONT_SIZE_MEDIUM);
         switch (fontSize) {
@@ -161,6 +167,21 @@ public class SettingsActivity extends BaseActivity {
             settingsPrefs.edit().putInt(KEY_FONT_SIZE, index).apply();
             updateUI();
             ToastHelper.showSuccess(this, "字体大小已更新");
+        });
+    }
+    
+    private void showLanguageSelector() {
+        java.util.List<String> items = new java.util.ArrayList<>();
+        items.add("跟随系统");
+        items.add("简体中文");
+        items.add("繁體中文");
+        items.add("English");
+        
+        SelectItemBottomSheet.show(this, items, (index) -> {
+            languageManager.setLanguage(index);
+            languageManager.applyLanguage(this);
+            updateUI();
+            ToastHelper.showInfo(this, "语言切换将在重启应用后生效");
         });
     }
     
