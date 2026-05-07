@@ -4,15 +4,12 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.TextView;
-
-import androidx.annotation.NonNull;
 
 import com.example.musicai.R;
 import com.example.musicai.WheelPickerView;
@@ -24,7 +21,7 @@ public class NoteEditBottomSheet {
     private static final String[] OCTAVES = {"2", "3", "4", "5", "6", "7"};
     private static final String[] DURATIONS = {"1", "2", "4", "8", "16"};
     
-    public static void show(Context context, int index, MusicRepository.NoteData note, OnNoteUpdateListener listener) {
+    public static void show(Context context, int index, int totalCount, MusicRepository.NoteData note, OnNoteUpdateListener listener) {
         Dialog dialog = new Dialog(context);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.bottom_sheet_note_wheel);
@@ -43,6 +40,9 @@ public class NoteEditBottomSheet {
         TextView tvTitle = dialog.findViewById(R.id.tv_title);
         ImageButton btnClose = dialog.findViewById(R.id.btn_close);
         View btnConfirm = dialog.findViewById(R.id.btn_confirm);
+        ImageButton btnMoveUp = dialog.findViewById(R.id.btn_move_up);
+        ImageButton btnMoveDown = dialog.findViewById(R.id.btn_move_down);
+        TextView tvPosition = dialog.findViewById(R.id.tv_position);
         
         tvTitle.setText("编辑音符 #" + (index + 1));
         
@@ -58,6 +58,26 @@ public class NoteEditBottomSheet {
         wheelOctave.setSelectedIndex(octaveIndex >= 0 ? octaveIndex : 2);
         wheelDuration.setSelectedIndex(durationIndex >= 0 ? durationIndex : 2);
         
+        final int[] currentIndex = {index};
+        final int total = totalCount;
+        tvPosition.setText((currentIndex[0] + 1) + "/" + total);
+        
+        btnMoveUp.setOnClickListener(v -> {
+            if (currentIndex[0] > 0) {
+                currentIndex[0]--;
+                tvPosition.setText((currentIndex[0] + 1) + "/" + total);
+                listener.onPositionChanged(currentIndex[0]);
+            }
+        });
+        
+        btnMoveDown.setOnClickListener(v -> {
+            if (currentIndex[0] < total - 1) {
+                currentIndex[0]++;
+                tvPosition.setText((currentIndex[0] + 1) + "/" + total);
+                listener.onPositionChanged(currentIndex[0]);
+            }
+        });
+        
         btnClose.setOnClickListener(v -> dialog.dismiss());
         
         btnConfirm.setOnClickListener(v -> {
@@ -67,7 +87,7 @@ public class NoteEditBottomSheet {
             updatedNote.duration = Integer.parseInt(wheelDuration.getSelectedValue());
             updatedNote.startTime = note.startTime;
             
-            listener.onUpdated(updatedNote);
+            listener.onUpdated(updatedNote, currentIndex[0]);
             dialog.dismiss();
         });
         
@@ -84,6 +104,7 @@ public class NoteEditBottomSheet {
     }
     
     public interface OnNoteUpdateListener {
-        void onUpdated(MusicRepository.NoteData updatedNote);
+        void onUpdated(MusicRepository.NoteData updatedNote, int newIndex);
+        void onPositionChanged(int newIndex);
     }
 }

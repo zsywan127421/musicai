@@ -305,13 +305,27 @@ public class LibraryDetailActivity extends AppCompatActivity implements Playback
         
         MusicRepository.NoteData note = melodyEntry.notes.get(index);
         
-        NoteEditBottomSheet.show(this, index, note, (updatedNote) -> {
-            if (updatedNote != null) {
-                melodyEntry.notes.set(index, updatedNote);
+        NoteEditBottomSheet.show(this, index, melodyEntry.notes.size(), note, new NoteEditBottomSheet.OnNoteUpdateListener() {
+            @Override
+            public void onUpdated(MusicRepository.NoteData updatedNote, int newIndex) {
+                melodyEntry.notes.remove(index);
+                melodyEntry.notes.add(newIndex, updatedNote);
                 melody = melodyEntry.toMelody();
                 updateNotesDisplay();
                 repository.saveMelodiesToPrefs();
-                ToastHelper.showSuccess(this, "音符已更新");
+                ToastHelper.showSuccess(LibraryDetailActivity.this, "音符已更新");
+            }
+            
+            @Override
+            public void onPositionChanged(int newIndex) {
+                if (newIndex != index) {
+                    MusicRepository.NoteData currentNote = melodyEntry.notes.get(index);
+                    melodyEntry.notes.remove(index);
+                    melodyEntry.notes.add(newIndex, currentNote);
+                    index = newIndex;
+                    melody = melodyEntry.toMelody();
+                    updateNotesDisplay();
+                }
             }
         });
     }
