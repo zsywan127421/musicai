@@ -25,6 +25,12 @@ jobs:
     - name: Build web app
       run: npm run build
       
+    - name: Copy web files to Android
+      run: |
+        mkdir -p android/app/src/main/assets/public
+        cp -r dist/* android/app/src/main/assets/public/
+        ls -la android/app/src/main/assets/public/
+        
     - name: Setup JDK
       uses: actions/setup-java@v4
       with:
@@ -35,32 +41,30 @@ jobs:
       uses: android-actions/setup-android@v3
       with:
         cmdline-tools-version: latest
-        ndk-version: 25.1.8937393
         platforms: android-34
         build-tools: 34.0.0
-        
-    - name: Debug environment
-      run: |
-        echo "ANDROID_HOME: $ANDROID_HOME"
-        echo "ANDROID_SDK_ROOT: $ANDROID_SDK_ROOT"
-        echo "Listing files in ANDROID_HOME..."
-        ls -la "$ANDROID_HOME" || true
-        
-    - name: Sync Capacitor
-      run: |
-        npx cap add android || true
-        npx cap sync android
         
     - name: Create local.properties
       run: |
         echo "sdk.dir=$ANDROID_HOME" > android/local.properties
-        cat android/local.properties
+        echo "Listing android directory..."
+        ls -la android/
         
     - name: Build debug APK
       working-directory: ./android
       run: |
         chmod +x gradlew
-        ./gradlew assembleDebug --no-daemon --info 2>&1 | tail -200
+        ./gradlew assembleDebug --no-daemon
+        
+    - name: Verify APK exists
+      run: |
+        if [ -f "android/app/build/outputs/apk/debug/app-debug.apk" ]; then
+          echo "✅ APK构建成功！"
+          ls -lh android/app/build/outputs/apk/debug/
+        else
+          echo "❌ APK构建失败"
+          ls -la android/app/build/outputs/ 2>/dev/null || true
+        fi
         
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
@@ -70,7 +74,6 @@ jobs:
         
     - name: Create Release
       uses: softprops/action-gh-release@v2
-      if: success()
       with:
         tag_name: v1.0.1
         name: Release v1.0.1 - APK包
