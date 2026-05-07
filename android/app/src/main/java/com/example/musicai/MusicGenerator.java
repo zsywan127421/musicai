@@ -509,7 +509,7 @@ public class MusicGenerator {
             if (jsonEnd != -1 && jsonEnd > jsonStart) {
                 String result = cleaned.substring(jsonStart, jsonEnd + 1);
                 if (isValidJsonArray(result)) {
-                    Log.d(TAG, "Extracted JSON array, length: " + new JSONArray(result).length());
+                    try { Log.d(TAG, "Extracted JSON array, length: " + new JSONArray(result).length()); } catch (Exception ignored) { }
                     return result;
                 } else {
                     Log.w(TAG, "Found brackets but invalid JSON: " + result.substring(0, Math.min(100, result.length())));
@@ -545,7 +545,7 @@ public class MusicGenerator {
         extractedJson.append("]");
         
         if (foundNotes && isValidJsonArray(extractedJson.toString())) {
-            Log.d(TAG, "Extracted JSON via line parsing, length: " + new JSONArray(extractedJson.toString()).length());
+            try { Log.d(TAG, "Extracted JSON via line parsing, length: " + new JSONArray(extractedJson.toString()).length()); } catch (Exception ignored) { }
             return extractedJson.toString();
         }
         
