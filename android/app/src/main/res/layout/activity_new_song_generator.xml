@@ -10,9 +10,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp"
-        android:background="@color/apple_card_bg"
-        android:layout_margin="16dp">
+        android:padding="14dp"
+        android:background="@drawable/apple_card_bg"
+        android:layout_margin="14dp">
 
         <RadioGroup
             android:id="@+id/rg_mode"
@@ -23,9 +23,9 @@
             <RadioButton
                 android:id="@+id/rb_melody"
                 android:layout_width="0dp"
-                android:layout_height="44dp"
+                android:layout_height="42dp"
                 android:layout_weight="1"
-                android:text="生成旋律"
+                android:text="旋律"
                 android:textSize="14sp"
                 android:textColor="@color/apple_text"
                 android:gravity="center"
@@ -36,9 +36,9 @@
             <RadioButton
                 android:id="@+id/rb_chords"
                 android:layout_width="0dp"
-                android:layout_height="44dp"
+                android:layout_height="42dp"
                 android:layout_weight="1"
-                android:text="生成和弦"
+                android:text="和弦"
                 android:textSize="14sp"
                 android:textColor="@color/apple_text"
                 android:gravity="center"
@@ -48,9 +48,9 @@
             <RadioButton
                 android:id="@+id/rb_song"
                 android:layout_width="0dp"
-                android:layout_height="44dp"
+                android:layout_height="42dp"
                 android:layout_weight="1"
-                android:text="生成曲子"
+                android:text="曲子"
                 android:textSize="14sp"
                 android:textColor="@color/apple_text"
                 android:gravity="center"
@@ -63,21 +63,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="14dp"
             android:gravity="center_vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="风格"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:textColor="@color/apple_text_secondary"
-                android:layout_marginEnd="12dp"/>
+                android:layout_marginEnd="10dp"/>
 
             <Spinner
                 android:id="@+id/sp_style"
                 android:layout_width="0dp"
-                android:layout_height="44dp"
+                android:layout_height="42dp"
                 android:layout_weight="1"
                 android:background="@drawable/apple_edittext_bg"
                 android:paddingStart="12dp"
@@ -97,7 +97,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"
+            android:padding="14dp"
             android:paddingTop="0dp">
 
             <LinearLayout
@@ -106,50 +106,51 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:background="@drawable/apple_card_bg"
-                android:padding="16dp"
-                android:layout_marginBottom="12dp">
+                android:padding="14dp"
+                android:layout_marginBottom="10dp">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="创作旋律"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     android:textColor="@color/apple_text"
                     android:textStyle="bold"
-                    android:layout_marginBottom="12dp"/>
+                    android:layout_marginBottom="10dp"/>
 
                 <EditText
                     android:id="@+id/et_melody_name"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:hint="旋律名称（可选）"
+                    android:layout_height="44dp"
+                    android:minHeight="44dp"
+                    android:hint="名称（可选）"
                     android:textSize="14sp"
                     android:textColor="@color/apple_text"
                     android:textColorHint="@color/apple_text_secondary"
                     android:background="@drawable/apple_edittext_bg"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
-                    android:layout_marginBottom="12dp"/>
+                    android:layout_marginBottom="10dp"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
+                    android:layout_marginBottom="10dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="长度"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         android:textColor="@color/apple_text_secondary"
                         android:layout_marginEnd="8dp"/>
 
                     <Spinner
                         android:id="@+id/sp_melody_length"
                         android:layout_width="0dp"
-                        android:layout_height="44dp"
+                        android:layout_height="40dp"
                         android:layout_weight="1"
                         android:background="@drawable/apple_edittext_bg"
                         android:paddingStart="8dp"
@@ -161,24 +162,27 @@
                     android:id="@+id/et_description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="创作描述（可选）"
+                    android:minHeight="44dp"
+                    android:hint="描述（可选）"
                     android:textSize="14sp"
                     android:textColor="@color/apple_text"
                     android:textColorHint="@color/apple_text_secondary"
                     android:background="@drawable/apple_edittext_bg"
                     android:padding="12dp"
-                    android:minHeight="44dp"
-                    android:inputType="textMultiLine"/>
+                    android:inputType="textMultiLine"
+                    android:layout_marginBottom="10dp"/>
 
                 <Button
                     android:id="@+id/btn_generate_melody"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:text="生成旋律并保存到库"
+                    android:layout_height="46dp"
+                    android:minHeight="46dp"
+                    android:text="生成旋律"
                     android:textSize="15sp"
                     android:textColor="@color/apple_text"
                     android:background="@drawable/apple_button_primary_bg"
-                    android:layout_marginTop="12dp"/>
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"/>
 
             </LinearLayout>
 
@@ -188,43 +192,44 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:background="@drawable/apple_card_bg"
-                android:padding="16dp"
-                android:layout_marginBottom="12dp"
+                android:padding="14dp"
+                android:layout_marginBottom="10dp"
                 android:visibility="gone">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="创作和弦"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     android:textColor="@color/apple_text"
                     android:textStyle="bold"
-                    android:layout_marginBottom="12dp"/>
+                    android:layout_marginBottom="10dp"/>
 
                 <EditText
                     android:id="@+id/et_chord_name"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:hint="和弦名称（可选）"
+                    android:layout_height="44dp"
+                    android:minHeight="44dp"
+                    android:hint="名称（可选）"
                     android:textSize="14sp"
                     android:textColor="@color/apple_text"
                     android:textColorHint="@color/apple_text_secondary"
                     android:background="@drawable/apple_edittext_bg"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
-                    android:layout_marginBottom="12dp"/>
+                    android:layout_marginBottom="10dp"/>
 
                 <RadioGroup
                     android:id="@+id/rg_chord_mode"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="12dp">
+                    android:layout_marginBottom="10dp">
 
                     <RadioButton
                         android:id="@+id/rb_from_melody"
                         android:layout_width="0dp"
-                        android:layout_height="40dp"
+                        android:layout_height="38dp"
                         android:layout_weight="1"
                         android:text="基于旋律"
                         android:textSize="13sp"
@@ -235,9 +240,9 @@
                     <RadioButton
                         android:id="@+id/rb_custom"
                         android:layout_width="0dp"
-                        android:layout_height="40dp"
+                        android:layout_height="38dp"
                         android:layout_weight="1"
-                        android:text="自定义生成"
+                        android:text="自定义"
                         android:textSize="13sp"
                         android:textColor="@color/apple_text"
                         android:buttonTint="@color/apple_accent"/>
@@ -247,7 +252,7 @@
                 <Spinner
                     android:id="@+id/sp_melody_select"
                     android:layout_width="match_parent"
-                    android:layout_height="44dp"
+                    android:layout_height="40dp"
                     android:background="@drawable/apple_edittext_bg"
                     android:paddingStart="8dp"
                     android:paddingEnd="8dp"
@@ -256,8 +261,9 @@
                 <EditText
                     android:id="@+id/et_key_signature"
                     android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:hint="调性（可选）：如 C大调"
+                    android:layout_height="40dp"
+                    android:minHeight="40dp"
+                    android:hint="调性（可选）"
                     android:textSize="14sp"
                     android:textColor="@color/apple_text"
                     android:textColorHint="@color/apple_text_secondary"
@@ -270,8 +276,9 @@
                 <EditText
                     android:id="@+id/et_mood"
                     android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:hint="情绪（可选）：如欢快、忧伤"
+                    android:layout_height="40dp"
+                    android:minHeight="40dp"
+                    android:hint="情绪（可选）"
                     android:textSize="14sp"
                     android:textColor="@color/apple_text"
                     android:textColorHint="@color/apple_text_secondary"
@@ -285,25 +292,28 @@
                     android:id="@+id/et_chord_description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minHeight="40dp"
                     android:hint="描述（可选）"
                     android:textSize="14sp"
                     android:textColor="@color/apple_text"
                     android:textColorHint="@color/apple_text_secondary"
                     android:background="@drawable/apple_edittext_bg"
                     android:padding="12dp"
-                    android:minHeight="44dp"
                     android:inputType="textMultiLine"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginBottom="10dp"
                     android:visibility="gone"/>
 
                 <Button
                     android:id="@+id/btn_generate_chords"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:text="生成和弦并保存到库"
+                    android:layout_height="46dp"
+                    android:minHeight="46dp"
+                    android:text="生成和弦"
                     android:textSize="15sp"
                     android:textColor="@color/apple_text"
-                    android:background="@drawable/apple_button_primary_bg"/>
+                    android:background="@drawable/apple_button_primary_bg"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"/>
 
             </LinearLayout>
 
@@ -313,38 +323,38 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:background="@drawable/apple_card_bg"
-                android:padding="16dp"
-                android:layout_marginBottom="12dp"
+                android:padding="14dp"
+                android:layout_marginBottom="10dp"
                 android:visibility="gone">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="选择并生成曲子"
-                    android:textSize="16sp"
+                    android:text="生成曲子"
+                    android:textSize="15sp"
                     android:textColor="@color/apple_text"
                     android:textStyle="bold"
-                    android:layout_marginBottom="12dp"/>
+                    android:layout_marginBottom="10dp"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
+                    android:layout_marginBottom="10dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="旋律"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         android:textColor="@color/apple_text_secondary"
                         android:layout_marginEnd="8dp"/>
 
                     <Spinner
                         android:id="@+id/sp_song_melody"
                         android:layout_width="0dp"
-                        android:layout_height="44dp"
+                        android:layout_height="40dp"
                         android:layout_weight="1"
                         android:background="@drawable/apple_edittext_bg"
                         android:paddingStart="8dp"
@@ -354,6 +364,7 @@
                         android:id="@+id/btn_preview_melody"
                         android:layout_width="wrap_content"
                         android:layout_height="36dp"
+                        android:minHeight="36dp"
                         android:text="试听"
                         android:textSize="13sp"
                         android:textColor="@color/apple_text"
@@ -369,20 +380,20 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
+                    android:layout_marginBottom="10dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="和弦"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         android:textColor="@color/apple_text_secondary"
                         android:layout_marginEnd="8dp"/>
 
                     <Spinner
                         android:id="@+id/sp_song_chords"
                         android:layout_width="0dp"
-                        android:layout_height="44dp"
+                        android:layout_height="40dp"
                         android:layout_weight="1"
                         android:background="@drawable/apple_edittext_bg"
                         android:paddingStart="8dp"
@@ -392,6 +403,7 @@
                         android:id="@+id/btn_preview_chords"
                         android:layout_width="wrap_content"
                         android:layout_height="36dp"
+                        android:minHeight="36dp"
                         android:text="试听"
                         android:textSize="13sp"
                         android:textColor="@color/apple_text"
@@ -405,18 +417,21 @@
                 <Button
                     android:id="@+id/btn_generate_song"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:text="生成完整曲子"
+                    android:layout_height="46dp"
+                    android:minHeight="46dp"
+                    android:text="生成曲子"
                     android:textSize="15sp"
                     android:textColor="@color/apple_text"
-                    android:background="@drawable/apple_button_primary_bg"/>
+                    android:background="@drawable/apple_button_primary_bg"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"/>
 
             </LinearLayout>
 
             <ListView
                 android:id="@+id/lv_result"
                 android:layout_width="match_parent"
-                android:layout_height="180dp"
+                android:layout_height="160dp"
                 android:background="@drawable/apple_card_bg"
                 android:divider="@color/apple_mid_gray"
                 android:dividerHeight="1dp"/>
@@ -429,8 +444,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp"
-        android:paddingTop="8dp">
+        android:padding="14dp"
+        android:paddingTop="6dp">
 
         <com.example.musicai.CursorSeekBar
             android:id="@+id/playback_progress"
@@ -450,7 +465,7 @@
             android:textColor="@color/apple_text_secondary"
             android:gravity="center"
             android:visibility="gone"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="6dp"/>
 
         <LinearLayout
             android:id="@+id/speed_control_layout"
@@ -458,17 +473,17 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:visibility="gone"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="6dp">
 
             <TextView
                 android:id="@+id/tv_speed"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="速度: 1x"
-                android:textSize="13sp"
+                android:textSize="12sp"
                 android:textColor="@color/apple_text_secondary"
                 android:gravity="center"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="6dp"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -479,62 +494,62 @@
                 <Button
                     android:id="@+id/btn_speed_05"
                     android:layout_width="0dp"
-                    android:layout_height="36dp"
+                    android:layout_height="34dp"
                     android:layout_weight="1"
                     android:text="0.5x"
                     android:textSize="12sp"
                     android:textColor="@color/apple_text"
                     android:background="@drawable/apple_button_bg"
-                    android:layout_marginEnd="4dp"/>
+                    android:layout_marginEnd="3dp"/>
 
                 <Button
                     android:id="@+id/btn_speed_075"
                     android:layout_width="0dp"
-                    android:layout_height="36dp"
+                    android:layout_height="34dp"
                     android:layout_weight="1"
                     android:text="0.75x"
                     android:textSize="12sp"
                     android:textColor="@color/apple_text"
                     android:background="@drawable/apple_button_bg"
-                    android:layout_marginEnd="4dp"/>
+                    android:layout_marginEnd="3dp"/>
 
                 <Button
                     android:id="@+id/btn_speed_1"
                     android:layout_width="0dp"
-                    android:layout_height="36dp"
+                    android:layout_height="34dp"
                     android:layout_weight="1"
                     android:text="1x"
                     android:textSize="12sp"
                     android:textColor="@color/apple_text"
                     android:background="@drawable/apple_button_primary_bg"
-                    android:layout_marginEnd="4dp"/>
+                    android:layout_marginEnd="3dp"/>
 
                 <Button
                     android:id="@+id/btn_speed_125"
                     android:layout_width="0dp"
-                    android:layout_height="36dp"
+                    android:layout_height="34dp"
                     android:layout_weight="1"
                     android:text="1.25x"
                     android:textSize="12sp"
                     android:textColor="@color/apple_text"
                     android:background="@drawable/apple_button_bg"
-                    android:layout_marginEnd="4dp"/>
+                    android:layout_marginEnd="3dp"/>
 
                 <Button
                     android:id="@+id/btn_speed_15"
                     android:layout_width="0dp"
-                    android:layout_height="36dp"
+                    android:layout_height="34dp"
                     android:layout_weight="1"
                     android:text="1.5x"
                     android:textSize="12sp"
                     android:textColor="@color/apple_text"
                     android:background="@drawable/apple_button_bg"
-                    android:layout_marginEnd="4dp"/>
+                    android:layout_marginEnd="3dp"/>
 
                 <Button
                     android:id="@+id/btn_speed_2"
                     android:layout_width="0dp"
-                    android:layout_height="36dp"
+                    android:layout_height="34dp"
                     android:layout_weight="1"
                     android:text="2x"
                     android:textSize="12sp"
@@ -553,26 +568,32 @@
             <Button
                 android:id="@+id/btn_play"
                 android:layout_width="0dp"
-                android:layout_height="52dp"
+                android:layout_height="48dp"
+                android:minHeight="48dp"
                 android:layout_weight="1"
-                android:text="播放歌曲"
+                android:text="播放"
                 android:textSize="15sp"
                 android:textColor="@color/apple_text"
                 android:background="@drawable/apple_button_primary_bg"
                 android:enabled="false"
-                android:layout_marginEnd="6dp"/>
+                android:layout_marginEnd="6dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"/>
 
             <Button
                 android:id="@+id/btn_stop"
                 android:layout_width="0dp"
-                android:layout_height="52dp"
+                android:layout_height="48dp"
+                android:minHeight="48dp"
                 android:layout_weight="1"
                 android:text="停止"
                 android:textSize="15sp"
                 android:textColor="@color/apple_text"
                 android:background="@drawable/apple_button_bg"
                 android:enabled="false"
-                android:layout_marginStart="6dp"/>
+                android:layout_marginStart="6dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"/>
 
         </LinearLayout>
 
@@ -583,7 +604,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone"
-        android:layout_marginBottom="16dp"/>
+        android:visibility="gone"/>
 
 </LinearLayout>
