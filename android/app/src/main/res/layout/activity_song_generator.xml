@@ -3,75 +3,107 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#1a1a2e">
+    android:background="@color/apple_dark">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="风格"
+            android:textSize="14sp"
+            android:textColor="@color/apple_text_secondary"
+            android:layout_marginRight="12dp"/>
 
         <Spinner
             android:id="@+id/sp_style"
             android:layout_width="0dp"
-            android:layout_height="48dp"
+            android:layout_height="44dp"
             android:layout_weight="1"
-            android:background="#2a2a4a"
-            android:textColor="#ffffff"/>
+            android:background="@drawable/apple_edittext_bg"
+            android:paddingHorizontal="12dp"/>
 
         <Button
             android:id="@+id/btn_generate"
-            android:layout_width="120dp"
-            android:layout_height="48dp"
-            android:text="生成"
-            android:textSize="16sp"
-            android:textColor="#ffffff"
-            android:background="#4a90d9"
+            android:layout_width="100dp"
+            android:layout_height="44dp"
+            android:text="AI生成"
+            android:textSize="15sp"
+            android:textColor="@color/apple_text"
+            android:background="@drawable/apple_button_primary_bg"
             android:layout_marginLeft="12dp"
-           />
+            android:cornerRadius="10dp"/>
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tv_title"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="歌曲: 未生成"
-        android:textSize="20sp"
-        android:textColor="#ffffff"
+        android:orientation="vertical"
+        android:background="@drawable/apple_card_bg"
         android:padding="16dp"
-        android:layout_marginLeft="16dp"/>
+        android:layout_margin="16dp">
 
-    <TextView
-        android:id="@+id/tv_artist"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="14sp"
-        android:textColor="#aaaaaa"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingBottom="8dp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="歌曲信息"
+            android:textSize="14sp"
+            android:textColor="@color/apple_text_secondary"
+            android:layout_marginBottom="8dp"/>
 
-    <ListView
-        android:id="@+id/lv_song"
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="标题: 未生成"
+            android:textSize="18sp"
+            android:textColor="@color/apple_text"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/tv_artist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="艺术家: MusicAI"
+            android:textSize="16sp"
+            android:textColor="@color/apple_text_secondary"
+            android:layout_marginTop="4dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="#2a2a4a"
-        android:divider="#3a3a5a"
-        android:dividerHeight="1dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="16dp"/>
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:paddingTop="0dp">
 
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_gravity="center"
-        android:visibility="gone"
-        android:layout_marginBottom="8dp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="歌曲内容"
+            android:textSize="16sp"
+            android:textColor="@color/apple_text"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"/>
+
+        <ListView
+            android:id="@+id/lv_song"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/apple_card_bg"
+            android:divider="@color/apple_mid_gray"
+            android:dividerHeight="1dp"/>
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -81,15 +113,22 @@
 
         <Button
             android:id="@+id/btn_play"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_weight="1"
             android:text="播放歌曲"
-            android:textSize="18sp"
-            android:textColor="#ffffff"
-            android:background="#4a90d9"
-           />
+            android:textSize="17sp"
+            android:textColor="@color/apple_text"
+            android:background="@drawable/apple_button_primary_bg"
+            android:cornerRadius="12dp"/>
 
     </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:layout_marginBottom="16dp"/>
 
 </LinearLayout>

@@ -2,140 +2,256 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1a1a2e">
+    android:background="@color/apple_dark">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="20dp">
 
-        <TextView
-            android:id="@+id/tv_title"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="⚙️ 大模型配置"
-            android:textSize="28sp"
-            android:textColor="#ffffff"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginBottom="24dp"/>
+            android:orientation="vertical"
+            android:layout_marginBottom="32dp">
 
-        <TextView
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="大模型配置"
+                android:textSize="28sp"
+                android:textColor="@color/apple_text"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="配置自定义大模型，使用 OpenAI API 格式"
+                android:textSize="16sp"
+                android:textColor="@color/apple_text_secondary"/>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="API URL"
-            android:textSize="16sp"
-            android:textColor="#aaaaaa"
-            android:layout_marginBottom="8dp"/>
+            android:orientation="vertical"
+            android:background="@drawable/apple_card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
 
-        <EditText
-            android:id="@+id/et_api_url"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:hint="https://api.openai.com/v1/chat/completions"
-            android:textSize="14sp"
-            android:textColor="#ffffff"
-            android:background="#2a2a4a"
-            android:padding="12dp"
-            android:layout_marginBottom="16dp"
-           />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="API URL"
+                android:textSize="14sp"
+                android:textColor="@color/apple_text_secondary"
+                android:layout_marginBottom="8dp"/>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="API Key"
-            android:textSize="16sp"
-            android:textColor="#aaaaaa"
-            android:layout_marginBottom="8dp"/>
+            <EditText
+                android:id="@+id/et_api_url"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:hint="https://api.openai.com/v1/chat/completions"
+                android:textSize="16sp"
+                android:textColor="@color/apple_text"
+                android:hintTextColor="@color/apple_light_gray"
+                android:background="@drawable/apple_edittext_bg"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp"/>
 
-        <EditText
-            android:id="@+id/et_api_key"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:hint="sk-..."
-            android:textSize="14sp"
-            android:textColor="#ffffff"
-            android:background="#2a2a4a"
-            android:padding="12dp"
-            android:layout_marginBottom="16dp"
-            android:inputType="textPassword"
-           />
+        </LinearLayout>
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="模型名称"
-            android:textSize="16sp"
-            android:textColor="#aaaaaa"
-            android:layout_marginBottom="8dp"/>
+            android:orientation="vertical"
+            android:background="@drawable/apple_card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
 
-        <EditText
-            android:id="@+id/et_model_name"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:hint="gpt-3.5-turbo"
-            android:textSize="14sp"
-            android:textColor="#ffffff"
-            android:background="#2a2a4a"
-            android:padding="12dp"
-            android:layout_marginBottom="16dp"
-           />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="API Key"
+                android:textSize="14sp"
+                android:textColor="@color/apple_text_secondary"
+                android:layout_marginBottom="8dp"/>
 
-        <TextView
-            android:id="@+id/tv_temperature"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="温度: 0.70"
-            android:textSize="16sp"
-            android:textColor="#ffffff"
-            android:layout_marginBottom="8dp"/>
+            <EditText
+                android:id="@+id/et_api_key"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:hint="sk-..."
+                android:textSize="16sp"
+                android:textColor="@color/apple_text"
+                android:hintTextColor="@color/apple_light_gray"
+                android:background="@drawable/apple_edittext_bg"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp"
+                android:inputType="textPassword"/>
 
-        <SeekBar
-            android:id="@+id/sb_temperature"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="100"
-            android:progress="70"
-            android:layout_marginBottom="24dp"/>
+        </LinearLayout>
 
-        <TextView
-            android:id="@+id/tv_max_tokens"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="最大Token: 500"
-            android:textSize="16sp"
-            android:textColor="#ffffff"
-            android:layout_marginBottom="8dp"/>
+            android:orientation="vertical"
+            android:background="@drawable/apple_card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
 
-        <SeekBar
-            android:id="@+id/sb_max_tokens"
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="模型名称"
+                android:textSize="14sp"
+                android:textColor="@color/apple_text_secondary"
+                android:layout_marginBottom="8dp"/>
+
+            <EditText
+                android:id="@+id/et_model_name"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:hint="gpt-3.5-turbo"
+                android:textSize="16sp"
+                android:textColor="@color/apple_text"
+                android:hintTextColor="@color/apple_light_gray"
+                android:background="@drawable/apple_edittext_bg"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:max="1900"
-            android:progress="400"
-            android:layout_marginBottom="24dp"/>
+            android:orientation="vertical"
+            android:background="@drawable/apple_card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="温度"
+                    android:textSize="14sp"
+                    android:textColor="@color/apple_text_secondary"/>
+
+                <TextView
+                    android:id="@+id/tv_temperature"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0.70"
+                    android:textSize="16sp"
+                    android:textColor="@color/apple_text"
+                    android:textStyle="bold"/>
+
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/sb_temperature"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="100"
+                android:progress="70"
+                android:thumbTint="@color/apple_accent"
+                android:progressBackgroundTint="@color/apple_mid_gray"
+                android:progressTint="@color/apple_accent"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="控制生成的随机性，值越高越随机"
+                android:textSize="12sp"
+                android:textColor="@color/apple_light_gray"
+                android:layout_marginTop="8dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/apple_card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="24dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="最大 Token"
+                    android:textSize="14sp"
+                    android:textColor="@color/apple_text_secondary"/>
+
+                <TextView
+                    android:id="@+id/tv_max_tokens"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="500"
+                    android:textSize="16sp"
+                    android:textColor="@color/apple_text"
+                    android:textStyle="bold"/>
+
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/sb_max_tokens"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="1900"
+                android:progress="400"
+                android:thumbTint="@color/apple_accent"
+                android:progressBackgroundTint="@color/apple_mid_gray"
+                android:progressTint="@color/apple_accent"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="控制生成内容的最大长度"
+                android:textSize="12sp"
+                android:textColor="@color/apple_light_gray"
+                android:layout_marginTop="8dp"/>
+
+        </LinearLayout>
 
         <Button
             android:id="@+id/btn_save"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:text="保存设置"
-            android:textSize="18sp"
-            android:textColor="#ffffff"
-            android:background="#4a90d9"
+            android:textSize="17sp"
+            android:textColor="@color/apple_text"
+            android:background="@drawable/apple_button_primary_bg"
             android:layout_marginBottom="12dp"
-           />
+            android:cornerRadius="12dp"/>
 
         <Button
             android:id="@+id/btn_reset"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:text="重置为默认值"
-            android:textSize="18sp"
-            android:textColor="#ffffff"
-            android:background="#6a6a8a"
-           />
+            android:textSize="17sp"
+            android:textColor="@color/apple_text"
+            android:background="@drawable/apple_button_bg"
+            android:cornerRadius="12dp"/>
 
     </LinearLayout>
 </ScrollView>
