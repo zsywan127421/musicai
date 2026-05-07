@@ -1,27 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <!-- Base application theme. -->
-    <style name="Theme.MusicAI" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="Theme.MusicAI" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorPrimary">@color/apple_text</item>
+        <item name="android:textColorSecondary">@color/apple_text_secondary</item>
+        <item name="android:windowBackground">@color/apple_dark</item>
+        <item name="android:statusBarColor">@color/apple_dark</item>
+        <item name="android:navigationBarColor">@color/apple_dark</item>
     </style>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/apple_dark</item>
     </style>
 
     <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:background">@null</item>
+        <item name="android:background">@color/apple_dark</item>
+        <item name="android:textColorPrimary">@color/apple_text</item>
+        <item name="android:textColorSecondary">@color/apple_text_secondary</item>
     </style>
 
-    <style name="AppTheme.NoActionBarLaunch" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:background">@null</item>
+    <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
+        <item name="android:background">@drawable/splash</item>
+    </style>
+
+    <style name="AppleButton">
+        <item name="android:layout_height">56dp</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textColor">@color/apple_text</item>
+        <item name="android:background">@drawable/apple_button_bg</item>
+        <item name="android:paddingHorizontal">16dp</item>
+        <item name="android:cornerRadius">12dp</item>
+        <item name="android:elevation">2dp</item>
+    </style>
+
+    <style name="AppleButton.Primary">
+        <item name="android:background">@drawable/apple_button_primary_bg</item>
+    </style>
+
+    <style name="AppleButton.Secondary">
+        <item name="android:background">@drawable/apple_button_secondary_bg</item>
+    </style>
+
+    <style name="AppleButton.Danger">
+        <item name="android:background">@drawable/apple_button_danger_bg</item>
+    </style>
+
+    <style name="AppleEditText">
+        <item name="android:layout_height">52dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/apple_text</item>
+        <item name="android:hintTextColor">@color/apple_light_gray</item>
+        <item name="android:background">@drawable/apple_edittext_bg</item>
+        <item name="android:paddingHorizontal">16dp</item>
+        <item name="android:paddingVertical">12dp</item>
+        <item name="android:cornerRadius">12dp</item>
+    </style>
+
+    <style name="AppleCard">
+        <item name="android:background">@color/apple_dark_gray</item>
+        <item name="android:elevation">4dp</item>
+        <item name="android:cornerRadius">16dp</item>
+        <item name="android:padding">16dp</item>
+    </style>
+
+    <style name="AppleText.Title">
+        <item name="android:textSize">28sp</item>
+        <item name="android:textColor">@color/apple_text</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="AppleText.Headline">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/apple_text</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="AppleText.Body">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/apple_text</item>
+    </style>
+
+    <style name="AppleText.Caption">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/apple_text_secondary</item>
     </style>
 </resources>

@@ -2,11 +2,11 @@ apply plugin: 'com.android.application'
 
 android {
     namespace = "com.example.musicai"
-    compileSdk = 36
+    compileSdk = 34
     defaultConfig {
         applicationId "com.example.musicai"
         minSdkVersion 22
-        targetSdkVersion 36
+        targetSdkVersion 34
         versionCode 1
         versionName "1.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
