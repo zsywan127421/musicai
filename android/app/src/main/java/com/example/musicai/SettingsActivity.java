@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,6 +22,11 @@ public class SettingsActivity extends AppCompatActivity {
     private SeekBar sbMaxTokens;
     private TextView tvTemperature;
     private TextView tvMaxTokens;
+    private Button btnSave;
+    private Button btnReset;
+    private Button btnTestConnection;
+    private ProgressBar progressBar;
+    private TextView tvConnectionStatus;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +43,11 @@ public class SettingsActivity extends AppCompatActivity {
         tvTemperature = findViewById(R.id.tv_temperature);
         tvMaxTokens = findViewById(R.id.tv_max_tokens);
         
-        Button btnSave = findViewById(R.id.btn_save);
-        Button btnReset = findViewById(R.id.btn_reset);
+        btnSave = findViewById(R.id.btn_save);
+        btnReset = findViewById(R.id.btn_reset);
+        btnTestConnection = findViewById(R.id.btn_test_connection);
+        progressBar = findViewById(R.id.progress_bar);
+        tvConnectionStatus = findViewById(R.id.tv_connection_status);
         
         loadSettings();
         
@@ -87,6 +96,13 @@ public class SettingsActivity extends AppCompatActivity {
                 Toast.makeText(SettingsActivity.this, "已重置为默认值", Toast.LENGTH_SHORT).show();
             }
         });
+        
+        btnTestConnection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                testConnection();
+            }
+        });
     }
     
     private void loadSettings() {
@@ -107,5 +123,64 @@ public class SettingsActivity extends AppCompatActivity {
         modelConfig.setModelName(etModelName.getText().toString().trim());
         modelConfig.setTemperature(sbTemperature.getProgress() / 100.0);
         modelConfig.setMaxTokens(sbMaxTokens.getProgress() + 100);
+    }
+    
+    private void testConnection() {
+        String apiUrl = etApiUrl.getText().toString().trim();
+        String apiKey = etApiKey.getText().toString().trim();
+        String modelName = etModelName.getText().toString().trim();
+        
+        if (apiKey.isEmpty()) {
+            showConnectionResult(false, "API Key 不能为空");
+            return;
+        }
+        
+        if (apiUrl.isEmpty()) {
+            showConnectionResult(false, "API 地址不能为空");
+            return;
+        }
+        
+        progressBar.setVisibility(View.VISIBLE);
+        btnTestConnection.setEnabled(false);
+        tvConnectionStatus.setVisibility(View.VISIBLE);
+        tvConnectionStatus.setText("正在测试连接...");
+        tvConnectionStatus.setTextColor(getResources().getColor(R.color.apple_text_secondary, null));
+        
+        new Thread(() -> {
+            try {
+                ModelConfig testConfig = new ModelConfig(this);
+                testConfig.setApiUrl(apiUrl);
+                testConfig.setApiKey(apiKey);
+                testConfig.setModelName(modelName.isEmpty() ? "deepseek-chat" : modelName);
+                
+                String response = testConfig.testConnection();
+                
+                runOnUiThread(() -> {
+                    if (response.startsWith("SUCCESS")) {
+                        showConnectionResult(true, response.substring(8));
+                    } else {
+                        showConnectionResult(false, response.substring(7));
+                    }
+                });
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    showConnectionResult(false, "连接失败: " + e.getMessage());
+                });
+            }
+        }).start();
+    }
+    
+    private void showConnectionResult(boolean success, String message) {
+        progressBar.setVisibility(View.GONE);
+        btnTestConnection.setEnabled(true);
+        tvConnectionStatus.setVisibility(View.VISIBLE);
+        
+        if (success) {
+            tvConnectionStatus.setText("✓ " + message);
+            tvConnectionStatus.setTextColor(getResources().getColor(R.color.apple_green, null));
+        } else {
+            tvConnectionStatus.setText("✗ " + message);
+            tvConnectionStatus.setTextColor(getResources().getColor(R.color.apple_red, null));
+        }
     }
 }

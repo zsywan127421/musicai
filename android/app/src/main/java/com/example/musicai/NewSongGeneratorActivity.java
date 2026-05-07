@@ -7,15 +7,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -23,18 +20,25 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
-public class NewSongGeneratorActivity extends AppCompatActivity {
+public class NewSongGeneratorActivity extends AppCompatActivity implements MusicPlayerService.PlaybackListener {
     
     private static final int MODE_MELODY = 0;
     private static final int MODE_CHORDS = 1;
     private static final int MODE_SONG = 2;
     
+    private static final float[] SPEEDS = {0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f};
+    private static final String[] SPEED_LABELS = {"0.5x", "0.75x", "1x", "1.25x", "1.5x", "2x"};
+    
     private MusicGenerator musicGenerator;
     private MusicRepository repository;
     private MusicData.Song currentSong;
+    private int currentHighlightedNoteIndex = -1;
     
     private int currentMode = MODE_MELODY;
     
@@ -45,6 +49,8 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
     
     private Spinner spStyle;
     private Spinner spMelodyLength;
+    private EditText etMelodyName;
+    private EditText etChordName;
     private EditText etDescription;
     private Button btnGenerateMelody;
     private ProgressBar progressBar;
@@ -62,13 +68,17 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
     private Button btnPreviewChords;
     private Button btnGenerateSong;
     
-    private ProgressBar playbackProgress;
+    private CursorSeekBar playbackProgress;
     private TextView tvPlaybackTime;
     private Button btnPlay;
     private Button btnStop;
+    private LinearLayout speedControlLayout;
+    private TextView tvSpeed;
+    private Button[] speedButtons = new Button[6];
+    private int selectedSpeedIndex = 2;
     
     private ListView lvResult;
-    private ArrayAdapter<String> resultAdapter;
+    private HighlightedAdapter resultAdapter;
     private List<String> resultList;
     
     private MusicPlayerService playerService;
@@ -83,11 +93,15 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName className, IBinder service) {
             MusicPlayerService.LocalBinder binder = (MusicPlayerService.LocalBinder) service;
             playerService = binder.getService();
+            playerService.setPlaybackListener(NewSongGeneratorActivity.this);
             isBound = true;
         }
         
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
+            if (playerService != null) {
+                playerService.setPlaybackListener(null);
+            }
             isBound = false;
         }
     };
@@ -102,6 +116,8 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
         currentSong = new MusicData.Song();
         
         initViews();
+        setupSpinners();
+        setupSpeedControls();
         setupListeners();
         updateUI();
     }
@@ -114,6 +130,8 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
         
         spStyle = findViewById(R.id.sp_style);
         spMelodyLength = findViewById(R.id.sp_melody_length);
+        etMelodyName = findViewById(R.id.et_melody_name);
+        etChordName = findViewById(R.id.et_chord_name);
         etDescription = findViewById(R.id.et_description);
         btnGenerateMelody = findViewById(R.id.btn_generate_melody);
         progressBar = findViewById(R.id.progress_bar);
@@ -135,12 +153,23 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
         tvPlaybackTime = findViewById(R.id.tv_playback_time);
         btnPlay = findViewById(R.id.btn_play);
         btnStop = findViewById(R.id.btn_stop);
+        speedControlLayout = findViewById(R.id.speed_control_layout);
+        tvSpeed = findViewById(R.id.tv_speed);
+        
+        speedButtons[0] = findViewById(R.id.btn_speed_05);
+        speedButtons[1] = findViewById(R.id.btn_speed_075);
+        speedButtons[2] = findViewById(R.id.btn_speed_1);
+        speedButtons[3] = findViewById(R.id.btn_speed_125);
+        speedButtons[4] = findViewById(R.id.btn_speed_15);
+        speedButtons[5] = findViewById(R.id.btn_speed_2);
         
         lvResult = findViewById(R.id.lv_result);
         resultList = new ArrayList<>();
-        resultAdapter = new ArrayAdapter<>(this, R.layout.list_item_note, resultList);
+        resultAdapter = new HighlightedAdapter(this, resultList);
         lvResult.setAdapter(resultAdapter);
-        
+    }
+    
+    private void setupSpinners() {
         ArrayAdapter<String> styleAdapter = new ArrayAdapter<>(this, 
             R.layout.spinner_item, MusicData.MUSIC_STYLES);
         styleAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
@@ -152,6 +181,37 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
         lengthAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spMelodyLength.setAdapter(lengthAdapter);
         spMelodyLength.setSelection(1);
+    }
+    
+    private void setupSpeedControls() {
+        for (int i = 0; i < speedButtons.length; i++) {
+            final int index = i;
+            speedButtons[i].setOnClickListener(v -> selectSpeed(index));
+        }
+        updateSpeedButtons();
+    }
+    
+    private void selectSpeed(int index) {
+        selectedSpeedIndex = index;
+        float speed = SPEEDS[index];
+        if (playerService != null) {
+            playerService.setSpeed(speed);
+            if (playerService.isPlaying()) {
+                updateProgressDisplay();
+            }
+        }
+        updateSpeedButtons();
+        tvSpeed.setText("速度: " + SPEED_LABELS[index]);
+    }
+    
+    private void updateSpeedButtons() {
+        for (int i = 0; i < speedButtons.length; i++) {
+            if (i == selectedSpeedIndex) {
+                speedButtons[i].setBackgroundResource(R.drawable.apple_button_primary_bg);
+            } else {
+                speedButtons[i].setBackgroundResource(R.drawable.apple_button_bg);
+            }
+        }
     }
     
     private void setupListeners() {
@@ -262,6 +322,14 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
         spSongChords.setAdapter(chordAdapter);
     }
     
+    private String getCustomOrDefaultName(String customName, String prefix) {
+        if (customName != null && !customName.trim().isEmpty()) {
+            return customName.trim();
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
+        return prefix + "_" + sdf.format(new Date());
+    }
+    
     private void generateMelody() {
         if (isGenerating) return;
         
@@ -270,6 +338,7 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
         
         String style = (String) spStyle.getSelectedItem();
         String description = etDescription.getText().toString().trim();
+        String customName = etMelodyName.getText().toString().trim();
         
         String lengthStr = (String) spMelodyLength.getSelectedItem();
         int length = 8;
@@ -284,7 +353,7 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
                 MusicData.Melody melody = musicGenerator.generateMelodyWithDescription(style, finalLength, null, description);
                 
                 MusicRepository.MelodyEntry entry = new MusicRepository.MelodyEntry();
-                entry.name = "旋律_" + System.currentTimeMillis();
+                entry.name = getCustomOrDefaultName(customName, "旋律");
                 entry.style = style;
                 for (MusicData.Note note : melody.notes) {
                     entry.notes.add(new MusicRepository.NoteData(note));
@@ -294,6 +363,7 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     Toast.makeText(NewSongGeneratorActivity.this, 
                         "旋律已保存到库中！", Toast.LENGTH_SHORT).show();
+                    etMelodyName.setText("");
                     resultList.clear();
                     resultList.add("生成旋律：" + entry.getPreviewText());
                     resultAdapter.notifyDataSetChanged();
@@ -318,6 +388,7 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
         updateUI();
         
         String style = (String) spStyle.getSelectedItem();
+        String customName = etChordName.getText().toString().trim();
         int checkedId = rgChordMode.getCheckedRadioButtonId();
         
         new Thread(() -> {
@@ -341,7 +412,7 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
                 }
                 
                 MusicRepository.ChordEntry entry = new MusicRepository.ChordEntry();
-                entry.name = "和弦_" + System.currentTimeMillis();
+                entry.name = getCustomOrDefaultName(customName, "和弦");
                 entry.style = style;
                 entry.keySignature = etKeySignature.getText().toString().trim();
                 entry.mood = etMood.getText().toString().trim();
@@ -353,6 +424,7 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     Toast.makeText(NewSongGeneratorActivity.this, 
                         "和弦已保存到库中！", Toast.LENGTH_SHORT).show();
+                    etChordName.setText("");
                     resultList.clear();
                     resultList.add("生成和弦：" + entry.getPreviewText());
                     resultAdapter.notifyDataSetChanged();
@@ -435,14 +507,17 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
         resultList.add("风格: " + currentSong.style);
         resultList.add("");
         resultList.add("--- 旋律 ---");
-        for (MusicData.Note note : currentSong.melody.notes) {
-            resultList.add("  " + note.toString());
+        for (int i = 0; i < currentSong.melody.notes.size(); i++) {
+            MusicData.Note note = currentSong.melody.notes.get(i);
+            resultList.add((i + 1) + ". " + note.toString());
         }
         resultList.add("");
         resultList.add("--- 和弦 ---");
-        for (MusicData.Chord chord : currentSong.chords.chords) {
-            resultList.add("  " + chord.toString());
+        for (int i = 0; i < currentSong.chords.chords.size(); i++) {
+            MusicData.Chord chord = currentSong.chords.chords.get(i);
+            resultList.add((i + 1) + ". " + chord.toString());
         }
+        resultAdapter.setHighlightIndex(-1);
         resultAdapter.notifyDataSetChanged();
     }
     
@@ -479,7 +554,7 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
             playerService.playSong(currentSong);
             playbackProgress.setVisibility(View.VISIBLE);
             tvPlaybackTime.setVisibility(View.VISIBLE);
-            startProgressUpdate();
+            speedControlLayout.setVisibility(View.VISIBLE);
             btnPlay.setEnabled(false);
             btnStop.setEnabled(true);
         }
@@ -488,41 +563,19 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
     private void stopSong() {
         if (isBound && playerService != null) {
             playerService.stopPlayback();
-            playbackProgress.setVisibility(View.GONE);
-            tvPlaybackTime.setVisibility(View.GONE);
             playbackProgress.setProgress(0);
-            if (progressUpdateRunnable != null) {
-                progressHandler.removeCallbacks(progressUpdateRunnable);
-            }
+            tvPlaybackTime.setText("0:00 / 0:00");
+            currentHighlightedNoteIndex = -1;
+            resultAdapter.setHighlightIndex(-1);
+            resultAdapter.notifyDataSetChanged();
             btnPlay.setEnabled(true);
             btnStop.setEnabled(false);
         }
     }
     
-    private void startProgressUpdate() {
-        if (progressUpdateRunnable != null) {
-            progressHandler.removeCallbacks(progressUpdateRunnable);
-        }
-        
-        progressUpdateRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (isBound && playerService != null && playerService.isPlaying()) {
-                    updateProgressDisplay();
-                    progressHandler.postDelayed(this, 100);
-                } else {
-                    playbackProgress.setProgress(0);
-                    tvPlaybackTime.setText("0:00 / 0:00");
-                    btnPlay.setEnabled(true);
-                    btnStop.setEnabled(false);
-                }
-            }
-        };
-        
-        progressHandler.post(progressUpdateRunnable);
-    }
-    
     private void updateProgressDisplay() {
+        if (playerService == null) return;
+        
         int currentPosition = playerService.getCurrentPosition();
         int totalDuration = playerService.getDuration();
         
@@ -543,6 +596,47 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
     }
     
     @Override
+    public void onPlaybackProgress(int positionMs, int totalMs, int currentNoteIndex) {
+        runOnUiThread(() -> {
+            if (totalMs > 0) {
+                int progress = (positionMs * 100) / totalMs;
+                playbackProgress.setProgress(progress);
+                tvPlaybackTime.setText(formatTime(positionMs) + " / " + formatTime(totalMs));
+                
+                if (currentNoteIndex != currentHighlightedNoteIndex) {
+                    currentHighlightedNoteIndex = currentNoteIndex;
+                    resultAdapter.setHighlightIndex(currentNoteIndex + 4);
+                    resultAdapter.notifyDataSetChanged();
+                    if (currentNoteIndex >= 0) {
+                        lvResult.smoothScrollToPosition(currentNoteIndex + 4);
+                    }
+                }
+            }
+        });
+    }
+    
+    @Override
+    public void onPlaybackStateChanged(boolean isPlaying) {
+        runOnUiThread(() -> {
+            btnPlay.setEnabled(!isPlaying);
+            btnStop.setEnabled(isPlaying);
+        });
+    }
+    
+    @Override
+    public void onPlaybackCompleted() {
+        runOnUiThread(() -> {
+            playbackProgress.setProgress(0);
+            tvPlaybackTime.setText("0:00 / 0:00");
+            currentHighlightedNoteIndex = -1;
+            resultAdapter.setHighlightIndex(-1);
+            resultAdapter.notifyDataSetChanged();
+            btnPlay.setEnabled(true);
+            btnStop.setEnabled(false);
+        });
+    }
+    
+    @Override
     protected void onStart() {
         super.onStart();
         Intent intent = new Intent(this, MusicPlayerService.class);
@@ -552,8 +646,8 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        if (progressUpdateRunnable != null) {
-            progressHandler.removeCallbacks(progressUpdateRunnable);
+        if (isBound && playerService != null) {
+            playerService.setPlaybackListener(null);
         }
         if (isBound) {
             unbindService(connection);

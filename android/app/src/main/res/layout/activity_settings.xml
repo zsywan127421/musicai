@@ -57,7 +57,7 @@
                 android:id="@+id/et_api_url"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:hint="https://api.openai.com/v1/chat/completions"
+                android:hint="https://api.deepseek.com/v1"
                 android:textSize="16sp"
                 android:textColor="@color/apple_text"
                 android:background="@drawable/apple_edittext_bg"
@@ -120,7 +120,7 @@
                 android:id="@+id/et_model_name"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:hint="gpt-3.5-turbo"
+                android:hint="deepseek-v4-flash"
                 android:textSize="16sp"
                 android:textColor="@color/apple_text"
                 android:background="@drawable/apple_edittext_bg"
@@ -190,7 +190,7 @@
             android:orientation="vertical"
             android:background="@drawable/apple_card_bg"
             android:padding="16dp"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -234,6 +234,42 @@
                 android:textSize="12sp"
                 android:textColor="@color/apple_light_gray"
                 android:layout_marginTop="8dp"/>
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_test_connection"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="测试连接"
+            android:textSize="17sp"
+            android:textColor="@color/apple_text"
+            android:background="@drawable/apple_button_bg"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:layout_marginBottom="8dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:visibility="gone"
+                android:layout_marginEnd="12dp"/>
+
+            <TextView
+                android:id="@+id/tv_connection_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="14sp"
+                android:visibility="gone"/>
 
         </LinearLayout>
 

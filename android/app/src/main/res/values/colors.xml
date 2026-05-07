@@ -13,6 +13,8 @@
     <color name="apple_success">#34C759</color>
     <color name="apple_error">#FF3B30</color>
     <color name="apple_warning">#FF9500</color>
+    <color name="apple_green">#34C759</color>
+    <color name="apple_red">#FF3B30</color>
     
     <color name="colorPrimary">#007AFF</color>
     <color name="colorPrimaryDark">#1C1C1E</color>
