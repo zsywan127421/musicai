@@ -19,7 +19,7 @@
             android:text="风格"
             android:textSize="14sp"
             android:textColor="@color/apple_text_secondary"
-            android:layout_marginRight="12dp"/>
+            android:layout_marginEnd="12dp"/>
 
         <Spinner
             android:id="@+id/sp_style"
@@ -27,129 +27,386 @@
             android:layout_height="44dp"
             android:layout_weight="1"
             android:background="@drawable/apple_edittext_bg"
-            android:paddingHorizontal="12dp"/>
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"/>
 
         <Button
-            android:id="@+id/btn_generate"
+            android:id="@+id/btn_generate_melody"
             android:layout_width="wrap_content"
             android:layout_height="44dp"
-            android:text="AI生成"
+            android:text="生成旋律"
             android:textSize="15sp"
             android:textColor="@color/apple_text"
             android:background="@drawable/apple_button_primary_bg"
-            android:layout_marginLeft="12dp"/>
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:layout_marginStart="12dp"/>
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/apple_card_bg"
-        android:padding="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="16dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="歌曲信息"
-            android:textSize="14sp"
-            android:textColor="@color/apple_text_secondary"
-            android:layout_marginBottom="8dp"/>
-
-        <TextView
-            android:id="@+id/tv_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="标题: 未生成"
-            android:textSize="18sp"
-            android:textColor="@color/apple_text"
-            android:textStyle="bold"/>
-
-        <TextView
-            android:id="@+id/tv_artist"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="艺术家: MusicAI"
-            android:textSize="16sp"
-            android:textColor="@color/apple_text_secondary"
-            android:layout_marginTop="4dp"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:paddingTop="0dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="歌曲内容"
-            android:textSize="16sp"
-            android:textColor="@color/apple_text"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp"/>
-
-        <ProgressBar
-            android:id="@+id/playback_progress"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:progress="0"
-            android:max="100"
-            android:progressTint="@color/apple_accent"
-            android:layout_marginBottom="8dp"
-            android:visibility="gone"/>
-
-        <TextView
-            android:id="@+id/tv_playback_time"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="0:00 / 0:00"
-            android:textSize="12sp"
-            android:textColor="@color/apple_text_secondary"
-            android:gravity="center"
-            android:visibility="gone"/>
-
-    </LinearLayout>
-
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:paddingTop="0dp">
+        android:fillViewport="true">
 
-        <ListView
-            android:id="@+id/lv_song"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/apple_card_bg"
-            android:divider="@color/apple_mid_gray"
-            android:dividerHeight="1dp"/>
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:paddingTop="0dp">
 
-    </LinearLayout>
+            <LinearLayout
+                android:id="@+id/step1_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/apple_card_bg"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <View
+                        android:id="@+id/step1_indicator"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:background="@drawable/step_indicator_pending"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="步骤 1"
+                        android:textSize="12sp"
+                        android:textColor="@color/apple_text_secondary"
+                        android:layout_marginStart="8dp"/>
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="创作条件"
+                        android:textSize="16sp"
+                        android:textColor="@color/apple_text"
+                        android:textStyle="bold"
+                        android:layout_marginStart="12dp"/>
+
+                    <TextView
+                        android:id="@+id/step1_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="未开始"
+                        android:textSize="12sp"
+                        android:textColor="@color/apple_text_secondary"/>
+
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/et_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="输入创作描述（可选）：如欢快的夏天、悲伤的离别..."
+                    android:textSize="14sp"
+                    android:textColor="@color/apple_text"
+                    android:textColorHint="@color/apple_text_secondary"
+                    android:background="@drawable/apple_edittext_bg"
+                    android:padding="12dp"
+                    android:minHeight="44dp"
+                    android:inputType="textMultiLine"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/step2_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/apple_card_bg"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <View
+                        android:id="@+id/step2_indicator"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:background="@drawable/step_indicator_pending"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="步骤 2"
+                        android:textSize="12sp"
+                        android:textColor="@color/apple_text_secondary"
+                        android:layout_marginStart="8dp"/>
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="旋律生成"
+                        android:textSize="16sp"
+                        android:textColor="@color/apple_text"
+                        android:textStyle="bold"
+                        android:layout_marginStart="12dp"/>
+
+                    <TextView
+                        android:id="@+id/step2_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="未开始"
+                        android:textSize="12sp"
+                        android:textColor="@color/apple_text_secondary"/>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_melody_preview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="尚未生成旋律"
+                    android:textSize="14sp"
+                    android:textColor="@color/apple_text_secondary"
+                    android:padding="12dp"
+                    android:background="@color/apple_mid_gray"
+                    android:minHeight="60dp"
+                    android:gravity="top"/>
+
+                <Button
+                    android:id="@+id/btn_generate_chords"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:text="生成和弦"
+                    android:textSize="15sp"
+                    android:textColor="@color/apple_text"
+                    android:background="@drawable/apple_button_bg"
+                    android:layout_marginTop="12dp"
+                    android:enabled="false"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/step3_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/apple_card_bg"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <View
+                        android:id="@+id/step3_indicator"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:background="@drawable/step_indicator_pending"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="步骤 3"
+                        android:textSize="12sp"
+                        android:textColor="@color/apple_text_secondary"
+                        android:layout_marginStart="8dp"/>
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="和弦生成"
+                        android:textSize="16sp"
+                        android:textColor="@color/apple_text"
+                        android:textStyle="bold"
+                        android:layout_marginStart="12dp"/>
+
+                    <TextView
+                        android:id="@+id/step3_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="未开始"
+                        android:textSize="12sp"
+                        android:textColor="@color/apple_text_secondary"/>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_chords_preview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="尚未生成和弦"
+                    android:textSize="14sp"
+                    android:textColor="@color/apple_text_secondary"
+                    android:padding="12dp"
+                    android:background="@color/apple_mid_gray"
+                    android:minHeight="60dp"
+                    android:gravity="top"/>
+
+                <Button
+                    android:id="@+id/btn_generate_song"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:text="生成完整曲子"
+                    android:textSize="15sp"
+                    android:textColor="@color/apple_text"
+                    android:background="@drawable/apple_button_bg"
+                    android:layout_marginTop="12dp"
+                    android:enabled="false"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/step4_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/apple_card_bg"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <View
+                        android:id="@+id/step4_indicator"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:background="@drawable/step_indicator_pending"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="步骤 4"
+                        android:textSize="12sp"
+                        android:textColor="@color/apple_text_secondary"
+                        android:layout_marginStart="8dp"/>
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="完整编曲"
+                        android:textSize="16sp"
+                        android:textColor="@color/apple_text"
+                        android:textStyle="bold"
+                        android:layout_marginStart="12dp"/>
+
+                    <TextView
+                        android:id="@+id/step4_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="未开始"
+                        android:textSize="12sp"
+                        android:textColor="@color/apple_text_secondary"/>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_song_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="尚未生成曲子"
+                    android:textSize="16sp"
+                    android:textColor="@color/apple_text"
+                    android:textStyle="bold"/>
+
+                <ProgressBar
+                    android:id="@+id/playback_progress"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:progress="0"
+                    android:max="100"
+                    android:progressTint="@color/apple_accent"
+                    android:layout_marginTop="12dp"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/tv_playback_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="0:00 / 0:00"
+                    android:textSize="12sp"
+                    android:textColor="@color/apple_text_secondary"
+                    android:gravity="center"
+                    android:visibility="gone"
+                    android:layout_marginTop="4dp"/>
+
+            </LinearLayout>
+
+            <CheckBox
+                android:id="@+id/cb_auto_chain"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="自动串联（旋律生成后自动执行后续步骤）"
+                android:textSize="14sp"
+                android:textColor="@color/apple_text_secondary"
+                android:buttonTint="@color/apple_accent"
+                android:layout_marginBottom="12dp"/>
+
+            <ListView
+                android:id="@+id/lv_song"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:background="@drawable/apple_card_bg"
+                android:divider="@color/apple_mid_gray"
+                android:dividerHeight="1dp"/>
+
+        </LinearLayout>
+
+    </ScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:paddingTop="8dp">
 
         <Button
             android:id="@+id/btn_play"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="1"
             android:text="播放歌曲"
-            android:textSize="17sp"
+            android:textSize="15sp"
             android:textColor="@color/apple_text"
-            android:background="@drawable/apple_button_primary_bg"/>
+            android:background="@drawable/apple_button_primary_bg"
+            android:enabled="false"
+            android:layout_marginEnd="6dp"/>
+
+        <Button
+            android:id="@+id/btn_stop"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="1"
+            android:text="停止"
+            android:textSize="15sp"
+            android:textColor="@color/apple_text"
+            android:background="@drawable/apple_button_bg"
+            android:enabled="false"
+            android:layout_marginStart="6dp"/>
 
     </LinearLayout>
 

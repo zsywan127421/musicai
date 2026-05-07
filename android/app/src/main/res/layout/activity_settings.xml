@@ -60,10 +60,11 @@
                 android:hint="https://api.openai.com/v1/chat/completions"
                 android:textSize="16sp"
                 android:textColor="@color/apple_text"
-               
                 android:background="@drawable/apple_edittext_bg"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="12dp"/>
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"/>
 
         </LinearLayout>
 
@@ -90,10 +91,11 @@
                 android:hint="sk-..."
                 android:textSize="16sp"
                 android:textColor="@color/apple_text"
-               
                 android:background="@drawable/apple_edittext_bg"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="12dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
                 android:inputType="textPassword"/>
 
         </LinearLayout>
@@ -121,10 +123,11 @@
                 android:hint="gpt-3.5-turbo"
                 android:textSize="16sp"
                 android:textColor="@color/apple_text"
-               
                 android:background="@drawable/apple_edittext_bg"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="12dp"/>
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"/>
 
         </LinearLayout>
 
@@ -242,8 +245,9 @@
             android:textSize="17sp"
             android:textColor="@color/apple_text"
             android:background="@drawable/apple_button_primary_bg"
-            android:layout_marginBottom="12dp"
-           />
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:layout_marginBottom="12dp"/>
 
         <Button
             android:id="@+id/btn_reset"
@@ -253,7 +257,8 @@
             android:textSize="17sp"
             android:textColor="@color/apple_text"
             android:background="@drawable/apple_button_bg"
-           />
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"/>
 
     </LinearLayout>
 </ScrollView>
