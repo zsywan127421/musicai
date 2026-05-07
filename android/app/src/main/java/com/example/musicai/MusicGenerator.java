@@ -181,7 +181,7 @@ public class MusicGenerator {
             song.chords = chords;
             
             return song;
-        } catch (JSONException e) {
+        } catch (Exception e) {
             Log.e(TAG, "Parse error", e);
             throw new IOException("解析AI返回失败，请重试", e);
         }
