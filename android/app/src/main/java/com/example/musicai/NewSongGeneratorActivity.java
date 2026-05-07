@@ -278,9 +278,10 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
         else if (lengthStr.contains("16")) length = 16;
         else if (lengthStr.contains("32")) length = 32;
         
+        final int finalLength = length;
         new Thread(() -> {
             try {
-                MusicData.Melody melody = musicGenerator.generateMelodyWithDescription(style, length, null, description);
+                MusicData.Melody melody = musicGenerator.generateMelodyWithDescription(style, finalLength, null, description);
                 
                 MusicRepository.MelodyEntry entry = new MusicRepository.MelodyEntry();
                 entry.name = "旋律_" + System.currentTimeMillis();
