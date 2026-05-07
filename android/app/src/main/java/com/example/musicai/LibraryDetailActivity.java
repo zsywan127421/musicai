@@ -364,10 +364,7 @@ public class LibraryDetailActivity extends AppCompatActivity implements Playback
             itemName = chordEntry.name;
         }
         
-        ConfirmDialog.show(this, 
-            "确定删除《" + itemName + "》吗？", 
-            "此操作不可恢复", 
-            () -> delete());
+        ConfirmDialog.showDelete(this, itemName, () -> delete());
     }
     
     private void delete() {
@@ -389,19 +386,13 @@ public class LibraryDetailActivity extends AppCompatActivity implements Playback
         
         if (itemType == TYPE_MELODY && melodyEntry != null) {
             if (!name.equals(melodyEntry.name) && repository.melodyNameExists(name)) {
-                ConfirmDialog.show(this,
-                    "已有同名条目",
-                    "是否覆盖《" + name + "》？",
-                    () -> doSave(name));
+                ConfirmDialog.showSave(this, name, () -> doSave(name));
             } else {
                 doSave(name);
             }
         } else if (itemType == TYPE_CHORD && chordEntry != null) {
             if (!name.equals(chordEntry.name) && repository.chordNameExists(name)) {
-                ConfirmDialog.show(this,
-                    "已有同名条目",
-                    "是否覆盖《" + name + "》？",
-                    () -> doSave(name));
+                ConfirmDialog.showSave(this, name, () -> doSave(name));
             } else {
                 doSave(name);
             }
