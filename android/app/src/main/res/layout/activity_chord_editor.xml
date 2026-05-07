@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/apple_dark"
+    android:background="@color/apple_light_bg"
     android:fitsSystemWindows="true">
 
     <LinearLayout
@@ -48,8 +48,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="14dp"
-            android:paddingTop="0dp">
+            android:paddingHorizontal="16dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="32dp">
 
             <LinearLayout
                 android:id="@+id/select_layout"
@@ -97,14 +98,14 @@
                     android:background="@drawable/apple_edittext_bg"
                     android:paddingStart="14dp"
                     android:paddingEnd="14dp"
-                    android:layout_marginBottom="12dp"/>
+                    android:layout_marginBottom="16dp"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="10dp">
+                    android:layout_marginBottom="16dp">
 
                     <TextView
                         android:layout_width="wrap_content"

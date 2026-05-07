@@ -10,7 +10,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingTop="16dp"
-        android:paddingBottom="32dp">
+        android:paddingBottom="32dp"
+        android:paddingHorizontal="0dp">
 
         <!-- API配置 -->
         <TextView
@@ -72,7 +73,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingVertical="12dp"
+                android:paddingVertical="16dp"
                 android:paddingHorizontal="16dp">
 
                 <TextView
@@ -162,7 +163,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingVertical="12dp"
+                android:paddingVertical="16dp"
                 android:paddingHorizontal="16dp">
 
                 <LinearLayout
@@ -221,7 +222,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingVertical="12dp"
+                android:paddingVertical="16dp"
                 android:paddingHorizontal="16dp">
 
                 <LinearLayout

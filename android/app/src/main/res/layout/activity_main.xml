@@ -11,13 +11,13 @@
         android:orientation="vertical"
         android:fitsSystemWindows="true"
         android:paddingTop="24dp"
-        android:paddingBottom="24dp">
+        android:paddingBottom="32dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="24dp"
             android:gravity="center_horizontal">
 
             <TextView
@@ -50,7 +50,7 @@
             android:padding="16dp"
             android:background="@drawable/apple_card_bg"
             android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="28dp"
             android:gravity="center_vertical"
             android:elevation="0dp"
             android:outlineProvider="background">
@@ -94,7 +94,7 @@
                 android:textSize="12sp"
                 android:textColor="@color/apple_text_secondary"
                 android:textAllCaps="true"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="12dp"
                 android:layout_marginHorizontal="16dp"
                 android:letterSpacing="0.05"/>
 
@@ -108,7 +108,7 @@
                 android:textColor="@color/apple_white"
                 android:background="@drawable/apple_button_primary_bg"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginBottom="10dp"/>
+                android:layout_marginBottom="12dp"/>
 
             <Button
                 android:id="@+id/btn_song_generator"
@@ -120,7 +120,7 @@
                 android:textColor="@color/apple_button_text"
                 android:background="@drawable/apple_button_bg"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginBottom="10dp"/>
+                android:layout_marginBottom="12dp"/>
 
             <Button
                 android:id="@+id/btn_library"
@@ -132,7 +132,7 @@
                 android:textColor="@color/apple_button_text"
                 android:background="@drawable/apple_button_bg"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginBottom="24dp"/>
+                android:layout_marginBottom="28dp"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -141,7 +141,7 @@
                 android:textSize="12sp"
                 android:textColor="@color/apple_text_secondary"
                 android:textAllCaps="true"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="12dp"
                 android:layout_marginHorizontal="16dp"
                 android:letterSpacing="0.05"/>
 
@@ -155,7 +155,7 @@
                 android:textColor="@color/apple_button_text"
                 android:background="@drawable/apple_button_bg"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginBottom="10dp"/>
+                android:layout_marginBottom="12dp"/>
 
             <Button
                 android:id="@+id/btn_model_config"
