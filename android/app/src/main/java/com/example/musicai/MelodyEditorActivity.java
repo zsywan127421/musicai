@@ -25,6 +25,7 @@ import java.util.List;
 
 public class MelodyEditorActivity extends AppCompatActivity {
     
+    public static final String EXTRA_MELODY_ID = "extra_melody_id";
     public static final int MODE_SELECT = 0;
     public static final int MODE_EDIT = 1;
     

@@ -1,6 +1,7 @@
 package com.example.musicai;
 
 import android.content.Context;
+import java.util.function.Consumer;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
@@ -15,8 +16,7 @@ public class CursorSeekBar extends SeekBar {
     private float cursorRadius = 12f;
     private float cursorGlowRadius = 18f;
     private int cursorColor = 0xFF007AFF;
-    private boolean showCursor = true;
-    
+    private boolean showCursor = false;
     private OnSeekBarChangeListenerWithCursor customListener;
     
     public CursorSeekBar(Context context) {
@@ -84,6 +84,19 @@ public class CursorSeekBar extends SeekBar {
     
     public void setCustomListener(OnSeekBarChangeListenerWithCursor listener) {
         this.customListener = listener;
+    }
+    
+    public void setOnSeekListener(Consumer<Integer> callback) {
+        setCustomListener(new OnSeekBarChangeListenerWithCursor() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) callback.accept(progress);
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
     }
     
     @Override

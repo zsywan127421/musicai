@@ -17,6 +17,7 @@ import java.util.List;
 
 public class ChordEditorActivity extends AppCompatActivity {
     
+    public static final String EXTRA_CHORD_ID = "extra_chord_id";
     public static final int MODE_SELECT = 0;
     public static final int MODE_EDIT = 1;
     

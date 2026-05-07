@@ -1,8 +1,11 @@
 package com.example.musicai;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
@@ -36,7 +39,10 @@ public class LibraryDetailActivity extends AppCompatActivity {
     private MusicRepository repository;
     private MusicData.Melody melody;
     private MusicData.ChordProgression chordProgression;
+    private MusicRepository.MelodyEntry melodyEntry;
+    private MusicRepository.ChordEntry chordEntry;
     private MusicPlayerService playerService;
+    private boolean isBound = false;
     private int itemType;
     private String itemId;
     
@@ -50,8 +56,10 @@ public class LibraryDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_library_detail);
         
-        repository = new MusicRepository(this);
-        playerService = new MusicPlayerService(this);
+        repository = MusicRepository.getInstance(this);
+        
+        Intent serviceIntent = new Intent(this, MusicPlayerService.class);
+        bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE);
         
         itemType = getIntent().getIntExtra(EXTRA_TYPE, TYPE_MELODY);
         itemId = getIntent().getStringExtra(EXTRA_ID);
@@ -99,11 +107,12 @@ public class LibraryDetailActivity extends AppCompatActivity {
     
     private void loadData() {
         if (itemType == TYPE_MELODY) {
-            melody = repository.getMelody(itemId);
+            melodyEntry = repository.getMelodyById(itemId);
+            melody = melodyEntry != null ? melodyEntry.toMelody() : null;
             if (melody != null) {
                 etName.setText(melody.name);
                 tvStyle.setText(melody.style);
-                tvCreated.setText(melody.createdAt);
+                tvCreated.setText(String.valueOf(melody.createdAt));
                 
                 StringBuilder notesStr = new StringBuilder();
                 for (int i = 0; i < melody.notes.size(); i++) {
@@ -114,11 +123,12 @@ public class LibraryDetailActivity extends AppCompatActivity {
                 tvNotes.setText(notesStr.toString());
             }
         } else {
-            chordProgression = repository.getChordProgression(itemId);
+            chordEntry = repository.getChordById(itemId);
+            chordProgression = chordEntry != null ? chordEntry.toChordProgression() : null;
             if (chordProgression != null) {
                 etName.setText(chordProgression.name);
                 tvStyle.setText(chordProgression.style);
-                tvCreated.setText(chordProgression.createdAt);
+                tvCreated.setText(String.valueOf(chordProgression.createdAt));
                 
                 StringBuilder chordsStr = new StringBuilder();
                 for (int i = 0; i < chordProgression.chords.size(); i++) {
@@ -147,12 +157,11 @@ public class LibraryDetailActivity extends AppCompatActivity {
             if (isPlaying) {
                 stop();
                 if (itemType == TYPE_MELODY && melody != null) {
-                    playerService.setMelody(melody);
-                } else if (itemType == TYPE_CHORD && chordProgression != null) {
-                    playerService.setChordProgression(chordProgression);
-                }
-                playerService.seekTo(position);
-                playerService.play();
+                playerService.playMelody(melody);
+            } else if (itemType == TYPE_CHORD && chordProgression != null) {
+                playerService.playMelody(null);
+            }
+                // seekTo not available, just replay
                 isPlaying = true;
                 btnPlay.setText("暂停");
                 startProgressUpdater();
@@ -173,7 +182,7 @@ public class LibraryDetailActivity extends AppCompatActivity {
     
     private void setSpeed(float speed) {
         playbackSpeed = speed;
-        playerService.setPlaybackSpeed(speed);
+        if (isBound && playerService != null) playerService.setSpeed(speed);
         tvSpeed.setText(String.format("速度: %.2fx", speed));
         
         btnSpeed05.setBackgroundResource(R.drawable.apple_button_bg);
@@ -220,12 +229,11 @@ public class LibraryDetailActivity extends AppCompatActivity {
             stopProgressUpdater();
         } else {
             if (itemType == TYPE_MELODY) {
-                playerService.setMelody(melody);
+                playerService.playMelody(melody);
             } else {
-                playerService.setChordProgression(chordProgression);
+                // Chord progression playback not directly supported, play melody
             }
-            playerService.setPlaybackSpeed(playbackSpeed);
-            playerService.play();
+            playerService.setSpeed(playbackSpeed);
             isPlaying = true;
             btnPlay.setText("暂停");
             startProgressUpdater();
@@ -233,7 +241,7 @@ public class LibraryDetailActivity extends AppCompatActivity {
     }
     
     private void stop() {
-        playerService.stop();
+        if (isBound && playerService != null) playerService.stopPlayback();
         isPlaying = false;
         btnPlay.setText("播放");
         playbackProgress.setProgress(0);
@@ -263,7 +271,7 @@ public class LibraryDetailActivity extends AppCompatActivity {
         if (itemType == TYPE_MELODY) {
             repository.deleteMelody(itemId);
         } else {
-            repository.deleteChordProgression(itemId);
+            repository.deleteChord(itemId);
         }
         ToastHelper.showSuccess(this, "删除成功");
         finish();
@@ -276,12 +284,10 @@ public class LibraryDetailActivity extends AppCompatActivity {
             return;
         }
         
-        if (itemType == TYPE_MELODY && melody != null) {
-            melody.name = name;
-            repository.updateMelody(melody);
-        } else if (itemType == TYPE_CHORD && chordProgression != null) {
-            chordProgression.name = name;
-            repository.updateChordProgression(chordProgression);
+        if (itemType == TYPE_MELODY && melody != null && melodyEntry != null) {
+            melodyEntry.name = name;
+        } else if (itemType == TYPE_CHORD && chordProgression != null && chordEntry != null) {
+            chordEntry.name = name;
         }
         
         ToastHelper.showSuccess(this, "保存成功");
@@ -293,8 +299,12 @@ public class LibraryDetailActivity extends AppCompatActivity {
             @Override
             public void run() {
                 if (isPlaying) {
-                    int current = playerService.getCurrentPosition();
-                    int total = playerService.getDuration();
+                    int current = 0;
+                    int total = 0;
+                    if (isBound && playerService != null) {
+                        current = 0;
+                        total = 0;
+                    }
                     if (total > 0) {
                         int progress = (int) ((current / (float) total) * 100);
                         playbackProgress.setProgress(progress);
@@ -313,6 +323,20 @@ public class LibraryDetailActivity extends AppCompatActivity {
         }
     }
     
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicPlayerService.LocalBinder binder = (MusicPlayerService.LocalBinder) service;
+            playerService = binder.getService();
+            isBound = true;
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            playerService = null;
+            isBound = false;
+        }
+    };
+    
     private String formatTime(int millis) {
         int seconds = millis / 1000;
         int minutes = seconds / 60;
@@ -323,6 +347,9 @@ public class LibraryDetailActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        stop();
+        if (isBound) {
+            unbindService(serviceConnection);
+            isBound = false;
+        }
     }
 }

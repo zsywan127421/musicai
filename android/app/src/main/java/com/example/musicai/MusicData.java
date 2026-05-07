@@ -47,15 +47,19 @@ public class MusicData {
     }
     
     public static class Melody {
-        public List<Note> notes;
-        public String style;
-        public String name;
-        
-        public Melody() {
-            notes = new ArrayList<>();
-            style = "pop";
-            name = "Untitled";
-        }
+    public String id;
+    public long createdAt;
+    public String name;
+    public String style;
+    public List<Note> notes;
+    
+    public Melody() {
+        this.id = java.util.UUID.randomUUID().toString();
+        this.createdAt = System.currentTimeMillis();
+        this.name = "Untitled";
+        this.style = "pop";
+        this.notes = new ArrayList<>();
+    }
         
         public JSONObject toJson() throws JSONException {
             JSONObject obj = new JSONObject();
@@ -119,15 +123,19 @@ public class MusicData {
     }
     
     public static class ChordProgression {
-        public List<Chord> chords;
-        public String style;
-        public String name;
-        
-        public ChordProgression() {
-            chords = new ArrayList<>();
-            style = "pop";
-            name = "Untitled";
-        }
+    public String id;
+    public long createdAt;
+    public String name;
+    public String style;
+    public List<Chord> chords;
+    
+    public ChordProgression() {
+        this.id = java.util.UUID.randomUUID().toString();
+        this.createdAt = System.currentTimeMillis();
+        this.name = "Untitled";
+        this.style = "pop";
+        this.chords = new ArrayList<>();
+    }
         
         public JSONObject toJson() throws JSONException {
             JSONObject obj = new JSONObject();
