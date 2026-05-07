@@ -209,37 +209,37 @@
                         android:id="@+id/seekbar_speed"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:max="70"
+                        android:max="50"
                         android:progress="10"
                         android:progressTint="@color/apple_accent"
                         android:thumbTint="@color/apple_accent"/>
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="4dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="0.5x"
-                            android:textSize="11sp"
-                            android:textColor="@color/apple_text_tertiary"/>
+                            android:orientation="horizontal"
+                            android:layout_marginTop="4dp">
 
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="0dp"
-                            android:layout_weight="1"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0.5x"
+                                android:textSize="11sp"
+                                android:textColor="@color/apple_text_tertiary"/>
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="4.0x"
-                            android:textSize="11sp"
-                            android:textColor="@color/apple_text_tertiary"/>
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:layout_weight="1"/>
 
-                    </LinearLayout>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="3.0x"
+                                android:textSize="11sp"
+                                android:textColor="@color/apple_text_tertiary"/>
+
+                        </LinearLayout>
 
                 </LinearLayout>
 

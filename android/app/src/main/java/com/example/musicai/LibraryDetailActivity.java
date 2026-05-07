@@ -117,7 +117,7 @@ public class LibraryDetailActivity extends AppCompatActivity {
             btnStop.setVisibility(View.GONE);
         }
         
-        seekBarSpeed.setMax(70);
+        seekBarSpeed.setMax(50);
         seekBarSpeed.setProgress(10);
         tvSpeed.setText("速度: 1.0x");
     }
@@ -152,10 +152,13 @@ public class LibraryDetailActivity extends AppCompatActivity {
     private void updateNotesDisplay() {
         if (melodyEntry == null) return;
         StringBuilder notesStr = new StringBuilder();
+        notesStr.append(String.format("%-4s %-8s %-6s %-6s\n", "序号", "音符", "时值", "位置"));
+        notesStr.append(String.format("%-4s %-8s %-6s %-6s\n", "----", "------", "----", "----"));
         for (int i = 0; i < melodyEntry.notes.size(); i++) {
             MusicRepository.NoteData note = melodyEntry.notes.get(i);
-            notesStr.append(String.format("%d. %s%d | 时值:%d | 位置:%d\n",
-                i + 1, note.pitch, note.octave, note.duration, note.startTime));
+            String noteName = note.pitch + note.octave;
+            notesStr.append(String.format("%-4d %-8s %-6d %-6d\n",
+                i + 1, noteName, note.duration, note.startTime));
         }
         tvNotes.setText(notesStr.toString());
         melody = melodyEntry.toMelody();
@@ -164,9 +167,11 @@ public class LibraryDetailActivity extends AppCompatActivity {
     private void updateChordsDisplay() {
         if (chordEntry == null) return;
         StringBuilder chordsStr = new StringBuilder();
+        chordsStr.append(String.format("%-4s %-8s %-10s %-6s %-6s\n", "序号", "根音", "类型", "时值", "位置"));
+        chordsStr.append(String.format("%-4s %-8s %-10s %-6s %-6s\n", "----", "----", "----", "----", "----"));
         for (int i = 0; i < chordEntry.chords.size(); i++) {
             MusicRepository.ChordData chord = chordEntry.chords.get(i);
-            chordsStr.append(String.format("%d. %s %s | 时值:%d | 位置:%d\n",
+            chordsStr.append(String.format("%-4d %-8s %-10s %-6d %-6d\n",
                 i + 1, chord.name, chord.type, chord.duration, chord.startTime));
         }
         tvChords.setText(chordsStr.toString());
@@ -183,7 +188,7 @@ public class LibraryDetailActivity extends AppCompatActivity {
         seekBarSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                float speed = 0.5f + (progress / 10.0f);
+                float speed = 0.5f + (progress / 20.0f);
                 speed = Math.round(speed * 100) / 100.0f;
                 tvSpeed.setText(String.format("速度: %.2fx", speed));
                 if (fromUser) {
@@ -331,9 +336,12 @@ public class LibraryDetailActivity extends AppCompatActivity {
         MusicRepository.ChordData chord = chordEntry.chords.get(index);
         
         ChordEditBottomSheet.show(this, index, chord, (updatedChord) -> {
-            updateChordsDisplay();
-            repository.saveChordsToPrefs();
-            ToastHelper.showSuccess(this, "和弦已更新");
+            if (updatedChord != null) {
+                chordEntry.chords.set(index, updatedChord);
+                updateChordsDisplay();
+                repository.saveChordsToPrefs();
+                ToastHelper.showSuccess(this, "和弦已更新");
+            }
         });
     }
     

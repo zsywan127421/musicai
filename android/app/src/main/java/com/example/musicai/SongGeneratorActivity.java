@@ -98,7 +98,7 @@ public class SongGeneratorActivity extends AppCompatActivity {
         btnPlay.setEnabled(false);
         btnStop.setEnabled(false);
         
-        seekBarSpeed.setMax(70);
+        seekBarSpeed.setMax(50);
         seekBarSpeed.setProgress(10);
         tvSpeed.setText("速度: 1.0x");
     }
@@ -118,7 +118,7 @@ public class SongGeneratorActivity extends AppCompatActivity {
         seekBarSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                float speed = 0.5f + (progress / 10.0f);
+                float speed = 0.5f + (progress / 20.0f);
                 speed = Math.round(speed * 100) / 100.0f;
                 tvSpeed.setText(String.format("速度: %.2fx", speed));
                 if (fromUser) {

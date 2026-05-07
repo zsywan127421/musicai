@@ -161,7 +161,7 @@
                 android:id="@+id/seekbar_speed"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:max="70"
+                android:max="50"
                 android:progress="10"
                 android:progressTint="@color/apple_accent"
                 android:thumbTint="@color/apple_accent"/>
@@ -187,7 +187,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="4.0x"
+                    android:text="3.0x"
                     android:textSize="11sp"
                     android:textColor="@color/apple_text_tertiary"/>
 

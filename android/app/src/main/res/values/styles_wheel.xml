@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_selected="true">
+        <style parent="@android:style/TextAppearance">
+            <item name="android:textSize">18sp</item>
+            <item name="android:textColor">@color/apple_accent</item>
+            <item name="android:textStyle">bold</item>
+        </style>
+    </item>
+    <item>
+        <style parent="@android:style/TextAppearance">
+            <item name="android:textSize">16sp</item>
+            <item name="android:textColor">@color/apple_text</item>
+        </style>
+    </item>
+</selector>
