@@ -32,6 +32,11 @@ jobs:
         cp -r dist/assets android/app/src/main/assets/public/
         ls -la android/app/src/main/assets/public/
         
+    - name: Remove unused files
+      run: |
+        rm -rf android/app/src/main/assets/public/cordova.js 2>/dev/null || true
+        rm -rf android/app/src/main/assets/public/cordova_plugins.js 2>/dev/null || true
+        
     - name: Setup JDK
       uses: actions/setup-java@v4
       with:
@@ -63,7 +68,7 @@ jobs:
       working-directory: ./android
       run: |
         chmod +x gradlew
-        ./gradlew assembleDebug --no-daemon
+        ./gradlew clean assembleDebug --no-daemon
         
     - name: Verify APK
       run: |
