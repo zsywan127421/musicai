@@ -47,11 +47,11 @@ public class MusicData {
     }
     
     public static class Melody {
-    public String id;
-    public long createdAt;
-    public String name;
-    public String style;
-    public List<Note> notes;
+        public String id;
+        public long createdAt;
+        public String name;
+        public String style;
+        public List<Note> notes;
     
     public Melody() {
         this.id = java.util.UUID.randomUUID().toString();
@@ -123,11 +123,11 @@ public class MusicData {
     }
     
     public static class ChordProgression {
-    public String id;
-    public long createdAt;
-    public String name;
-    public String style;
-    public List<Chord> chords;
+        public String id;
+        public long createdAt;
+        public String name;
+        public String style;
+        public List<Chord> chords;
     
     public ChordProgression() {
         this.id = java.util.UUID.randomUUID().toString();

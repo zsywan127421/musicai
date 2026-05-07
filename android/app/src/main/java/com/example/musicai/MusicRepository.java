@@ -419,22 +419,6 @@ public class MusicRepository {
         }
     }
     
-    public void saveMelodiesToPrefs() {
-        JSONArray array = new JSONArray();
-        for (MelodyEntry entry : melodyLibrary) {
-            array.put(entry.toJson());
-        }
-        prefs.edit().putString(KEY_MELODIES, array.toString()).apply();
-    }
-    
-    public void saveChordsToPrefs() {
-        JSONArray array = new JSONArray();
-        for (ChordEntry entry : chordLibrary) {
-            array.put(entry.toJson());
-        }
-        prefs.edit().putString(KEY_CHORDS, array.toString()).apply();
-    }
-    
     public MusicData.Melody getMelody(String id) {
         MelodyEntry entry = getMelodyById(id);
         return entry != null ? entry.toMelody() : null;
