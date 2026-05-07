@@ -19,12 +19,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.musicai.util.ToastHelper;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
 public class SongGeneratorActivity extends AppCompatActivity {
     
     private Spinner spStyle;
