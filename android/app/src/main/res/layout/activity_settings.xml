@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1a1a2e">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="⚙️ 大模型配置"
+            android:textSize="28sp"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="24dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="API URL"
+            android:textSize="16sp"
+            android:textColor="#aaaaaa"
+            android:layout_marginBottom="8dp"/>
+
+        <EditText
+            android:id="@+id/et_api_url"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="https://api.openai.com/v1/chat/completions"
+            android:textSize="14sp"
+            android:textColor="#ffffff"
+            android:background="#2a2a4a"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"
+            android:cornerRadius="8dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="API Key"
+            android:textSize="16sp"
+            android:textColor="#aaaaaa"
+            android:layout_marginBottom="8dp"/>
+
+        <EditText
+            android:id="@+id/et_api_key"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="sk-..."
+            android:textSize="14sp"
+            android:textColor="#ffffff"
+            android:background="#2a2a4a"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"
+            android:inputType="textPassword"
+            android:cornerRadius="8dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="模型名称"
+            android:textSize="16sp"
+            android:textColor="#aaaaaa"
+            android:layout_marginBottom="8dp"/>
+
+        <EditText
+            android:id="@+id/et_model_name"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="gpt-3.5-turbo"
+            android:textSize="14sp"
+            android:textColor="#ffffff"
+            android:background="#2a2a4a"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"
+            android:cornerRadius="8dp"/>
+
+        <TextView
+            android:id="@+id/tv_temperature"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="温度: 0.70"
+            android:textSize="16sp"
+            android:textColor="#ffffff"
+            android:layout_marginBottom="8dp"/>
+
+        <SeekBar
+            android:id="@+id/sb_temperature"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="100"
+            android:progress="70"
+            android:layout_marginBottom="24dp"/>
+
+        <TextView
+            android:id="@+id/tv_max_tokens"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="最大Token: 500"
+            android:textSize="16sp"
+            android:textColor="#ffffff"
+            android:layout_marginBottom="8dp"/>
+
+        <SeekBar
+            android:id="@+id/sb_max_tokens"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="1900"
+            android:progress="400"
+            android:layout_marginBottom="24dp"/>
+
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="保存设置"
+            android:textSize="18sp"
+            android:textColor="#ffffff"
+            android:background="#4a90d9"
+            android:layout_marginBottom="12dp"
+            android:cornerRadius="8dp"/>
+
+        <Button
+            android:id="@+id/btn_reset"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="重置为默认值"
+            android:textSize="18sp"
+            android:textColor="#ffffff"
+            android:background="#6a6a8a"
+            android:cornerRadius="8dp"/>
+
+    </LinearLayout>
+</ScrollView>

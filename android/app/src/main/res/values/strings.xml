@@ -1,7 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">音乐创作大师</string>
-    <string name="title_activity_main">音乐创作大师</string>
-    <string name="package_name">com.example.musiccomposer</string>
-    <string name="custom_url_scheme">com.example.musiccomposer</string>
+    <string name="app_name">MusicAI</string>
+    <string name="action_settings">Settings</string>
 </resources>
