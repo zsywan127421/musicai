@@ -44,6 +44,12 @@
     <color name="apple_button_text">@color/apple_text</color>
     <color name="apple_accent_pressed">#0056B3</color>
     <color name="apple_accent_active">#E8F4FC</color>
+    <color name="apple_danger">#FF3B30</color>
+    <color name="apple_danger_pressed">#D63326</color>
+    <color name="apple_secondary">#E8E8ED</color>
+    <color name="apple_secondary_pressed">#DADADA</color>
+    <color name="apple_success">#34C759</color>
+    <color name="apple_warning">#FF9500</color>
 
     <!-- 兼容旧颜色名称 -->
     <color name="apple_dark">@color/dark_background</color>

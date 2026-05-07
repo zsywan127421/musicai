@@ -13,7 +13,12 @@
     <color name="apple_white">#FFFFFF</color>
     <color name="apple_button_bg_color">#2C2C2E</color>
     <color name="apple_button_pressed">#3C3C3E</color>
-    <color name="apple_button_text">@color/apple_text</color>
+    <color name="apple_button_text">@color/dark_text_primary</color>
     <color name="apple_accent_pressed">#0056B3</color>
     <color name="apple_accent_active">#1E3A5F</color>
+    <color name="apple_danger_pressed">#D63326</color>
+    <color name="apple_secondary">#3C3C3E</color>
+    <color name="apple_secondary_pressed">#48484A</color>
+    <color name="apple_success">@color/dark_success</color>
+    <color name="apple_warning">@color/dark_warning</color>
 </resources>

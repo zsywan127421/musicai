@@ -1,24 +1,33 @@
 package com.example.musicai;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
+
 import java.util.List;
 
 public class HighlightedAdapter extends ArrayAdapter<String> {
     
     private int highlightIndex = -1;
-    private int normalBgColor = Color.parseColor("#1C1C1E");
-    private int highlightBgColor = Color.parseColor("#0A84FF");
-    private int normalTextColor = Color.parseColor("#FFFFFF");
-    private int highlightTextColor = Color.parseColor("#FFFFFF");
+    private int normalBgColor;
+    private int highlightBgColor;
+    private int normalTextColor;
+    private int highlightTextColor;
+    private int labelTextColor;
     
     public HighlightedAdapter(Context context, List<String> objects) {
         super(context, android.R.layout.simple_list_item_1, objects);
+        normalBgColor = ContextCompat.getColor(context, R.color.apple_card_bg);
+        highlightBgColor = ContextCompat.getColor(context, R.color.apple_accent);
+        normalTextColor = ContextCompat.getColor(context, R.color.apple_text);
+        highlightTextColor = Color.WHITE;
+        labelTextColor = ContextCompat.getColor(context, R.color.apple_accent);
     }
     
     public void setHighlightIndex(int index) {
@@ -41,10 +50,10 @@ public class HighlightedAdapter extends ArrayAdapter<String> {
             
             String text = getItem(position);
             if (text != null && text.startsWith("---")) {
-                textView.setTextColor(Color.parseColor("#8E8E93"));
+                textView.setTextColor(ContextCompat.getColor(getContext(), R.color.apple_text_tertiary));
                 textView.setTextSize(13);
             } else if (text != null && (text.contains("标题:") || text.contains("艺术家:") || text.contains("风格:"))) {
-                textView.setTextColor(Color.parseColor("#FFD60A"));
+                textView.setTextColor(labelTextColor);
                 textView.setTextSize(14);
             } else {
                 textView.setTextColor(normalTextColor);

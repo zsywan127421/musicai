@@ -8,5 +8,5 @@
     android:paddingStart="14dp"
     android:paddingEnd="14dp"
     android:textSize="14sp"
-    android:textColor="#1C1C1E"
+    android:textColor="@color/apple_text"
     android:background="@drawable/spinner_dropdown_item_bg"/>
