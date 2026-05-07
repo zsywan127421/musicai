@@ -17,6 +17,7 @@ import okhttp3.Response;
 
 public class ModelConfig {
     
+    private static final String TAG = "ModelConfig";
     private static final String PREFS_NAME = "MusicAIConfig";
     private static final String KEY_API_URL = "api_url";
     private static final String KEY_API_KEY = "api_key";
@@ -125,22 +126,40 @@ public class ModelConfig {
             MediaType.parse("application/json")
         );
         
-        Request request = new Request.Builder()
+        // 构建请求，支持不同 API 的认证方式
+        Request.Builder requestBuilder = new Request.Builder()
             .url(apiUrl)
-            .header("Authorization", "Bearer " + apiKey)
-            .header("Content-Type", "application/json")
-            .post(body)
-            .build();
+            .header("Content-Type", "application/json");
+        
+        // 检测是否为 DeepSeek API
+        if (apiUrl.contains("deepseek")) {
+            requestBuilder.header("Authorization", "Bearer " + apiKey);
+        } else {
+            requestBuilder.header("Authorization", "Bearer " + apiKey);
+        }
+        
+        Request request = requestBuilder.post(body).build();
         
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 String errorBody = response.body() != null ? response.body().string() : "Unknown error";
+                Log.e(TAG, "API request failed: " + response.code() + " - " + errorBody);
                 throw new IOException("API request failed: " + response.code() + " - " + errorBody);
             }
             
             String responseBody = response.body() != null ? response.body().string() : "";
+            Log.d(TAG, "API response: " + responseBody);
+            
             try {
                 JSONObject jsonResponse = new JSONObject(responseBody);
+                
+                // 检查是否有错误信息
+                if (jsonResponse.has("error")) {
+                    JSONObject error = jsonResponse.getJSONObject("error");
+                    String errorMessage = error.optString("message", "Unknown API error");
+                    throw new IOException("API error: " + errorMessage);
+                }
+                
                 org.json.JSONArray choices = jsonResponse.getJSONArray("choices");
                 if (choices.length() > 0) {
                     JSONObject choice = choices.getJSONObject(0);
@@ -148,7 +167,8 @@ public class ModelConfig {
                     return message.getString("content").trim();
                 }
             } catch (JSONException e) {
-                throw new IOException("Failed to parse response", e);
+                Log.e(TAG, "Failed to parse response: " + responseBody, e);
+                throw new IOException("Failed to parse response: " + e.getMessage(), e);
             }
         }
         

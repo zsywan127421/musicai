@@ -199,7 +199,7 @@ public class MusicData {
     
     public static final String[] PITCHES = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
     public static final String[] CHORD_TYPES = {"major", "minor", "seventh", "diminished", "augmented", "sus2", "sus4"};
-    public static final String[] MUSIC_STYLES = {"pop", "classical", "jazz", "electronic", "rock", "blues", "country"};
+    public static final String[] MUSIC_STYLES = {"流行", "古典", "爵士", "电子", "摇滚", "蓝调", "乡村"};
     
     public static int pitchToMidi(String pitch, int octave) {
         int[] offsets = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
