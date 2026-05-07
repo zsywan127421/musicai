@@ -418,27 +418,19 @@ public class MusicRepository {
     }
     
     private void saveMelodiesToPrefs() {
-        try {
-            JSONArray array = new JSONArray();
-            for (MelodyEntry entry : melodyLibrary) {
-                array.put(entry.toJson());
-            }
-            prefs.edit().putString(KEY_MELODIES, array.toString()).apply();
-        } catch (JSONException e) {
-            Log.e(TAG, "Failed to save melodies", e);
+        JSONArray array = new JSONArray();
+        for (MelodyEntry entry : melodyLibrary) {
+            array.put(entry.toJson());
         }
+        prefs.edit().putString(KEY_MELODIES, array.toString()).apply();
     }
     
     private void saveChordsToPrefs() {
-        try {
-            JSONArray array = new JSONArray();
-            for (ChordEntry entry : chordLibrary) {
-                array.put(entry.toJson());
-            }
-            prefs.edit().putString(KEY_CHORDS, array.toString()).apply();
-        } catch (JSONException e) {
-            Log.e(TAG, "Failed to save chords", e);
+        JSONArray array = new JSONArray();
+        for (ChordEntry entry : chordLibrary) {
+            array.put(entry.toJson());
         }
+        prefs.edit().putString(KEY_CHORDS, array.toString()).apply();
     }
     
     private void loadFromPrefs() {

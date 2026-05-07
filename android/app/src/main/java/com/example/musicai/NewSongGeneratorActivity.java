@@ -48,13 +48,11 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
     private Button btnGenerateMelody;
     private ProgressBar progressBar;
     
-    private Spinner spMelodyMode;
     private Spinner spMelodySelect;
     private RadioGroup rgChordMode;
     private EditText etKeySignature;
     private EditText etMood;
     private EditText etChordDescription;
-    private Spinner spChordSelect;
     private Button btnGenerateChords;
     
     private Spinner spSongMelody;
@@ -118,13 +116,11 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
         btnGenerateMelody = findViewById(R.id.btn_generate_melody);
         progressBar = findViewById(R.id.progress_bar);
         
-        spMelodyMode = findViewById(R.id.sp_melody_mode);
         spMelodySelect = findViewById(R.id.sp_melody_select);
         rgChordMode = findViewById(R.id.rg_chord_mode);
         etKeySignature = findViewById(R.id.et_key_signature);
         etMood = findViewById(R.id.et_mood);
         etChordDescription = findViewById(R.id.et_chord_description);
-        spChordSelect = findViewById(R.id.sp_chord_select);
         btnGenerateChords = findViewById(R.id.btn_generate_chords);
         
         spSongMelody = findViewById(R.id.sp_song_melody);
@@ -474,7 +470,7 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
     
     private void stopSong() {
         if (isBound && playerService != null) {
-            playerService.stop();
+            playerService.stopPlayback();
             playbackProgress.setVisibility(View.GONE);
             tvPlaybackTime.setVisibility(View.GONE);
             playbackProgress.setProgress(0);
