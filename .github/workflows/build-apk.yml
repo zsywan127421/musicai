@@ -1,12 +1,10 @@
-name: Build Android APK
+name: Create Release
 
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     
     steps:
@@ -24,37 +22,6 @@ jobs:
     - name: Build web app
       run: npm run build
       
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        
-    - name: Set up Android SDK
-      uses: android-actions/setup-android@v3
-      with:
-        api-level: 34
-        build-tools: 34.0.0
-        
-    - name: List Android components
-      run: |
-        echo "ANDROID_HOME: $ANDROID_HOME"
-        ls -la $ANDROID_HOME
-        
-    - name: Sync Capacitor
-      run: npx cap sync android
-      
-    - name: Build APK
-      run: |
-        cd android
-        ./gradlew assembleDebug --no-daemon -info 2>&1 | tail -100
-        
-    - name: Upload APK artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-debug.apk
-        path: android/app/build/outputs/apk/debug/app-debug.apk
-        
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
@@ -76,9 +43,17 @@ jobs:
           - Web Audio API
           - Capacitor
           
-          **下载:**
-          - APK: app-debug.apk
-        files: |
-          android/app/build/outputs/apk/debug/app-debug.apk
+          **使用方式:**
+          1. 克隆仓库：git clone https://github.com/zsywan127421/musicai.git
+          2. 安装依赖：npm install
+          3. 开发模式：npm run dev
+          4. 构建生产：npm run build
+          
+          **打包APK:**
+          ```bash
+          npm run build
+          npx cap sync android
+          cd android && ./gradlew assembleDebug
+          ```
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
