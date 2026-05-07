@@ -26,8 +26,13 @@
         <item name="android:textColorSecondary">@color/apple_text_secondary</item>
     </style>
 
-    <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
-        <item name="android:background">@drawable/splash</item>
+    <style name="AppTheme.NoActionBarLaunch" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:background">@color/apple_dark</item>
+    </style>
+
+    <style name="AppleText">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/apple_text</item>
     </style>
 
     <style name="AppleButton">
@@ -36,7 +41,6 @@
         <item name="android:textColor">@color/apple_text</item>
         <item name="android:background">@drawable/apple_button_bg</item>
         <item name="android:paddingHorizontal">16dp</item>
-        <item name="android:cornerRadius">12dp</item>
         <item name="android:elevation">2dp</item>
     </style>
 
@@ -56,17 +60,15 @@
         <item name="android:layout_height">52dp</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/apple_text</item>
-        <item name="android:hintTextColor">@color/apple_light_gray</item>
+        <item name="android:textColorHint">@color/apple_light_gray</item>
         <item name="android:background">@drawable/apple_edittext_bg</item>
         <item name="android:paddingHorizontal">16dp</item>
         <item name="android:paddingVertical">12dp</item>
-        <item name="android:cornerRadius">12dp</item>
     </style>
 
     <style name="AppleCard">
         <item name="android:background">@color/apple_dark_gray</item>
         <item name="android:elevation">4dp</item>
-        <item name="android:cornerRadius">16dp</item>
         <item name="android:padding">16dp</item>
     </style>
 
