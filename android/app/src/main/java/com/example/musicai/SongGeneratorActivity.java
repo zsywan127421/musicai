@@ -19,8 +19,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.musicai.util.NetworkUtils;
 import com.example.musicai.util.ToastHelper;
+import com.example.musicai.MusicPlayerService.PlaybackListener;
 
-public class SongGeneratorActivity extends AppCompatActivity {
+public class SongGeneratorActivity extends AppCompatActivity implements PlaybackListener {
     
     private Spinner spStyle;
     private EditText etName;
@@ -41,6 +42,7 @@ public class SongGeneratorActivity extends AppCompatActivity {
     private boolean isBound = false;
     private boolean isGenerating = false;
     private boolean isPaused = false;
+    private boolean isPlayingSong = false;
     private float playbackSpeed = 1.0f;
     
     private Handler handler = new Handler();
@@ -52,10 +54,14 @@ public class SongGeneratorActivity extends AppCompatActivity {
             MusicPlayerService.LocalBinder binder = (MusicPlayerService.LocalBinder) service;
             playerService = binder.getService();
             isBound = true;
+            playerService.setPlaybackListener(SongGeneratorActivity.this);
         }
         
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
+            if (playerService != null) {
+                playerService.removePlaybackListener();
+            }
             isBound = false;
         }
     };
@@ -322,6 +328,33 @@ public class SongGeneratorActivity extends AppCompatActivity {
         int minutes = seconds / 60;
         seconds = seconds % 60;
         return String.format("%d:%02d", minutes, seconds);
+    }
+    
+    @Override
+    public void onPlaybackProgress(int positionMs, int totalMs, int currentNoteIndex) {}
+    
+    @Override
+    public void onPlaybackStateChanged(boolean isPlaying) {
+        isPlayingSong = isPlaying;
+        runOnUiThread(() -> {
+            if (isPlaying) {
+                btnPlay.setText("暂停");
+            } else if (!isPaused) {
+                btnPlay.setText("继续");
+            }
+        });
+    }
+    
+    @Override
+    public void onPlaybackCompleted() {
+        runOnUiThread(() -> {
+            isPlayingSong = false;
+            isPaused = false;
+            btnPlay.setText("播放");
+            playbackProgress.setProgress(0);
+            tvPlaybackTime.setText("0:00 / 0:00");
+            stopProgressUpdater();
+        });
     }
     
     @Override

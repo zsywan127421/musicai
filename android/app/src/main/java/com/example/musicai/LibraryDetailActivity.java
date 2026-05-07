@@ -21,8 +21,9 @@ import com.example.musicai.util.NoteEditBottomSheet;
 import com.example.musicai.util.TimeUtils;
 import com.example.musicai.util.ToastHelper;
 import com.example.musicai.util.ConfirmDialog;
+import com.example.musicai.MusicPlayerService.PlaybackListener;
 
-public class LibraryDetailActivity extends AppCompatActivity {
+public class LibraryDetailActivity extends AppCompatActivity implements PlaybackListener {
     
     public static final String EXTRA_TYPE = "type";
     public static final String EXTRA_ID = "id";
@@ -305,9 +306,13 @@ public class LibraryDetailActivity extends AppCompatActivity {
         MusicRepository.NoteData note = melodyEntry.notes.get(index);
         
         NoteEditBottomSheet.show(this, index, note, (updatedNote) -> {
-            updateNotesDisplay();
-            repository.saveMelodiesToPrefs();
-            ToastHelper.showSuccess(this, "音符已更新");
+            if (updatedNote != null) {
+                melodyEntry.notes.set(index, updatedNote);
+                melody = melodyEntry.toMelody();
+                updateNotesDisplay();
+                repository.saveMelodiesToPrefs();
+                ToastHelper.showSuccess(this, "音符已更新");
+            }
         });
     }
     
@@ -443,13 +448,44 @@ public class LibraryDetailActivity extends AppCompatActivity {
             MusicPlayerService.LocalBinder binder = (MusicPlayerService.LocalBinder) service;
             playerService = binder.getService();
             isBound = true;
+            playerService.setPlaybackListener(LibraryDetailActivity.this);
         }
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            if (playerService != null) {
+                playerService.removePlaybackListener();
+            }
             playerService = null;
             isBound = false;
         }
     };
+    
+    @Override
+    public void onPlaybackProgress(int positionMs, int totalMs, int currentNoteIndex) {}
+    
+    @Override
+    public void onPlaybackStateChanged(boolean isPlaying) {
+        this.isPlaying = isPlaying;
+        runOnUiThread(() -> {
+            if (isPlaying) {
+                btnPlay.setText("暂停");
+            } else {
+                btnPlay.setText("继续");
+            }
+        });
+    }
+    
+    @Override
+    public void onPlaybackCompleted() {
+        runOnUiThread(() -> {
+            isPlaying = false;
+            isPaused = false;
+            btnPlay.setText("播放");
+            playbackProgress.setProgress(0);
+            tvPlaybackTime.setText("0:00 / 0:00");
+            stopProgressUpdater();
+        });
+    }
     
     private String formatTime(int millis) {
         int seconds = millis / 1000;

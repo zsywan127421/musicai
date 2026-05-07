@@ -244,7 +244,7 @@ public class MusicPlayerService extends Service {
     
     public void setSpeed(float speed) {
         float oldSpeed = this.speed;
-        this.speed = Math.max(0.5f, Math.min(2.0f, speed));
+        this.speed = Math.max(0.5f, Math.min(3.0f, speed));
 
         if (totalDurationMs > 0) {
             float ratio = oldSpeed / this.speed;
