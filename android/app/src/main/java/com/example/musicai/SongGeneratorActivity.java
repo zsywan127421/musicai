@@ -373,7 +373,7 @@ public class SongGeneratorActivity extends AppCompatActivity {
     
     private void stopSong() {
         if (isBound && playerService != null) {
-            playerService.stop();
+            playerService.stopPlayback();
             playbackProgress.setVisibility(View.GONE);
             tvPlaybackTime.setVisibility(View.GONE);
             playbackProgress.setProgress(0);
