@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
-        android:paddingTop="40dp">
+        android:paddingTop="48dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -44,7 +44,7 @@
                 android:textColor="@color/apple_text"
                 android:background="@drawable/apple_button_primary_bg"
                 android:layout_marginLeft="12dp"
-               />
+                android:cornerRadius="10dp"/>
 
         </LinearLayout>
 
@@ -112,11 +112,11 @@
                 android:id="@+id/btn_add_custom_note"
                 android:layout_width="match_parent"
                 android:layout_height="44dp"
-                android:text="+ 添加音符到动机"
+                android:text="添加音符到动机"
                 android:textSize="15sp"
                 android:textColor="@color/apple_text"
                 android:background="@drawable/apple_button_bg"
-               
+                android:cornerRadius="10dp"
                 android:layout_marginBottom="12dp"/>
 
             <TextView
@@ -128,7 +128,7 @@
                 android:textColor="@color/apple_text_secondary"
                 android:padding="8dp"
                 android:background="@color/apple_mid_gray"
-               
+                android:cornerRadius="8dp"
                 android:minHeight="40dp"/>
 
             <Button
@@ -137,9 +137,9 @@
                 android:layout_height="40dp"
                 android:text="清除动机"
                 android:textSize="13sp"
-                android:textColor="@color/apple_error"
+                android:textColor="@color/apple_text"
                 android:background="@drawable/apple_button_danger_bg"
-               
+                android:cornerRadius="8dp"
                 android:layout_marginTop="8dp"/>
 
         </LinearLayout>
@@ -187,7 +187,7 @@
                 android:textColor="@color/apple_text"
                 android:background="@drawable/apple_button_bg"
                 android:layout_marginRight="8dp"
-               />
+                android:cornerRadius="10dp"/>
 
             <Button
                 android:id="@+id/btn_play"
@@ -199,7 +199,7 @@
                 android:textColor="@color/apple_text"
                 android:background="@drawable/apple_button_primary_bg"
                 android:layout_marginRight="8dp"
-               />
+                android:cornerRadius="10dp"/>
 
             <Button
                 android:id="@+id/btn_delete"
@@ -210,7 +210,7 @@
                 android:textSize="14sp"
                 android:textColor="@color/apple_text"
                 android:background="@drawable/apple_button_danger_bg"
-               />
+                android:cornerRadius="10dp"/>
 
         </LinearLayout>
 
