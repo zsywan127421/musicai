@@ -88,12 +88,85 @@ public class ModelConfig {
             .apply();
     }
     
-    public String generateContent(String prompt) throws IOException {
-        String apiUrl = getApiUrl();
-        String apiKey = getApiKey();
+    /**
+     * 获取完整的 API URL
+     * 自动处理 DeepSeek 等 API 的 base URL 补全
+     */
+    private String getFullApiUrl() {
+        String apiUrl = getApiUrl().trim();
+        
+        // 如果 URL 已经包含 /chat/completions，直接使用
+        if (apiUrl.contains("/chat/completions")) {
+            return apiUrl;
+        }
+        
+        // 处理 DeepSeek API
+        if (apiUrl.contains("deepseek.com")) {
+            // 确保使用 https
+            if (apiUrl.startsWith("http://")) {
+                apiUrl = apiUrl.replace("http://", "https://");
+            }
+            
+            // 如果 URL 以 /v1 结尾，添加 /chat/completions
+            if (apiUrl.endsWith("/v1")) {
+                return apiUrl + "/chat/completions";
+            }
+            
+            // 如果 URL 是 https://api.deepseek.com，添加 /v1/chat/completions
+            if (apiUrl.equals("https://api.deepseek.com") || 
+                apiUrl.equals("https://api.deepseek.com/")) {
+                return "https://api.deepseek.com/v1/chat/completions";
+            }
+            
+            // 其他情况，确保以 /v1/chat/completions 结尾
+            if (!apiUrl.contains("/v1/")) {
+                if (apiUrl.endsWith("/")) {
+                    return apiUrl + "v1/chat/completions";
+                } else {
+                    return apiUrl + "/v1/chat/completions";
+                }
+            }
+        }
+        
+        // 对于其他 API，如果 URL 不以 /chat/completions 结尾，尝试添加
+        if (!apiUrl.endsWith("/chat/completions")) {
+            if (apiUrl.endsWith("/")) {
+                return apiUrl + "chat/completions";
+            } else {
+                return apiUrl + "/chat/completions";
+            }
+        }
+        
+        return apiUrl;
+    }
+    
+    /**
+     * 获取适合当前 API 的模型名称
+     */
+    private String getAppropriateModelName() {
         String modelName = getModelName();
+        String apiUrl = getApiUrl();
+        
+        // 如果是 DeepSeek API，使用 DeepSeek 模型
+        if (apiUrl.contains("deepseek")) {
+            // 如果用户没有指定 DeepSeek 模型，使用默认的 deepseek-chat
+            if (!modelName.contains("deepseek")) {
+                return "deepseek-chat";
+            }
+        }
+        
+        return modelName;
+    }
+    
+    public String generateContent(String prompt) throws IOException {
+        String apiUrl = getFullApiUrl();
+        String apiKey = getApiKey();
+        String modelName = getAppropriateModelName();
         double temperature = getTemperature();
         int maxTokens = getMaxTokens();
+        
+        Log.d(TAG, "API URL: " + apiUrl);
+        Log.d(TAG, "Model: " + modelName);
         
         if (apiKey.isEmpty()) {
             throw new IOException("API key not configured");
@@ -126,28 +199,26 @@ public class ModelConfig {
             MediaType.parse("application/json")
         );
         
-        // 构建请求，支持不同 API 的认证方式
-        Request.Builder requestBuilder = new Request.Builder()
+        // 构建请求
+        Request request = new Request.Builder()
             .url(apiUrl)
-            .header("Content-Type", "application/json");
+            .header("Content-Type", "application/json")
+            .header("Accept", "application/json")
+            .header("Authorization", "Bearer " + apiKey)
+            .post(body)
+            .build();
         
-        // 检测是否为 DeepSeek API
-        if (apiUrl.contains("deepseek")) {
-            requestBuilder.header("Authorization", "Bearer " + apiKey);
-        } else {
-            requestBuilder.header("Authorization", "Bearer " + apiKey);
-        }
-        
-        Request request = requestBuilder.post(body).build();
+        Log.d(TAG, "Request URL: " + apiUrl);
+        Log.d(TAG, "Request Body: " + requestBody.toString());
         
         try (Response response = client.newCall(request).execute()) {
+            String responseBody = response.body() != null ? response.body().string() : "";
+            
             if (!response.isSuccessful()) {
-                String errorBody = response.body() != null ? response.body().string() : "Unknown error";
-                Log.e(TAG, "API request failed: " + response.code() + " - " + errorBody);
-                throw new IOException("API request failed: " + response.code() + " - " + errorBody);
+                Log.e(TAG, "API request failed: " + response.code() + " - " + responseBody);
+                throw new IOException("API request failed: " + response.code() + " - " + responseBody);
             }
             
-            String responseBody = response.body() != null ? response.body().string() : "";
             Log.d(TAG, "API response: " + responseBody);
             
             try {
