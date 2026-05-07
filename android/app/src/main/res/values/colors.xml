@@ -3,4 +3,14 @@
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
+    <color name="apple_bg">#1a1a2e</color>
+    <color name="apple_surface">#16213e</color>
+    <color name="apple_dark_gray">#4a4a6a</color>
+    <color name="apple_mid_gray">#6b6b8a</color>
+    <color name="apple_text">#ffffff</color>
+    <color name="apple_accent">#0f3460</color>
+    <color name="apple_accent_active">#533483</color>
+    <color name="apple_error">#e94560</color>
+    <color name="apple_warning">#ffa726</color>
+    <color name="apple_success">#66bb6a</color>
 </resources>
