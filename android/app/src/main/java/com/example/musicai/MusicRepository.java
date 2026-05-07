@@ -455,7 +455,7 @@ public class MusicRepository {
         return chordLibrary.size();
     }
     
-    private void saveMelodiesToPrefs() {
+    public void saveMelodiesToPrefs() {
         JSONArray array = new JSONArray();
         for (MelodyEntry entry : melodyLibrary) {
             array.put(entry.toJson());
@@ -463,7 +463,7 @@ public class MusicRepository {
         prefs.edit().putString(KEY_MELODIES, array.toString()).apply();
     }
     
-    private void saveChordsToPrefs() {
+    public void saveChordsToPrefs() {
         JSONArray array = new JSONArray();
         for (ChordEntry entry : chordLibrary) {
             array.put(entry.toJson());
