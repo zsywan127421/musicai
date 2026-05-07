@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 深色主题颜色（夜间模式自动使用） -->
+    <color name="apple_light_bg">@color/dark_background</color>
+    <color name="apple_card_bg">@color/dark_surface</color>
+    <color name="apple_text">@color/dark_text_primary</color>
+    <color name="apple_text_secondary">@color/dark_text_secondary</color>
+    <color name="apple_text_tertiary">@color/dark_text_tertiary</color>
+    <color name="apple_separator">@color/dark_separator</color>
+    <color name="apple_accent">@color/dark_accent</color>
+    <color name="apple_accent_light">@color/dark_accent_light</color>
+    <color name="apple_danger">@color/dark_danger</color>
+    <color name="apple_white">#FFFFFF</color>
+</resources>

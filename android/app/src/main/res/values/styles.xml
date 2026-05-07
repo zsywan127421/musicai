@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- 基础主题配置 -->
     <style name="Theme.MusicAI" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/apple_accent</item>
+        <item name="colorPrimaryDark">@color/apple_accent</item>
+        <item name="colorAccent">@color/apple_accent</item>
         <item name="android:textColorPrimary">@color/apple_text</item>
         <item name="android:textColorSecondary">@color/apple_text_secondary</item>
         <item name="android:windowBackground">@color/apple_light_bg</item>
-        <item name="android:statusBarColor">@color/apple_white</item>
-        <item name="android:navigationBarColor">@color/apple_white</item>
+        <item name="android:statusBarColor">@color/apple_light_bg</item>
+        <item name="android:navigationBarColor">@color/apple_light_bg</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowTranslucentStatus">false</item>
         <item name="android:windowTranslucentNavigation">false</item>
     </style>
 
     <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/apple_accent</item>
+        <item name="colorPrimaryDark">@color/apple_accent</item>
+        <item name="colorAccent">@color/apple_accent</item>
         <item name="android:windowBackground">@color/apple_light_bg</item>
         <item name="android:windowTranslucentStatus">false</item>
         <item name="android:windowTranslucentNavigation">false</item>

@@ -1,26 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="apple_black">#000000</color>
+    <!-- 浅色主题颜色 (Light Theme Colors) -->
+    <color name="light_background">#F2F2F7</color>
+    <color name="light_surface">#FFFFFF</color>
+    <color name="light_surface_elevated">#FFFFFF</color>
+    <color name="light_text_primary">#1C1C1E</color>
+    <color name="light_text_secondary">#3C3C43</color>
+    <color name="light_text_tertiary">#8E8E93</color>
+    <color name="light_separator">#C6C6C8</color>
+    <color name="light_accent">#007AFF</color>
+    <color name="light_accent_light">#E8F4FC</color>
+    <color name="light_danger">#FF3B30</color>
+    <color name="light_success">#34C759</color>
+    <color name="light_warning">#FF9500</color>
+
+    <!-- 深色主题颜色 (Dark Theme Colors) -->
+    <color name="dark_background">#000000</color>
+    <color name="dark_surface">#1C1C1E</color>
+    <color name="dark_surface_elevated">#2C2C2E</color>
+    <color name="dark_text_primary">#FFFFFF</color>
+    <color name="dark_text_secondary">#EBEBF5</color>
+    <color name="dark_text_tertiary">#8E8E93</color>
+    <color name="dark_separator">#38383A</color>
+    <color name="dark_accent">#0A84FF</color>
+    <color name="dark_accent_light">#1E3A5F</color>
+    <color name="dark_danger">#FF453A</color>
+    <color name="dark_success">#30D158</color>
+    <color name="dark_warning">#FF9F0A</color>
+
+    <!-- 默认浅色主题（兼容旧代码） -->
+    <color name="apple_light_bg">@color/light_background</color>
+    <color name="apple_card_bg">@color/light_surface</color>
+    <color name="apple_text">@color/light_text_primary</color>
+    <color name="apple_text_secondary">@color/light_text_secondary</color>
+    <color name="apple_text_tertiary">@color/light_text_tertiary</color>
+    <color name="apple_separator">@color/light_separator</color>
+    <color name="apple_accent">@color/light_accent</color>
+    <color name="apple_accent_light">@color/light_accent_light</color>
+    <color name="apple_danger">@color/light_danger</color>
     <color name="apple_white">#FFFFFF</color>
-    <color name="apple_light_bg">#F2F2F7</color>
-    <color name="apple_card_bg">#FFFFFF</color>
-    <color name="apple_dark">#1C1C1E</color>
-    <color name="apple_dark_gray">#2C2C2E</color>
-    <color name="apple_mid_gray">#3A3A3C</color>
-    <color name="apple_light_gray">#8E8E93</color>
-    <color name="apple_text">#1C1C1E</color>
-    <color name="apple_text_secondary">#8E8E93</color>
-    <color name="apple_text_tertiary">#C7C7CC</color>
-    <color name="apple_accent">#007AFF</color>
-    <color name="apple_accent_active">#0056CC</color>
-    <color name="apple_success">#34C759</color>
-    <color name="apple_error">#FF3B30</color>
-    <color name="apple_warning">#FF9500</color>
-    <color name="apple_green">#34C759</color>
-    <color name="apple_red">#FF3B30</color>
-    <color name="apple_separator">#E5E5EA</color>
-    
-    <color name="colorPrimary">#007AFF</color>
-    <color name="colorPrimaryDark">#FFFFFF</color>
-    <color name="colorAccent">#34C759</color>
+
+    <!-- 动态主题颜色（运行时会被代码替换） -->
+    <color name="theme_background">@color/light_background</color>
+    <color name="theme_surface">@color/light_surface</color>
+    <color name="theme_surface_elevated">@color/light_surface_elevated</color>
+    <color name="theme_text_primary">@color/light_text_primary</color>
+    <color name="theme_text_secondary">@color/light_text_secondary</color>
+    <color name="theme_text_tertiary">@color/light_text_tertiary</color>
+    <color name="theme_separator">@color/light_separator</color>
+    <color name="theme_accent">@color/light_accent</color>
+    <color name="theme_accent_light">@color/light_accent_light</color>
+    <color name="theme_danger">@color/light_danger</color>
 </resources>
