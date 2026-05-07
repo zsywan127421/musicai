@@ -23,6 +23,8 @@ public class MainActivity extends AppCompatActivity {
         Button btnMelodyEditor = findViewById(R.id.btn_melody_editor);
         Button btnChordEditor = findViewById(R.id.btn_chord_editor);
         Button btnSongGenerator = findViewById(R.id.btn_song_generator);
+        Button btnNewSongGenerator = findViewById(R.id.btn_new_song_generator);
+        Button btnLibrary = findViewById(R.id.btn_library);
         Button btnSettings = findViewById(R.id.btn_settings);
         
         updateModelStatus();
@@ -37,6 +39,14 @@ public class MainActivity extends AppCompatActivity {
         
         btnSongGenerator.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, SongGeneratorActivity.class));
+        });
+        
+        btnNewSongGenerator.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, NewSongGeneratorActivity.class));
+        });
+        
+        btnLibrary.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, LibraryActivity.class));
         });
         
         btnSettings.setOnClickListener(v -> {

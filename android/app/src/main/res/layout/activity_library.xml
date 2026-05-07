@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/apple_dark"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="我的旋律库"
+            android:textSize="20sp"
+            android:textColor="@color/apple_text"
+            android:textStyle="bold"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="12dp">
+
+        <TextView
+            android:id="@+id/tv_tab_melody"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="我的旋律"
+            android:textSize="15sp"
+            android:textColor="@color/apple_text"
+            android:gravity="center"
+            android:background="@drawable/tab_selected_bg"
+            android:layout_marginEnd="4dp"/>
+
+        <TextView
+            android:id="@+id/tv_tab_chord"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="我的和弦"
+            android:textSize="15sp"
+            android:textColor="@color/apple_text_secondary"
+            android:gravity="center"
+            android:background="@drawable/tab_bg"
+            android:layout_marginStart="4dp"/>
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ListView
+            android:id="@+id/lv_library"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp"
+            android:clipToPadding="false"
+            android:divider="@null"
+            android:dividerHeight="8dp"/>
+
+        <TextView
+            android:id="@+id/tv_empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="旋律库为空\n请先在歌曲生成器中创建旋律"
+            android:textSize="16sp"
+            android:textColor="@color/apple_text_secondary"
+            android:visibility="gone"/>
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:paddingTop="8dp">
+
+        <Button
+            android:id="@+id/btn_preview"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="预览播放"
+            android:textSize="15sp"
+            android:textColor="@color/apple_text"
+            android:background="@drawable/apple_button_primary_bg"
+            android:enabled="false"
+            android:layout_marginEnd="6dp"/>
+
+        <Button
+            android:id="@+id/btn_delete"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="删除"
+            android:textSize="15sp"
+            android:textColor="@color/apple_text"
+            android:background="@drawable/apple_button_danger_bg"
+            android:enabled="false"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"/>
+
+        <Button
+            android:id="@+id/btn_clear_all"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="清空"
+            android:textSize="15sp"
+            android:textColor="@color/apple_text"
+            android:background="@drawable/apple_button_bg"
+            android:layout_marginStart="6dp"/>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,137 +1,185 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:fitsSystemWindows="true"
-    android:padding="20dp"
-    android:background="@color/apple_dark">
+    android:background="@color/apple_dark"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginBottom="24dp">
+        android:fitsSystemWindows="true"
+        android:padding="20dp">
 
-        <TextView
-            android:id="@+id/tv_title"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="MusicAI"
-            android:textSize="34sp"
-            android:textColor="@color/apple_text"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginBottom="8dp"/>
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
 
-        <TextView
-            android:id="@+id/tv_subtitle"
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="MusicAI"
+                android:textSize="34sp"
+                android:textColor="@color/apple_text"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tv_subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="AI 音乐创作助手"
+                android:textSize="16sp"
+                android:textColor="@color/apple_text_secondary"
+                android:gravity="center"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/model_status_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="AI 音乐创作助手"
-            android:textSize="16sp"
-            android:textColor="@color/apple_text_secondary"
-            android:gravity="center"/>
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:background="@drawable/apple_card_bg"
+            android:layout_marginBottom="24dp">
+
+            <ImageView
+                android:id="@+id/iv_status_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/ic_check_circle"/>
+
+            <TextView
+                android:id="@+id/tv_model_status"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="大模型已配置"
+                android:textSize="16sp"
+                android:textColor="@color/apple_text"/>
+
+            <TextView
+                android:id="@+id/tv_model_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="gpt-3.5-turbo"
+                android:textSize="14sp"
+                android:textColor="@color/apple_text_secondary"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="创作工具"
+                android:textSize="14sp"
+                android:textColor="@color/apple_text_secondary"
+                android:layout_marginBottom="12dp"
+                android:layout_marginStart="4dp"/>
+
+            <Button
+                android:id="@+id/btn_new_song_generator"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:text="高级歌曲生成器"
+                android:textSize="18sp"
+                android:textColor="@color/apple_text"
+                android:background="@drawable/apple_button_primary_bg"
+                android:layout_marginBottom="12dp"
+                android:paddingStart="20dp"
+                android:gravity="start|center_vertical"/>
+
+            <Button
+                android:id="@+id/btn_song_generator"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:text="快速歌曲生成"
+                android:textSize="18sp"
+                android:textColor="@color/apple_text"
+                android:background="@drawable/apple_button_bg"
+                android:layout_marginBottom="12dp"
+                android:paddingStart="20dp"
+                android:gravity="start|center_vertical"/>
+
+            <Button
+                android:id="@+id/btn_library"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:text="我的资源库"
+                android:textSize="18sp"
+                android:textColor="@color/apple_text"
+                android:background="@drawable/apple_button_bg"
+                android:layout_marginBottom="24dp"
+                android:paddingStart="20dp"
+                android:gravity="start|center_vertical"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="编辑器"
+                android:textSize="14sp"
+                android:textColor="@color/apple_text_secondary"
+                android:layout_marginBottom="12dp"
+                android:layout_marginStart="4dp"/>
+
+            <Button
+                android:id="@+id/btn_melody_editor"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="旋律编辑器"
+                android:textSize="16sp"
+                android:textColor="@color/apple_text"
+                android:background="@drawable/apple_button_bg"
+                android:layout_marginBottom="8dp"
+                android:paddingStart="16dp"
+                android:gravity="start|center_vertical"/>
+
+            <Button
+                android:id="@+id/btn_chord_editor"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="和弦编辑器"
+                android:textSize="16sp"
+                android:textColor="@color/apple_text"
+                android:background="@drawable/apple_button_bg"
+                android:layout_marginBottom="24dp"
+                android:paddingStart="16dp"
+                android:gravity="start|center_vertical"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="设置"
+                android:textSize="14sp"
+                android:textColor="@color/apple_text_secondary"
+                android:layout_marginBottom="12dp"
+                android:layout_marginStart="4dp"/>
+
+            <Button
+                android:id="@+id/btn_settings"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="大模型配置"
+                android:textSize="16sp"
+                android:textColor="@color/apple_text"
+                android:background="@drawable/apple_button_bg"
+                android:paddingStart="16dp"
+                android:gravity="start|center_vertical"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/model_status_card"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:background="@drawable/apple_card_bg"
-        android:layout_marginBottom="24dp">
-
-        <ImageView
-            android:id="@+id/iv_status_icon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginRight="12dp"
-            android:src="@drawable/ic_check_circle"/>
-
-        <TextView
-            android:id="@+id/tv_model_status"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="大模型已配置"
-            android:textSize="16sp"
-            android:textColor="@color/apple_text"/>
-
-        <TextView
-            android:id="@+id/tv_model_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="gpt-3.5-turbo"
-            android:textSize="14sp"
-            android:textColor="@color/apple_text_secondary"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:gravity="center">
-
-        <Button
-            android:id="@+id/btn_melody_editor"
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:text="旋律编辑器"
-            android:textSize="18sp"
-            android:textColor="@color/apple_text"
-            android:background="@drawable/apple_button_primary_bg"
-            android:layout_marginBottom="16dp"
-            android:paddingLeft="20dp"
-            android:drawableLeft="@drawable/ic_music_note"
-            android:drawablePadding="16dp"
-            android:gravity="left|center_vertical"/>
-
-        <Button
-            android:id="@+id/btn_chord_editor"
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:text="和弦走向"
-            android:textSize="18sp"
-            android:textColor="@color/apple_text"
-            android:background="@drawable/apple_button_bg"
-            android:layout_marginBottom="16dp"
-            android:paddingLeft="20dp"
-            android:drawableLeft="@drawable/ic_chord"
-            android:drawablePadding="16dp"
-            android:gravity="left|center_vertical"/>
-
-        <Button
-            android:id="@+id/btn_song_generator"
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:text="曲子生成"
-            android:textSize="18sp"
-            android:textColor="@color/apple_text"
-            android:background="@drawable/apple_button_bg"
-            android:layout_marginBottom="16dp"
-            android:paddingLeft="20dp"
-            android:drawableLeft="@drawable/ic_song"
-            android:drawablePadding="16dp"
-            android:gravity="left|center_vertical"/>
-
-        <Button
-            android:id="@+id/btn_settings"
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:text="大模型配置"
-            android:textSize="18sp"
-            android:textColor="@color/apple_text"
-            android:background="@drawable/apple_button_bg"
-            android:paddingLeft="20dp"
-            android:drawableLeft="@drawable/ic_settings"
-            android:drawablePadding="16dp"
-            android:gravity="left|center_vertical"/>
-
-    </LinearLayout>
-
-</LinearLayout>
+</ScrollView>

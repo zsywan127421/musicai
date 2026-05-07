@@ -40,6 +40,14 @@
             android:name=".SongGeneratorActivity"
             android:exported="false" />
             
+        <activity
+            android:name=".NewSongGeneratorActivity"
+            android:exported="false" />
+            
+        <activity
+            android:name=".LibraryActivity"
+            android:exported="false" />
+            
         <service
             android:name=".MusicPlayerService"
             android:exported="false" />

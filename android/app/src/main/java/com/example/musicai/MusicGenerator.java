@@ -215,6 +215,75 @@ public class MusicGenerator {
         }
     }
     
+    public MusicData.ChordProgression generateCustomChords(String style, int length, String keySignature, String mood, String description) throws IOException {
+        StringBuilder prompt = new StringBuilder();
+        prompt.append("你是一名和声编配师。根据以下条件独立生成一段和弦走向。\n\n");
+        
+        prompt.append("风格：").append(style).append("\n");
+        
+        if (keySignature != null && !keySignature.isEmpty()) {
+            prompt.append("调性：").append(keySignature).append("\n");
+        }
+        
+        if (mood != null && !mood.isEmpty()) {
+            prompt.append("情绪：").append(mood).append("\n");
+        }
+        
+        if (description != null && !description.isEmpty()) {
+            prompt.append("描述：").append(description).append("\n");
+        }
+        
+        prompt.append("\n要求：\n");
+        prompt.append("- 生成").append(length).append("个和弦的和弦进行\n");
+        prompt.append("- 遵循").append(style).append("风格的典型和弦进行\n");
+        
+        if (keySignature != null && !keySignature.isEmpty()) {
+            prompt.append("- 优先使用与调性").append(keySignature).append("匹配的和弦\n");
+        }
+        
+        prompt.append("- 创造有音乐性的和弦连接\n\n");
+        
+        prompt.append("返回格式要求：\n");
+        prompt.append("只返回纯JSON数组，不要包含任何解释文字。\n");
+        prompt.append("格式：[{\"name\":\"C\",\"type\":\"major\",\"duration\":4,\"startTime\":0}]\n");
+        prompt.append("- name：根音（C, D, E, F, G, A, B 可带升降号#）\n");
+        prompt.append("- type：和弦类型（major, minor, seventh, diminished, augmented, sus2, sus4）\n");
+        prompt.append("- duration：持续时值\n");
+        prompt.append("- startTime：开始时间");
+        
+        try {
+            String response = modelConfig.generateContent(prompt.toString());
+            Log.d(TAG, "Custom chords response: " + response);
+            
+            String cleanedResponse = extractJsonFromResponse(response);
+            JSONArray jsonArray = new JSONArray(cleanedResponse);
+            MusicData.ChordProgression progression = new MusicData.ChordProgression();
+            progression.style = style;
+            progression.name = "自定义和弦 " + style;
+            
+            int time = 0;
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject chordObj = jsonArray.getJSONObject(i);
+                MusicData.Chord chord = new MusicData.Chord(
+                    chordObj.optString("name", "C"),
+                    chordObj.optString("type", "major"),
+                    chordObj.optInt("duration", 4),
+                    chordObj.optInt("startTime", time)
+                );
+                if (chord.startTime == 0 && i > 0) {
+                    chord.startTime = time;
+                }
+                progression.chords.add(chord);
+                time = chord.startTime + chord.duration;
+            }
+            
+            return progression;
+        } catch (JSONException e) {
+            Log.e(TAG, "Failed to parse custom chords JSON", e);
+            throw new IOException("解析AI返回失败，请检查API配置后重试。原始错误: " + e.getMessage(), e);
+        }
+    }
+    
     public MusicData.Melody generateMelody(String style, int length, MusicData.Melody userMelody) throws IOException {
         return generateMelodyWithDescription(style, length, userMelody, null);
     }
