@@ -44,6 +44,7 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
     private LinearLayout songSection;
     
     private Spinner spStyle;
+    private Spinner spMelodyLength;
     private EditText etDescription;
     private Button btnGenerateMelody;
     private ProgressBar progressBar;
@@ -112,6 +113,7 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
         songSection = findViewById(R.id.song_section);
         
         spStyle = findViewById(R.id.sp_style);
+        spMelodyLength = findViewById(R.id.sp_melody_length);
         etDescription = findViewById(R.id.et_description);
         btnGenerateMelody = findViewById(R.id.btn_generate_melody);
         progressBar = findViewById(R.id.progress_bar);
@@ -143,6 +145,13 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
             R.layout.spinner_item, MusicData.MUSIC_STYLES);
         styleAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spStyle.setAdapter(styleAdapter);
+        
+        String[] melodyLengths = {"4音符", "8音符", "16音符", "32音符"};
+        ArrayAdapter<String> lengthAdapter = new ArrayAdapter<>(this, 
+            R.layout.spinner_item, melodyLengths);
+        lengthAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        spMelodyLength.setAdapter(lengthAdapter);
+        spMelodyLength.setSelection(1);
     }
     
     private void setupListeners() {
@@ -262,9 +271,16 @@ public class NewSongGeneratorActivity extends AppCompatActivity {
         String style = (String) spStyle.getSelectedItem();
         String description = etDescription.getText().toString().trim();
         
+        String lengthStr = (String) spMelodyLength.getSelectedItem();
+        int length = 8;
+        if (lengthStr.contains("4")) length = 4;
+        else if (lengthStr.contains("8")) length = 8;
+        else if (lengthStr.contains("16")) length = 16;
+        else if (lengthStr.contains("32")) length = 32;
+        
         new Thread(() -> {
             try {
-                MusicData.Melody melody = musicGenerator.generateMelodyWithDescription(style, 8, null, description);
+                MusicData.Melody melody = musicGenerator.generateMelodyWithDescription(style, length, null, description);
                 
                 MusicRepository.MelodyEntry entry = new MusicRepository.MelodyEntry();
                 entry.name = "旋律_" + System.currentTimeMillis();

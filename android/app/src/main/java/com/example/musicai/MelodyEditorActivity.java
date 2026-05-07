@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -23,18 +24,33 @@ import java.util.List;
 
 public class MelodyEditorActivity extends AppCompatActivity {
     
-    private MusicGenerator musicGenerator;
+    public static final int MODE_SELECT = 0;
+    public static final int MODE_EDIT = 1;
+    
+    private int currentMode = MODE_SELECT;
+    private String selectedEntryId = null;
+    private boolean isOriginalEntry = false;
+    
+    private MusicRepository repository;
     private MusicData.Melody currentMelody;
-    private MusicData.Melody customMelodyMotif;
     private ListView lvNotes;
+    private ListView lvLibrary;
     private ArrayAdapter<String> notesAdapter;
+    private ArrayAdapter<String> libraryAdapter;
     private List<String> notesList;
-    private ProgressBar progressBar;
-    private TextView tvCustomMelody;
+    private List<String> libraryList;
+    
+    private TextView tvTitle;
+    private TextView tvEmpty;
+    private LinearLayout selectLayout;
+    private LinearLayout editLayout;
+    private EditText etEntryName;
+    private Button btnSave;
+    private Button btnSaveAs;
+    private Button btnBack;
     
     private MusicPlayerService playerService;
     private boolean isBound = false;
-    private boolean isGenerating = false;
     
     private Handler progressHandler = new Handler();
     private Runnable progressUpdateRunnable;
@@ -58,55 +74,47 @@ public class MelodyEditorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_melody_editor);
         
-        musicGenerator = new MusicGenerator(this);
+        repository = MusicRepository.getInstance(this);
         currentMelody = new MusicData.Melody();
-        customMelodyMotif = new MusicData.Melody();
+        
+        initViews();
+        setupSpinners();
+        loadLibrary();
+        updateUI();
+    }
+    
+    private void initViews() {
+        tvTitle = findViewById(R.id.tv_title);
+        tvEmpty = findViewById(R.id.tv_empty);
+        selectLayout = findViewById(R.id.select_layout);
+        editLayout = findViewById(R.id.edit_layout);
+        etEntryName = findViewById(R.id.et_entry_name);
+        
+        lvLibrary = findViewById(R.id.lv_library);
+        libraryList = new ArrayList<>();
+        libraryAdapter = new ArrayAdapter<>(this, R.layout.list_item_note, libraryList);
+        lvLibrary.setAdapter(libraryAdapter);
+        lvLibrary.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         
         lvNotes = findViewById(R.id.lv_notes);
-        progressBar = findViewById(R.id.progress_bar);
-        tvCustomMelody = findViewById(R.id.tv_custom_melody);
         notesList = new ArrayList<>();
         notesAdapter = new ArrayAdapter<>(this, R.layout.list_item_note, notesList);
         lvNotes.setAdapter(notesAdapter);
-        
-        setupSpinners();
-        
-        Button btnGenerate = findViewById(R.id.btn_generate);
-        Button btnAddNote = findViewById(R.id.btn_add_note);
-        Button btnPlay = findViewById(R.id.btn_play);
-        Button btnDelete = findViewById(R.id.btn_delete);
-        Button btnAddCustomNote = findViewById(R.id.btn_add_custom_note);
-        Button btnClearCustom = findViewById(R.id.btn_clear_custom);
-        
-        btnGenerate.setOnClickListener(v -> {
-            if (isGenerating) return;
-            String style = (String) ((Spinner) findViewById(R.id.sp_style)).getSelectedItem();
-            generateMelody(style);
-        });
-        
-        btnAddNote.setOnClickListener(v -> addNote());
-        
-        btnPlay.setOnClickListener(v -> playMelody());
-        
-        btnDelete.setOnClickListener(v -> deleteNote());
-        
-        btnAddCustomNote.setOnClickListener(v -> addCustomNote());
-        
-        btnClearCustom.setOnClickListener(v -> clearCustomMotif());
-        
-        lvNotes.setOnItemClickListener((parent, view, position, id) -> editNote(position));
         lvNotes.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         
-        updateCustomMotifDisplay();
+        btnSave = findViewById(R.id.btn_save);
+        btnSaveAs = findViewById(R.id.btn_save_as);
+        btnBack = findViewById(R.id.btn_back);
+        
+        lvLibrary.setOnItemClickListener((parent, view, position, id) -> selectMelody(position));
+        lvNotes.setOnItemClickListener((parent, view, position, id) -> editNote(position));
+        
+        btnSave.setOnClickListener(v -> saveMelody(false));
+        btnSaveAs.setOnClickListener(v -> saveMelody(true));
+        btnBack.setOnClickListener(v -> backToSelectMode());
     }
     
     private void setupSpinners() {
-        Spinner spStyle = findViewById(R.id.sp_style);
-        ArrayAdapter<String> styleAdapter = new ArrayAdapter<>(this, 
-            R.layout.spinner_item, MusicData.MUSIC_STYLES);
-        styleAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        spStyle.setAdapter(styleAdapter);
-        
         Spinner spPitch = findViewById(R.id.sp_pitch);
         ArrayAdapter<String> pitchAdapter = new ArrayAdapter<>(this, 
             R.layout.spinner_item, MusicData.PITCHES);
@@ -128,60 +136,95 @@ public class MelodyEditorActivity extends AppCompatActivity {
         durationAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spDuration.setAdapter(durationAdapter);
         spDuration.setSelection(2);
-    }
-    
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Intent intent = new Intent(this, MusicPlayerService.class);
-        bindService(intent, connection, BIND_AUTO_CREATE);
-    }
-    
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (progressUpdateRunnable != null) {
-            progressHandler.removeCallbacks(progressUpdateRunnable);
-        }
-        if (isBound) {
-            unbindService(connection);
-            isBound = false;
-        }
-    }
-    
-    private void generateMelody(String style) {
-        isGenerating = true;
-        progressBar.setVisibility(View.VISIBLE);
-        Button btnGenerate = findViewById(R.id.btn_generate);
-        btnGenerate.setEnabled(false);
         
-        new Thread(() -> {
-            try {
-                MusicData.Melody motifToUse = customMelodyMotif.notes.isEmpty() ? null : customMelodyMotif;
-                currentMelody = musicGenerator.generateMelody(style, 8, motifToUse);
-                runOnUiThread(() -> {
-                    updateNotesList();
-                    Toast.makeText(MelodyEditorActivity.this, "旋律生成完成！", Toast.LENGTH_SHORT).show();
-                });
-            } catch (Exception e) {
-                runOnUiThread(() -> {
-                    Toast.makeText(MelodyEditorActivity.this, "生成失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                });
-            } finally {
-                runOnUiThread(() -> {
-                    isGenerating = false;
-                    progressBar.setVisibility(View.GONE);
-                    btnGenerate.setEnabled(true);
-                });
+        Button btnAddNote = findViewById(R.id.btn_add_note);
+        Button btnDelete = findViewById(R.id.btn_delete);
+        Button btnPlay = findViewById(R.id.btn_play);
+        Button btnAddCustomNote = findViewById(R.id.btn_add_custom_note);
+        Button btnTransposeUp = findViewById(R.id.btn_transpose_up);
+        Button btnTransposeDown = findViewById(R.id.btn_transpose_down);
+        
+        btnAddNote.setOnClickListener(v -> addNote());
+        btnDelete.setOnClickListener(v -> deleteNote());
+        btnPlay.setOnClickListener(v -> playMelody());
+        btnAddCustomNote.setOnClickListener(v -> addCustomNote());
+        btnTransposeUp.setOnClickListener(v -> transpose(1));
+        btnTransposeDown.setOnClickListener(v -> transpose(-1));
+    }
+    
+    private void loadLibrary() {
+        libraryList.clear();
+        List<MusicRepository.MelodyEntry> entries = repository.getMelodyLibrary();
+        
+        if (entries.isEmpty()) {
+            tvEmpty.setVisibility(View.VISIBLE);
+            tvEmpty.setText("旋律库为空\n请先在高级生成器中创建旋律");
+        } else {
+            tvEmpty.setVisibility(View.GONE);
+            for (MusicRepository.MelodyEntry entry : entries) {
+                String display = entry.name + "\n" + 
+                    entry.getPreviewText() + "\n" +
+                    "风格: " + entry.style;
+                libraryList.add(display);
             }
-        }).start();
+        }
+        libraryAdapter.notifyDataSetChanged();
+    }
+    
+    private void selectMelody(int position) {
+        List<MusicRepository.MelodyEntry> entries = repository.getMelodyLibrary();
+        if (position >= entries.size()) return;
+        
+        MusicRepository.MelodyEntry entry = entries.get(position);
+        selectedEntryId = entry.id;
+        isOriginalEntry = true;
+        
+        currentMelody = entry.toMelody();
+        etEntryName.setText(entry.name);
+        
+        updateNotesList();
+        switchToEditMode();
+    }
+    
+    private void switchToEditMode() {
+        currentMode = MODE_EDIT;
+        updateUI();
+    }
+    
+    private void backToSelectMode() {
+        currentMode = MODE_SELECT;
+        selectedEntryId = null;
+        isOriginalEntry = false;
+        currentMelody = new MusicData.Melody();
+        etEntryName.setText("");
+        notesList.clear();
+        notesAdapter.notifyDataSetChanged();
+        loadLibrary();
+        updateUI();
+    }
+    
+    private void updateUI() {
+        if (currentMode == MODE_SELECT) {
+            tvTitle.setText("选择旋律");
+            selectLayout.setVisibility(View.VISIBLE);
+            editLayout.setVisibility(View.GONE);
+        } else {
+            tvTitle.setText("编辑旋律");
+            selectLayout.setVisibility(View.GONE);
+            editLayout.setVisibility(View.VISIBLE);
+        }
     }
     
     private void addNote() {
-        String[] pitches = MusicData.PITCHES;
-        int pitchIndex = (int) (Math.random() * pitches.length);
-        int octave = 4;
-        int duration = 4;
+        Spinner spPitch = findViewById(R.id.sp_pitch);
+        Spinner spOctave = findViewById(R.id.sp_octave);
+        Spinner spDuration = findViewById(R.id.sp_duration);
+        
+        String pitch = (String) spPitch.getSelectedItem();
+        int octave = Integer.parseInt((String) spOctave.getSelectedItem());
+        
+        String durationStr = (String) spDuration.getSelectedItem();
+        int duration = Integer.parseInt(durationStr.split(" ")[0]);
         
         int startTime = 0;
         if (!currentMelody.notes.isEmpty()) {
@@ -189,10 +232,14 @@ public class MelodyEditorActivity extends AppCompatActivity {
             startTime = lastNote.startTime + lastNote.duration;
         }
         
-        MusicData.Note note = new MusicData.Note(pitches[pitchIndex], octave, duration, startTime);
+        MusicData.Note note = new MusicData.Note(pitch, octave, duration, startTime);
         currentMelody.notes.add(note);
         updateNotesList();
         Toast.makeText(this, "已添加音符", Toast.LENGTH_SHORT).show();
+    }
+    
+    private void addCustomNote() {
+        addNote();
     }
     
     private void deleteNote() {
@@ -210,8 +257,27 @@ public class MelodyEditorActivity extends AppCompatActivity {
     private void editNote(int position) {
         if (position >= 0 && position < currentMelody.notes.size()) {
             MusicData.Note note = currentMelody.notes.get(position);
-            String[] pitches = MusicData.PITCHES;
-            int currentIndex = 0;
+            
+            Spinner spPitch = findViewById(R.id.sp_pitch);
+            Spinner spOctave = findViewById(R.id.sp_octave);
+            Spinner spDuration = findViewById(R.id.sp_duration);
+            
+            note.pitch = (String) spPitch.getSelectedItem();
+            note.octave = Integer.parseInt((String) spOctave.getSelectedItem());
+            
+            String durationStr = (String) spDuration.getSelectedItem();
+            note.duration = Integer.parseInt(durationStr.split(" ")[0]);
+            
+            updateNotesList();
+            lvNotes.setItemChecked(position, true);
+            Toast.makeText(this, "已更新音符", Toast.LENGTH_SHORT).show();
+        }
+    }
+    
+    private void transpose(int semitones) {
+        String[] pitches = MusicData.PITCHES;
+        for (MusicData.Note note : currentMelody.notes) {
+            int currentIndex = -1;
             for (int i = 0; i < pitches.length; i++) {
                 if (pitches[i].equals(note.pitch)) {
                     currentIndex = i;
@@ -219,53 +285,64 @@ public class MelodyEditorActivity extends AppCompatActivity {
                 }
             }
             
-            int newIndex = (currentIndex + 1) % pitches.length;
-            note.pitch = pitches[newIndex];
-            updateNotesList();
-            lvNotes.setItemChecked(position, true);
-        }
-    }
-    
-    private void addCustomNote() {
-        Spinner spPitch = findViewById(R.id.sp_pitch);
-        Spinner spOctave = findViewById(R.id.sp_octave);
-        Spinner spDuration = findViewById(R.id.sp_duration);
-        
-        String pitch = (String) spPitch.getSelectedItem();
-        int octave = Integer.parseInt((String) spOctave.getSelectedItem());
-        
-        String durationStr = (String) spDuration.getSelectedItem();
-        int duration = Integer.parseInt(durationStr.split(" ")[0]);
-        
-        int startTime = 0;
-        if (!customMelodyMotif.notes.isEmpty()) {
-            MusicData.Note lastNote = customMelodyMotif.notes.get(customMelodyMotif.notes.size() - 1);
-            startTime = lastNote.startTime + lastNote.duration;
-        }
-        
-        MusicData.Note note = new MusicData.Note(pitch, octave, duration, startTime);
-        customMelodyMotif.notes.add(note);
-        updateCustomMotifDisplay();
-        Toast.makeText(this, "已添加音符到动机", Toast.LENGTH_SHORT).show();
-    }
-    
-    private void clearCustomMotif() {
-        customMelodyMotif.notes.clear();
-        updateCustomMotifDisplay();
-        Toast.makeText(this, "动机已清除", Toast.LENGTH_SHORT).show();
-    }
-    
-    private void updateCustomMotifDisplay() {
-        if (customMelodyMotif.notes.isEmpty()) {
-            tvCustomMelody.setText("尚未添加音符");
-        } else {
-            StringBuilder sb = new StringBuilder();
-            for (MusicData.Note note : customMelodyMotif.notes) {
-                if (sb.length() > 0) sb.append(" → ");
-                sb.append(note.toString());
+            if (currentIndex != -1) {
+                int newIndex = currentIndex + semitones;
+                int newOctave = note.octave;
+                
+                if (newIndex >= pitches.length) {
+                    newIndex = newIndex - pitches.length;
+                    newOctave++;
+                } else if (newIndex < 0) {
+                    newIndex = newIndex + pitches.length;
+                    newOctave--;
+                }
+                
+                if (newOctave >= 2 && newOctave <= 6) {
+                    note.pitch = pitches[newIndex];
+                    note.octave = newOctave;
+                }
             }
-            tvCustomMelody.setText(sb.toString());
         }
+        updateNotesList();
+        Toast.makeText(this, semitones > 0 ? "已升调半音" : "已降调半音", Toast.LENGTH_SHORT).show();
+    }
+    
+    private void saveMelody(boolean saveAsNew) {
+        String name = etEntryName.getText().toString().trim();
+        if (name.isEmpty()) {
+            Toast.makeText(this, "请输入名称", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        if (currentMelody.notes.isEmpty()) {
+            Toast.makeText(this, "请添加至少一个音符", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        if (saveAsNew || !isOriginalEntry) {
+            MusicRepository.MelodyEntry newEntry = new MusicRepository.MelodyEntry();
+            newEntry.name = name;
+            newEntry.style = "自定义";
+            for (MusicData.Note note : currentMelody.notes) {
+                newEntry.notes.add(new MusicRepository.NoteData(note));
+            }
+            repository.addMelody(newEntry);
+            Toast.makeText(this, "已保存为新条目", Toast.LENGTH_SHORT).show();
+        } else {
+            repository.deleteMelody(selectedEntryId);
+            
+            MusicRepository.MelodyEntry updatedEntry = new MusicRepository.MelodyEntry();
+            updatedEntry.id = selectedEntryId;
+            updatedEntry.name = name;
+            updatedEntry.style = "自定义";
+            for (MusicData.Note note : currentMelody.notes) {
+                updatedEntry.notes.add(new MusicRepository.NoteData(note));
+            }
+            repository.addMelody(updatedEntry);
+            Toast.makeText(this, "已保存", Toast.LENGTH_SHORT).show();
+        }
+        
+        backToSelectMode();
     }
     
     private void playMelody() {
@@ -301,14 +378,11 @@ public class MelodyEditorActivity extends AppCompatActivity {
     
     private void updateProgressDisplay() {
         int currentPosition = playerService.getCurrentPosition();
-        int totalDuration = playerService.getDuration();
         
-        if (totalDuration > 0) {
-            int currentNoteIndex = findCurrentNoteIndex(currentPosition);
-            if (currentNoteIndex >= 0 && currentNoteIndex < notesList.size()) {
-                lvNotes.setItemChecked(currentNoteIndex, true);
-                lvNotes.smoothScrollToPosition(currentNoteIndex);
-            }
+        int currentNoteIndex = findCurrentNoteIndex(currentPosition);
+        if (currentNoteIndex >= 0 && currentNoteIndex < notesList.size()) {
+            lvNotes.setItemChecked(currentNoteIndex, true);
+            lvNotes.smoothScrollToPosition(currentNoteIndex);
         }
     }
     
@@ -332,5 +406,24 @@ public class MelodyEditorActivity extends AppCompatActivity {
             notesList.add(index++ + ". " + note.toString());
         }
         notesAdapter.notifyDataSetChanged();
+    }
+    
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Intent intent = new Intent(this, MusicPlayerService.class);
+        bindService(intent, connection, BIND_AUTO_CREATE);
+    }
+    
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (progressUpdateRunnable != null) {
+            progressHandler.removeCallbacks(progressUpdateRunnable);
+        }
+        if (isBound) {
+            unbindService(connection);
+            isBound = false;
+        }
     }
 }

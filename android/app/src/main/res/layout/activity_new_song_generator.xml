@@ -118,6 +118,32 @@
                     android:textStyle="bold"
                     android:layout_marginBottom="12dp"/>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="长度"
+                        android:textSize="14sp"
+                        android:textColor="@color/apple_text_secondary"
+                        android:layout_marginEnd="8dp"/>
+
+                    <Spinner
+                        android:id="@+id/sp_melody_length"
+                        android:layout_width="0dp"
+                        android:layout_height="44dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/apple_edittext_bg"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"/>
+
+                </LinearLayout>
+
                 <EditText
                     android:id="@+id/et_description"
                     android:layout_width="match_parent"

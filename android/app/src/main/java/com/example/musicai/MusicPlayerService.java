@@ -23,6 +23,7 @@ public class MusicPlayerService extends Service {
     private Thread playbackThread;
     private volatile boolean isPlaying = false;
     private float volume = 1.0f;
+    private float speed = 1.0f;
     
     private MusicData.Song currentSong;
     private volatile int currentPositionMs = 0;
@@ -135,6 +136,14 @@ public class MusicPlayerService extends Service {
         return totalDurationMs;
     }
     
+    public float getSpeed() {
+        return speed;
+    }
+    
+    public void setSpeed(float speed) {
+        this.speed = Math.max(0.5f, Math.min(2.0f, speed));
+    }
+    
     private void startPlayback() {
         if (currentSong == null || currentSong.melody == null || currentSong.melody.notes.isEmpty()) {
             return;
@@ -172,7 +181,7 @@ public class MusicPlayerService extends Service {
                     int midi = MusicData.pitchToMidi(note.pitch, note.octave);
                     double frequency = 440.0 * Math.pow(2.0, (midi - 69) / 12.0);
                     
-                    int noteDurationMs = note.duration * 250;
+                    int noteDurationMs = (int) (note.duration * 250 / speed);
                     int noteSamples = (int) (SAMPLE_RATE * (noteDurationMs / 1000.0));
                     
                     short[] buffer = new short[noteSamples * 2];
@@ -181,20 +190,20 @@ public class MusicPlayerService extends Service {
                         
                         double t = (double) i / SAMPLE_RATE;
                         double sample = Math.sin(2 * Math.PI * frequency * t) * 0.3;
-                        sample *= Math.exp(-t * 5.0);
+                        sample *= Math.exp(-t * 5.0 * speed);
                         
                         short value = (short) (sample * Short.MAX_VALUE);
                         buffer[i * 2] = value;
                         buffer[i * 2 + 1] = value;
                         
                         if (i % 44 == 0) {
-                            currentPositionMs = note.startTime * 250 + (i * 1000 / SAMPLE_RATE);
+                            currentPositionMs = (int) (note.startTime * 250 + (i * 1000 / SAMPLE_RATE) * speed);
                         }
                     }
                     
                     audioTrack.write(buffer, 0, buffer.length);
                     samplePos += noteSamples;
-                    currentPositionMs = (note.startTime + note.duration) * 250;
+                    currentPositionMs = (int) ((note.startTime + note.duration) * 250);
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Playback error", e);
