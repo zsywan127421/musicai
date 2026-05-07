@@ -19,18 +19,6 @@ jobs:
         node-version: '20'
         cache: 'npm'
         
-    - name: Install npm dependencies
-      run: npm ci
-      
-    - name: Build web app
-      run: npm run build
-      
-    - name: Copy web files to Android
-      run: |
-        mkdir -p android/app/src/main/assets/public
-        cp -r dist/* android/app/src/main/assets/public/
-        ls -la android/app/src/main/assets/public/
-        
     - name: Setup JDK
       uses: actions/setup-java@v4
       with:
@@ -44,17 +32,37 @@ jobs:
         platforms: android-34
         build-tools: 34.0.0
         
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties') }}
+        restore-keys: ${{ runner.os }}-gradle
+        
+    - name: Install npm dependencies
+      run: npm ci
+      
+    - name: Build web app
+      run: npm run build
+      
+    - name: Sync Capacitor
+      run: |
+        export ANDROID_HOME="$ANDROID_HOME"
+        npx cap add android || true
+        npx cap sync android
+        
     - name: Create local.properties
       run: |
         echo "sdk.dir=$ANDROID_HOME" > android/local.properties
-        echo "Listing android directory..."
         ls -la android/
         
     - name: Build debug APK
       working-directory: ./android
       run: |
         chmod +x gradlew
-        ./gradlew assembleDebug --no-daemon
+        ./gradlew assembleDebug --no-daemon --stacktrace
         
     - name: Verify APK exists
       run: |
