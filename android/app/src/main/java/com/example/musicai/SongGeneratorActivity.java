@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -27,10 +28,15 @@ public class SongGeneratorActivity extends AppCompatActivity {
     private ArrayAdapter<String> songAdapter;
     private List<String> songList;
     private ProgressBar progressBar;
+    private ProgressBar playbackProgress;
+    private TextView tvPlaybackTime;
     
     private MusicPlayerService playerService;
     private boolean isBound = false;
     private boolean isGenerating = false;
+    
+    private Handler progressHandler = new Handler();
+    private Runnable progressUpdateRunnable;
     
     private ServiceConnection connection = new ServiceConnection() {
         @Override
@@ -56,6 +62,8 @@ public class SongGeneratorActivity extends AppCompatActivity {
         
         lvSong = findViewById(R.id.lv_song);
         progressBar = findViewById(R.id.progress_bar);
+        playbackProgress = findViewById(R.id.playback_progress);
+        tvPlaybackTime = findViewById(R.id.tv_playback_time);
         songList = new ArrayList<>();
         songAdapter = new ArrayAdapter<>(this, R.layout.list_item_note, songList);
         lvSong.setAdapter(songAdapter);
@@ -88,6 +96,9 @@ public class SongGeneratorActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        if (progressUpdateRunnable != null) {
+            progressHandler.removeCallbacks(progressUpdateRunnable);
+        }
         if (isBound) {
             unbindService(connection);
             isBound = false;
@@ -102,8 +113,8 @@ public class SongGeneratorActivity extends AppCompatActivity {
         
         new Thread(() -> {
             try {
-                MusicData.Melody melody = musicGenerator.generateMelody(style, 8);
-                MusicData.ChordProgression chords = musicGenerator.generateChords(style, 4);
+                MusicData.Melody melody = musicGenerator.generateMelody(style, 8, null);
+                MusicData.ChordProgression chords = musicGenerator.generateChords(style, 4, null);
                 currentSong = musicGenerator.generateSong(style, melody, chords);
                 
                 runOnUiThread(() -> {
@@ -112,11 +123,11 @@ public class SongGeneratorActivity extends AppCompatActivity {
                     TextView tvArtist = findViewById(R.id.tv_artist);
                     tvTitle.setText("标题: " + currentSong.title);
                     tvArtist.setText("艺术家: " + currentSong.artist);
-                    Toast.makeText(SongGeneratorActivity.this, "歌曲生成完成", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SongGeneratorActivity.this, "歌曲生成完成！", Toast.LENGTH_SHORT).show();
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> {
-                    Toast.makeText(SongGeneratorActivity.this, "生成失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SongGeneratorActivity.this, "生成失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
             } finally {
                 runOnUiThread(() -> {
@@ -136,8 +147,73 @@ public class SongGeneratorActivity extends AppCompatActivity {
         
         if (isBound && playerService != null) {
             playerService.playSong(currentSong);
+            playbackProgress.setVisibility(View.VISIBLE);
+            tvPlaybackTime.setVisibility(View.VISIBLE);
+            startProgressUpdate();
             Toast.makeText(this, "开始播放", Toast.LENGTH_SHORT).show();
         }
+    }
+    
+    private void startProgressUpdate() {
+        if (progressUpdateRunnable != null) {
+            progressHandler.removeCallbacks(progressUpdateRunnable);
+        }
+        
+        progressUpdateRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (isBound && playerService != null && playerService.isPlaying()) {
+                    updateProgressDisplay();
+                    progressHandler.postDelayed(this, 100);
+                } else {
+                    playbackProgress.setProgress(0);
+                    tvPlaybackTime.setText("0:00 / 0:00");
+                }
+            }
+        };
+        
+        progressHandler.post(progressUpdateRunnable);
+    }
+    
+    private void updateProgressDisplay() {
+        int currentPosition = playerService.getCurrentPosition();
+        int totalDuration = playerService.getDuration();
+        
+        if (totalDuration > 0) {
+            int progress = (currentPosition * 100) / totalDuration;
+            playbackProgress.setProgress(progress);
+            
+            String currentTime = formatTime(currentPosition);
+            String totalTime = formatTime(totalDuration);
+            tvPlaybackTime.setText(currentTime + " / " + totalTime);
+            
+            int currentNoteIndex = findCurrentNoteIndex(currentPosition);
+            if (currentNoteIndex >= 0 && currentNoteIndex < songList.size()) {
+                lvSong.setItemChecked(currentNoteIndex, true);
+                lvSong.smoothScrollToPosition(currentNoteIndex);
+            }
+        }
+    }
+    
+    private String formatTime(int milliseconds) {
+        int seconds = (milliseconds / 1000) % 60;
+        int minutes = (milliseconds / (1000 * 60)) % 60;
+        return String.format("%d:%02d", minutes, seconds);
+    }
+    
+    private int findCurrentNoteIndex(int currentPosition) {
+        int positionMs = currentPosition;
+        if (currentSong != null && currentSong.melody != null) {
+            for (int i = 0; i < currentSong.melody.notes.size(); i++) {
+                MusicData.Note note = currentSong.melody.notes.get(i);
+                int noteStartMs = note.startTime * 250;
+                int noteEndMs = (note.startTime + note.duration) * 250;
+                if (positionMs >= noteStartMs && positionMs < noteEndMs) {
+                    return i + 3;
+                }
+            }
+        }
+        return -1;
     }
     
     private void updateSongList() {

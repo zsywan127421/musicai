@@ -21,11 +21,12 @@ public class MusicPlayerService extends Service {
     private final IBinder binder = new LocalBinder();
     private AudioTrack audioTrack;
     private Thread playbackThread;
-    private boolean isPlaying = false;
+    private volatile boolean isPlaying = false;
     private float volume = 1.0f;
     
     private MusicData.Song currentSong;
-    private int currentPosition = 0;
+    private volatile int currentPositionMs = 0;
+    private int totalDurationMs = 0;
     
     public class LocalBinder extends Binder {
         MusicPlayerService getService() {
@@ -54,7 +55,8 @@ public class MusicPlayerService extends Service {
     public void playSong(MusicData.Song song) {
         stopPlayback();
         currentSong = song;
-        currentPosition = 0;
+        currentPositionMs = 0;
+        calculateTotalDuration();
         startPlayback();
     }
     
@@ -62,8 +64,17 @@ public class MusicPlayerService extends Service {
         stopPlayback();
         currentSong = new MusicData.Song();
         currentSong.melody = melody;
-        currentPosition = 0;
+        currentPositionMs = 0;
+        calculateTotalDuration();
         startPlayback();
+    }
+    
+    private void calculateTotalDuration() {
+        totalDurationMs = 0;
+        if (currentSong != null && currentSong.melody != null && !currentSong.melody.notes.isEmpty()) {
+            MusicData.Note lastNote = currentSong.melody.notes.get(currentSong.melody.notes.size() - 1);
+            totalDurationMs = (lastNote.startTime + lastNote.duration) * 250;
+        }
     }
     
     public void pause() {
@@ -82,7 +93,7 @@ public class MusicPlayerService extends Service {
     
     public void stopPlayback() {
         isPlaying = false;
-        currentPosition = 0;
+        currentPositionMs = 0;
         
         if (playbackThread != null) {
             playbackThread.interrupt();
@@ -117,15 +128,11 @@ public class MusicPlayerService extends Service {
     }
     
     public int getCurrentPosition() {
-        return currentPosition;
+        return currentPositionMs;
     }
     
     public int getDuration() {
-        if (currentSong != null && currentSong.melody != null && !currentSong.melody.notes.isEmpty()) {
-            MusicData.Note lastNote = currentSong.melody.notes.get(currentSong.melody.notes.size() - 1);
-            return (lastNote.startTime + lastNote.duration) * 250;
-        }
-        return 0;
+        return totalDurationMs;
     }
     
     private void startPlayback() {
@@ -146,6 +153,7 @@ public class MusicPlayerService extends Service {
         audioTrack.setVolume(volume);
         audioTrack.play();
         isPlaying = true;
+        currentPositionMs = 0;
         
         playbackThread = new Thread(new PlaybackRunnable());
         playbackThread.start();
@@ -164,7 +172,8 @@ public class MusicPlayerService extends Service {
                     int midi = MusicData.pitchToMidi(note.pitch, note.octave);
                     double frequency = 440.0 * Math.pow(2.0, (midi - 69) / 12.0);
                     
-                    int noteSamples = (int) (SAMPLE_RATE * note.duration * 0.25);
+                    int noteDurationMs = note.duration * 250;
+                    int noteSamples = (int) (SAMPLE_RATE * (noteDurationMs / 1000.0));
                     
                     short[] buffer = new short[noteSamples * 2];
                     for (int i = 0; i < noteSamples; i++) {
@@ -177,10 +186,15 @@ public class MusicPlayerService extends Service {
                         short value = (short) (sample * Short.MAX_VALUE);
                         buffer[i * 2] = value;
                         buffer[i * 2 + 1] = value;
+                        
+                        if (i % 44 == 0) {
+                            currentPositionMs = note.startTime * 250 + (i * 1000 / SAMPLE_RATE);
+                        }
                     }
                     
                     audioTrack.write(buffer, 0, buffer.length);
                     samplePos += noteSamples;
+                    currentPositionMs = (note.startTime + note.duration) * 250;
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Playback error", e);

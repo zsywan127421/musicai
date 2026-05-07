@@ -1,111 +1,212 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/apple_dark">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:gravity="center_vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="风格"
-            android:textSize="14sp"
-            android:textColor="@color/apple_text_secondary"
-            android:layout_marginRight="12dp"/>
-
-        <Spinner
-            android:id="@+id/sp_style"
-            android:layout_width="0dp"
-            android:layout_height="44dp"
-            android:layout_weight="1"
-            android:background="@drawable/apple_edittext_bg"
-            android:paddingHorizontal="12dp"/>
-
-        <Button
-            android:id="@+id/btn_generate"
-            android:layout_width="100dp"
-            android:layout_height="44dp"
-            android:text="AI生成"
-            android:textSize="15sp"
-            android:textColor="@color/apple_text"
-            android:background="@drawable/apple_button_primary_bg"
-            android:layout_marginLeft="12dp"
-            android:cornerRadius="10dp"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
         android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="和弦列表"
-            android:textSize="16sp"
-            android:textColor="@color/apple_text"
-            android:textStyle="bold"
-            android:layout_marginBottom="12dp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
 
-        <ListView
-            android:id="@+id/lv_chords"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="风格"
+                android:textSize="14sp"
+                android:textColor="@color/apple_text_secondary"
+                android:layout_marginRight="12dp"/>
+
+            <Spinner
+                android:id="@+id/sp_style"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:background="@drawable/apple_edittext_bg"
+                android:paddingHorizontal="12dp"/>
+
+            <Button
+                android:id="@+id/btn_generate"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:text="AI生成"
+                android:textSize="15sp"
+                android:textColor="@color/apple_text"
+                android:background="@drawable/apple_button_primary_bg"
+                android:layout_marginLeft="12dp"
+                android:cornerRadius="10dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:background="@drawable/apple_card_bg"
-            android:divider="@color/apple_mid_gray"
-            android:dividerHeight="1dp"/>
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="自定义和弦进行"
+                android:textSize="16sp"
+                android:textColor="@color/apple_text"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="输入和弦序列（可选），AI将以此为基础创作"
+                android:textSize="13sp"
+                android:textColor="@color/apple_text_secondary"
+                android:layout_marginBottom="12dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <Spinner
+                    android:id="@+id/sp_chord_root"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="0.8"
+                    android:background="@drawable/apple_edittext_bg"
+                    android:paddingHorizontal="8dp"
+                    android:layout_marginRight="8dp"/>
+
+                <Spinner
+                    android:id="@+id/sp_chord_type"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/apple_edittext_bg"
+                    android:paddingHorizontal="8dp"
+                    android:layout_marginRight="8dp"/>
+
+                <Spinner
+                    android:id="@+id/sp_chord_duration"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="0.6"
+                    android:background="@drawable/apple_edittext_bg"
+                    android:paddingHorizontal="8dp"/>
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_add_custom_chord"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:text="+ 添加和弦到进行"
+                android:textSize="15sp"
+                android:textColor="@color/apple_text"
+                android:background="@drawable/apple_button_bg"
+                android:cornerRadius="10dp"
+                android:layout_marginBottom="12dp"/>
+
+            <TextView
+                android:id="@+id/tv_custom_chords"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="尚未添加和弦"
+                android:textSize="14sp"
+                android:textColor="@color/apple_text_secondary"
+                android:padding="8dp"
+                android:background="@color/apple_mid_gray"
+                android:cornerRadius="8dp"
+                android:minHeight="40dp"/>
+
+            <Button
+                android:id="@+id/btn_clear_custom_chords"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="清除进行"
+                android:textSize="13sp"
+                android:textColor="@color/apple_error"
+                android:background="@drawable/apple_button_danger_bg"
+                android:cornerRadius="8dp"
+                android:layout_marginTop="8dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/apple_card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="生成的和弦进行"
+                android:textSize="16sp"
+                android:textColor="@color/apple_text"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <ListView
+                android:id="@+id/lv_chords"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:divider="@color/apple_mid_gray"
+                android:dividerHeight="1dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/btn_add_chord"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text="添加和弦"
+                android:textSize="14sp"
+                android:textColor="@color/apple_text"
+                android:background="@drawable/apple_button_bg"
+                android:layout_marginRight="8dp"
+                android:cornerRadius="10dp"/>
+
+            <Button
+                android:id="@+id/btn_delete"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text="删除"
+                android:textSize="14sp"
+                android:textColor="@color/apple_text"
+                android:background="@drawable/apple_button_danger_bg"
+                android:cornerRadius="10dp"/>
+
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:layout_marginTop="16dp"/>
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:gravity="center">
-
-        <Button
-            android:id="@+id/btn_add_chord"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_weight="1"
-            android:text="添加和弦"
-            android:textSize="15sp"
-            android:textColor="@color/apple_text"
-            android:background="@drawable/apple_button_bg"
-            android:layout_marginRight="8dp"
-            android:cornerRadius="10dp"/>
-
-        <Button
-            android:id="@+id/btn_delete"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_weight="1"
-            android:text="删除"
-            android:textSize="15sp"
-            android:textColor="@color/apple_text"
-            android:background="@drawable/apple_button_danger_bg"
-            android:cornerRadius="10dp"/>
-
-    </LinearLayout>
-
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone"
-        android:layout_marginBottom="16dp"/>
-
-</LinearLayout>
+</ScrollView>

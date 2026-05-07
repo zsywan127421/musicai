@@ -30,7 +30,7 @@
 
         <Button
             android:id="@+id/btn_generate"
-            android:layout_width="100dp"
+            android:layout_width="wrap_content"
             android:layout_height="44dp"
             android:text="AI生成"
             android:textSize="15sp"
@@ -47,7 +47,9 @@
         android:orientation="vertical"
         android:background="@drawable/apple_card_bg"
         android:padding="16dp"
-        android:layout_margin="16dp">
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp">
 
         <TextView
             android:layout_width="match_parent"
@@ -79,8 +81,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
         android:paddingTop="0dp">
@@ -92,13 +93,43 @@
             android:textSize="16sp"
             android:textColor="@color/apple_text"
             android:textStyle="bold"
-            android:layout_marginBottom="12dp"/>
+            android:layout_marginBottom="8dp"/>
+
+        <ProgressBar
+            android:id="@+id/playback_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:progress="0"
+            android:max="100"
+            android:progressTint="@color/apple_accent"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/tv_playback_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="0:00 / 0:00"
+            android:textSize="12sp"
+            android:textColor="@color/apple_text_secondary"
+            android:gravity="center"
+            android:visibility="gone"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:paddingTop="0dp">
 
         <ListView
             android:id="@+id/lv_song"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
             android:background="@drawable/apple_card_bg"
             android:divider="@color/apple_mid_gray"
             android:dividerHeight="1dp"/>

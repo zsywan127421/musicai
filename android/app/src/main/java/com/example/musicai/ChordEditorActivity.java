@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,10 +19,13 @@ public class ChordEditorActivity extends AppCompatActivity {
     
     private MusicGenerator musicGenerator;
     private MusicData.ChordProgression currentChords;
+    private MusicData.ChordProgression customChordProgression;
     private ListView lvChords;
     private ArrayAdapter<String> chordsAdapter;
     private List<String> chordsList;
     private ProgressBar progressBar;
+    private TextView tvCustomChords;
+    
     private boolean isGenerating = false;
     
     @Override
@@ -31,26 +35,26 @@ public class ChordEditorActivity extends AppCompatActivity {
         
         musicGenerator = new MusicGenerator(this);
         currentChords = new MusicData.ChordProgression();
+        customChordProgression = new MusicData.ChordProgression();
         
         lvChords = findViewById(R.id.lv_chords);
         progressBar = findViewById(R.id.progress_bar);
+        tvCustomChords = findViewById(R.id.tv_custom_chords);
         chordsList = new ArrayList<>();
         chordsAdapter = new ArrayAdapter<>(this, R.layout.list_item_note, chordsList);
         lvChords.setAdapter(chordsAdapter);
         
-        Spinner spStyle = findViewById(R.id.sp_style);
-        ArrayAdapter<String> styleAdapter = new ArrayAdapter<>(this, 
-            R.layout.spinner_item, MusicData.MUSIC_STYLES);
-        styleAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        spStyle.setAdapter(styleAdapter);
+        setupSpinners();
         
         Button btnGenerate = findViewById(R.id.btn_generate);
         Button btnAddChord = findViewById(R.id.btn_add_chord);
         Button btnDelete = findViewById(R.id.btn_delete);
+        Button btnAddCustomChord = findViewById(R.id.btn_add_custom_chord);
+        Button btnClearCustom = findViewById(R.id.btn_clear_custom_chords);
         
         btnGenerate.setOnClickListener(v -> {
             if (isGenerating) return;
-            String style = (String) spStyle.getSelectedItem();
+            String style = (String) ((Spinner) findViewById(R.id.sp_style)).getSelectedItem();
             generateChords(style);
         });
         
@@ -58,8 +62,43 @@ public class ChordEditorActivity extends AppCompatActivity {
         
         btnDelete.setOnClickListener(v -> deleteChord());
         
+        btnAddCustomChord.setOnClickListener(v -> addCustomChord());
+        
+        btnClearCustom.setOnClickListener(v -> clearCustomProgression());
+        
         lvChords.setOnItemClickListener((parent, view, position, id) -> editChord(position));
         lvChords.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        
+        updateCustomProgressionDisplay();
+    }
+    
+    private void setupSpinners() {
+        Spinner spStyle = findViewById(R.id.sp_style);
+        ArrayAdapter<String> styleAdapter = new ArrayAdapter<>(this, 
+            R.layout.spinner_item, MusicData.MUSIC_STYLES);
+        styleAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        spStyle.setAdapter(styleAdapter);
+        
+        Spinner spChordRoot = findViewById(R.id.sp_chord_root);
+        String[] roots = {"C", "D", "E", "F", "G", "A", "B"};
+        ArrayAdapter<String> rootAdapter = new ArrayAdapter<>(this, 
+            R.layout.spinner_item, roots);
+        rootAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        spChordRoot.setAdapter(rootAdapter);
+        
+        Spinner spChordType = findViewById(R.id.sp_chord_type);
+        ArrayAdapter<String> typeAdapter = new ArrayAdapter<>(this, 
+            R.layout.spinner_item, MusicData.CHORD_TYPES);
+        typeAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        spChordType.setAdapter(typeAdapter);
+        
+        Spinner spChordDuration = findViewById(R.id.sp_chord_duration);
+        String[] durations = {"1 (全)", "2 (半)", "4 (四分)", "8 (八分)", "16 (十六分)"};
+        ArrayAdapter<String> durationAdapter = new ArrayAdapter<>(this, 
+            R.layout.spinner_item, durations);
+        durationAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        spChordDuration.setAdapter(durationAdapter);
+        spChordDuration.setSelection(2);
     }
     
     private void generateChords(String style) {
@@ -70,14 +109,15 @@ public class ChordEditorActivity extends AppCompatActivity {
         
         new Thread(() -> {
             try {
-                currentChords = musicGenerator.generateChords(style, 4);
+                MusicData.ChordProgression progressionToUse = customChordProgression.chords.isEmpty() ? null : customChordProgression;
+                currentChords = musicGenerator.generateChords(style, 4, progressionToUse);
                 runOnUiThread(() -> {
                     updateChordsList();
-                    Toast.makeText(ChordEditorActivity.this, "和弦生成完成", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ChordEditorActivity.this, "和弦进行生成完成！", Toast.LENGTH_SHORT).show();
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> {
-                    Toast.makeText(ChordEditorActivity.this, "生成失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ChordEditorActivity.this, "生成失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
             } finally {
                 runOnUiThread(() -> {
@@ -90,11 +130,10 @@ public class ChordEditorActivity extends AppCompatActivity {
     }
     
     private void addChord() {
-        String[] names = {"C", "D", "E", "F", "G", "A", "B"};
-        String[] types = MusicData.CHORD_TYPES;
-        
-        int nameIndex = (int) (Math.random() * names.length);
-        int typeIndex = (int) (Math.random() * types.length);
+        String[] chordNames = {"C", "D", "E", "F", "G", "A", "B"};
+        String name = chordNames[(int) (Math.random() * chordNames.length)];
+        String type = MusicData.CHORD_TYPES[(int) (Math.random() * MusicData.CHORD_TYPES.length)];
+        int duration = 4;
         
         int startTime = 0;
         if (!currentChords.chords.isEmpty()) {
@@ -102,7 +141,7 @@ public class ChordEditorActivity extends AppCompatActivity {
             startTime = lastChord.startTime + lastChord.duration;
         }
         
-        MusicData.Chord chord = new MusicData.Chord(names[nameIndex], types[typeIndex], 4, startTime);
+        MusicData.Chord chord = new MusicData.Chord(name, type, duration, startTime);
         currentChords.chords.add(chord);
         updateChordsList();
         Toast.makeText(this, "已添加和弦", Toast.LENGTH_SHORT).show();
@@ -123,19 +162,60 @@ public class ChordEditorActivity extends AppCompatActivity {
     private void editChord(int position) {
         if (position >= 0 && position < currentChords.chords.size()) {
             MusicData.Chord chord = currentChords.chords.get(position);
-            String[] types = MusicData.CHORD_TYPES;
             int currentIndex = 0;
-            for (int i = 0; i < types.length; i++) {
-                if (types[i].equals(chord.type)) {
+            for (int i = 0; i < MusicData.CHORD_TYPES.length; i++) {
+                if (MusicData.CHORD_TYPES[i].equals(chord.type)) {
                     currentIndex = i;
                     break;
                 }
             }
             
-            int newIndex = (currentIndex + 1) % types.length;
-            chord.type = types[newIndex];
+            int newIndex = (currentIndex + 1) % MusicData.CHORD_TYPES.length;
+            chord.type = MusicData.CHORD_TYPES[newIndex];
             updateChordsList();
             lvChords.setItemChecked(position, true);
+        }
+    }
+    
+    private void addCustomChord() {
+        Spinner spChordRoot = findViewById(R.id.sp_chord_root);
+        Spinner spChordType = findViewById(R.id.sp_chord_type);
+        Spinner spChordDuration = findViewById(R.id.sp_chord_duration);
+        
+        String name = (String) spChordRoot.getSelectedItem();
+        String type = (String) spChordType.getSelectedItem();
+        
+        String durationStr = (String) spChordDuration.getSelectedItem();
+        int duration = Integer.parseInt(durationStr.split(" ")[0]);
+        
+        int startTime = 0;
+        if (!customChordProgression.chords.isEmpty()) {
+            MusicData.Chord lastChord = customChordProgression.chords.get(customChordProgression.chords.size() - 1);
+            startTime = lastChord.startTime + lastChord.duration;
+        }
+        
+        MusicData.Chord chord = new MusicData.Chord(name, type, duration, startTime);
+        customChordProgression.chords.add(chord);
+        updateCustomProgressionDisplay();
+        Toast.makeText(this, "已添加和弦到进行", Toast.LENGTH_SHORT).show();
+    }
+    
+    private void clearCustomProgression() {
+        customChordProgression.chords.clear();
+        updateCustomProgressionDisplay();
+        Toast.makeText(this, "和弦进行已清除", Toast.LENGTH_SHORT).show();
+    }
+    
+    private void updateCustomProgressionDisplay() {
+        if (customChordProgression.chords.isEmpty()) {
+            tvCustomChords.setText("尚未添加和弦");
+        } else {
+            StringBuilder sb = new StringBuilder();
+            for (MusicData.Chord chord : customChordProgression.chords) {
+                if (sb.length() > 0) sb.append(" → ");
+                sb.append(chord.toString());
+            }
+            tvCustomChords.setText(sb.toString());
         }
     }
     
