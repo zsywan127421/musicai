@@ -2,10 +2,10 @@ package com.example.musicai;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -21,6 +21,8 @@ public class ChordEditorActivity extends AppCompatActivity {
     private ListView lvChords;
     private ArrayAdapter<String> chordsAdapter;
     private List<String> chordsList;
+    private ProgressBar progressBar;
+    private boolean isGenerating = false;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,71 +33,58 @@ public class ChordEditorActivity extends AppCompatActivity {
         currentChords = new MusicData.ChordProgression();
         
         lvChords = findViewById(R.id.lv_chords);
+        progressBar = findViewById(R.id.progress_bar);
         chordsList = new ArrayList<>();
-        chordsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, chordsList);
+        chordsAdapter = new ArrayAdapter<>(this, R.layout.list_item_note, chordsList);
         lvChords.setAdapter(chordsAdapter);
         
         Spinner spStyle = findViewById(R.id.sp_style);
         ArrayAdapter<String> styleAdapter = new ArrayAdapter<>(this, 
-            android.R.layout.simple_spinner_item, MusicData.MUSIC_STYLES);
-        styleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            R.layout.spinner_item, MusicData.MUSIC_STYLES);
+        styleAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spStyle.setAdapter(styleAdapter);
         
         Button btnGenerate = findViewById(R.id.btn_generate);
         Button btnAddChord = findViewById(R.id.btn_add_chord);
         Button btnDelete = findViewById(R.id.btn_delete);
         
-        btnGenerate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String style = (String) spStyle.getSelectedItem();
-                generateChords(style);
-            }
+        btnGenerate.setOnClickListener(v -> {
+            if (isGenerating) return;
+            String style = (String) spStyle.getSelectedItem();
+            generateChords(style);
         });
         
-        btnAddChord.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addChord();
-            }
-        });
+        btnAddChord.setOnClickListener(v -> addChord());
         
-        btnDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                deleteChord();
-            }
-        });
+        btnDelete.setOnClickListener(v -> deleteChord());
         
-        lvChords.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                editChord(position);
-            }
-        });
+        lvChords.setOnItemClickListener((parent, view, position, id) -> editChord(position));
+        lvChords.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
     }
     
     private void generateChords(String style) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    currentChords = musicGenerator.generateChords(style, 4);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            updateChordsList();
-                            Toast.makeText(ChordEditorActivity.this, "和弦生成完成", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                } catch (Exception e) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(ChordEditorActivity.this, "生成失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
+        isGenerating = true;
+        progressBar.setVisibility(View.VISIBLE);
+        Button btnGenerate = findViewById(R.id.btn_generate);
+        btnGenerate.setEnabled(false);
+        
+        new Thread(() -> {
+            try {
+                currentChords = musicGenerator.generateChords(style, 4);
+                runOnUiThread(() -> {
+                    updateChordsList();
+                    Toast.makeText(ChordEditorActivity.this, "和弦生成完成", Toast.LENGTH_SHORT).show();
+                });
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    Toast.makeText(ChordEditorActivity.this, "生成失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+            } finally {
+                runOnUiThread(() -> {
+                    isGenerating = false;
+                    progressBar.setVisibility(View.GONE);
+                    btnGenerate.setEnabled(true);
+                });
             }
         }).start();
     }
@@ -116,13 +105,18 @@ public class ChordEditorActivity extends AppCompatActivity {
         MusicData.Chord chord = new MusicData.Chord(names[nameIndex], types[typeIndex], 4, startTime);
         currentChords.chords.add(chord);
         updateChordsList();
+        Toast.makeText(this, "已添加和弦", Toast.LENGTH_SHORT).show();
     }
     
     private void deleteChord() {
         int position = lvChords.getCheckedItemPosition();
         if (position != ListView.INVALID_POSITION) {
             currentChords.chords.remove(position);
+            lvChords.setItemChecked(position, false);
             updateChordsList();
+            Toast.makeText(this, "已删除和弦", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "请先选择要删除的和弦", Toast.LENGTH_SHORT).show();
         }
     }
     
@@ -141,13 +135,15 @@ public class ChordEditorActivity extends AppCompatActivity {
             int newIndex = (currentIndex + 1) % types.length;
             chord.type = types[newIndex];
             updateChordsList();
+            lvChords.setItemChecked(position, true);
         }
     }
     
     private void updateChordsList() {
         chordsList.clear();
+        int index = 1;
         for (MusicData.Chord chord : currentChords.chords) {
-            chordsList.add(chord.toString());
+            chordsList.add(index++ + ". " + chord.toString());
         }
         chordsAdapter.notifyDataSetChanged();
     }
