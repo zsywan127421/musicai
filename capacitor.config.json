@@ -1,0 +1,6 @@
+{
+  "appId": "com.example.musiccomposer",
+  "appName": "音乐创作大师",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
