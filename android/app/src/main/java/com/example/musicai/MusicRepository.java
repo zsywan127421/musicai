@@ -399,6 +399,44 @@ public class MusicRepository {
         }
     }
     
+    public void updateMelody(String id, String newName) {
+        for (MelodyEntry entry : melodyLibrary) {
+            if (entry.id.equals(id)) {
+                entry.name = newName;
+                saveMelodiesToPrefs();
+                return;
+            }
+        }
+    }
+    
+    public void updateChord(String id, String newName) {
+        for (ChordEntry entry : chordLibrary) {
+            if (entry.id.equals(id)) {
+                entry.name = newName;
+                saveChordsToPrefs();
+                return;
+            }
+        }
+    }
+    
+    public MusicData.Melody getMelody(String id) {
+        MelodyEntry entry = getMelodyById(id);
+        return entry != null ? entry.toMelody() : null;
+    }
+    
+    public MusicData.ChordProgression getChordProgression(String id) {
+        ChordEntry entry = getChordById(id);
+        return entry != null ? entry.toChordProgression() : null;
+    }
+    
+    public void deleteMelodyById(String id) {
+        deleteMelody(id);
+    }
+    
+    public void deleteChordProgressionById(String id) {
+        deleteChord(id);
+    }
+    
     public void clearMelodyLibrary() {
         melodyLibrary.clear();
         saveMelodiesToPrefs();

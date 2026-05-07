@@ -92,6 +92,40 @@ public class MusicPlayerService extends Service {
         startPlayback();
     }
     
+    public void setMelody(MusicData.Melody melody) {
+        if (currentSong == null) {
+            currentSong = new MusicData.Song();
+        }
+        currentSong.melody = melody;
+        currentSong.chords = null;
+        calculateTotalDuration();
+    }
+    
+    public void setChordProgression(MusicData.ChordProgression chords) {
+        if (currentSong == null) {
+            currentSong = new MusicData.Song();
+        }
+        currentSong.chords = chords;
+    }
+    
+    public void play() {
+        if (currentSong != null && currentSong.melody != null && !currentSong.melody.notes.isEmpty()) {
+            startPlayback();
+        }
+    }
+    
+    public void stop() {
+        stopPlayback();
+    }
+    
+    public void seekTo(int positionMs) {
+        currentPositionMs = positionMs;
+    }
+    
+    public void setPlaybackSpeed(float speed) {
+        setSpeed(speed);
+    }
+    
     private void calculateTotalDuration() {
         totalDurationMs = 0;
         if (currentSong != null && currentSong.melody != null && !currentSong.melody.notes.isEmpty()) {

@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -143,19 +145,29 @@ public class LibraryDetailActivity extends AppCompatActivity {
         btnDelete.setOnClickListener(v -> confirmDelete());
         btnSave.setOnClickListener(v -> save());
         
-        playbackProgress.setOnSeekListener(position -> {
-            if (isPlaying) {
-                stop();
-                if (itemType == TYPE_MELODY && melody != null) {
-                    playerService.setMelody(melody);
-                } else if (itemType == TYPE_CHORD && chordProgression != null) {
-                    playerService.setChordProgression(chordProgression);
+        playbackProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {}
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                if (isPlaying) {
+                    int pos = (int) (playerService.getDuration() * progress / 100f);
+                    stop();
+                    if (itemType == TYPE_MELODY && melody != null) {
+                        playerService.setMelody(melody);
+                    } else if (itemType == TYPE_CHORD && chordProgression != null) {
+                        playerService.setChordProgression(chordProgression);
+                    }
+                    playerService.seekTo(pos);
+                    playerService.play();
+                    isPlaying = true;
+                    btnPlay.setText("暂停");
+                    startProgressUpdater();
                 }
-                playerService.seekTo(position);
-                playerService.play();
-                isPlaying = true;
-                btnPlay.setText("暂停");
-                startProgressUpdater();
             }
         });
         
@@ -261,9 +273,9 @@ public class LibraryDetailActivity extends AppCompatActivity {
     
     private void delete() {
         if (itemType == TYPE_MELODY) {
-            repository.deleteMelody(itemId);
+            repository.deleteMelodyById(itemId);
         } else {
-            repository.deleteChordProgression(itemId);
+            repository.deleteChordProgressionById(itemId);
         }
         ToastHelper.showSuccess(this, "删除成功");
         finish();
@@ -276,12 +288,10 @@ public class LibraryDetailActivity extends AppCompatActivity {
             return;
         }
         
-        if (itemType == TYPE_MELODY && melody != null) {
-            melody.name = name;
-            repository.updateMelody(melody);
-        } else if (itemType == TYPE_CHORD && chordProgression != null) {
-            chordProgression.name = name;
-            repository.updateChordProgression(chordProgression);
+        if (itemType == TYPE_MELODY) {
+            repository.updateMelody(itemId, name);
+        } else {
+            repository.updateChord(itemId, name);
         }
         
         ToastHelper.showSuccess(this, "保存成功");
