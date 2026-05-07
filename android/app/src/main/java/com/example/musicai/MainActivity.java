@@ -21,6 +21,7 @@ public class MainActivity extends BaseActivity {
         Button btnNewSongGenerator = findViewById(R.id.btn_new_song_generator);
         Button btnLibrary = findViewById(R.id.btn_library);
         Button btnSettings = findViewById(R.id.btn_settings);
+        Button btnModelConfig = findViewById(R.id.btn_model_config);
         
         updateModelStatus();
         
@@ -38,6 +39,10 @@ public class MainActivity extends BaseActivity {
         
         btnSettings.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+        });
+        
+        btnModelConfig.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, ModelConfigActivity.class));
         });
     }
     

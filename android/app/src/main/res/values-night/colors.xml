@@ -11,4 +11,9 @@
     <color name="apple_accent_light">@color/dark_accent_light</color>
     <color name="apple_danger">@color/dark_danger</color>
     <color name="apple_white">#FFFFFF</color>
+    <color name="apple_button_bg_color">#2C2C2E</color>
+    <color name="apple_button_pressed">#3C3C3E</color>
+    <color name="apple_button_text">@color/apple_text</color>
+    <color name="apple_accent_pressed">#0056B3</color>
+    <color name="apple_accent_active">#1E3A5F</color>
 </resources>

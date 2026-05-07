@@ -505,7 +505,7 @@
                     android:layout_weight="1"
                     android:text="0.5x"
                     android:textSize="12sp"
-                    android:textColor="@color/apple_text"
+                    android:textColor="@color/apple_button_text"
                     android:background="@drawable/apple_button_bg"
                     android:layout_marginEnd="4dp"/>
 
@@ -517,7 +517,7 @@
                     android:layout_weight="1"
                     android:text="0.75x"
                     android:textSize="12sp"
-                    android:textColor="@color/apple_text"
+                    android:textColor="@color/apple_button_text"
                     android:background="@drawable/apple_button_bg"
                     android:layout_marginEnd="4dp"/>
 
@@ -541,7 +541,7 @@
                     android:layout_weight="1"
                     android:text="1.25x"
                     android:textSize="12sp"
-                    android:textColor="@color/apple_text"
+                    android:textColor="@color/apple_button_text"
                     android:background="@drawable/apple_button_bg"
                     android:layout_marginEnd="4dp"/>
 
@@ -553,7 +553,7 @@
                     android:layout_weight="1"
                     android:text="1.5x"
                     android:textSize="12sp"
-                    android:textColor="@color/apple_text"
+                    android:textColor="@color/apple_button_text"
                     android:background="@drawable/apple_button_bg"
                     android:layout_marginEnd="4dp"/>
 
@@ -565,7 +565,7 @@
                     android:layout_weight="1"
                     android:text="2x"
                     android:textSize="12sp"
-                    android:textColor="@color/apple_text"
+                    android:textColor="@color/apple_button_text"
                     android:background="@drawable/apple_button_bg"/>
 
             </LinearLayout>
@@ -598,7 +598,7 @@
                 android:layout_weight="1"
                 android:text="停止"
                 android:textSize="16sp"
-                android:textColor="@color/apple_text"
+                android:textColor="@color/apple_button_text"
                 android:background="@drawable/apple_button_bg"
                 android:enabled="false"
                 android:layout_marginStart="8dp"/>

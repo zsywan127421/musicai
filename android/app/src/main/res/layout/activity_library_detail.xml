@@ -277,7 +277,7 @@
             android:layout_weight="1"
             android:text="停止"
             android:textSize="16sp"
-            android:textColor="@color/apple_text"
+            android:textColor="@color/apple_button_text"
             android:background="@drawable/apple_button_bg"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"/>
@@ -290,7 +290,7 @@
             android:layout_weight="1"
             android:text="编辑"
             android:textSize="16sp"
-            android:textColor="@color/apple_text"
+            android:textColor="@color/apple_button_text"
             android:background="@drawable/apple_button_secondary_bg"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"/>

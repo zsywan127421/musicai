@@ -30,7 +30,7 @@
             android:minHeight="36dp"
             android:text="返回"
             android:textSize="14sp"
-            android:textColor="@color/apple_text"
+            android:textColor="@color/apple_button_text"
             android:background="@drawable/apple_button_bg"
             android:paddingStart="14dp"
             android:paddingEnd="14dp"
@@ -168,7 +168,7 @@
                     android:minHeight="42dp"
                     android:text="添加和弦"
                     android:textSize="14sp"
-                    android:textColor="@color/apple_text"
+                    android:textColor="@color/apple_button_text"
                     android:background="@drawable/apple_button_bg"
                     android:paddingStart="14dp"
                     android:paddingEnd="14dp"
@@ -207,7 +207,7 @@
                         android:layout_weight="1"
                         android:text="降半音"
                         android:textSize="13sp"
-                        android:textColor="@color/apple_text"
+                        android:textColor="@color/apple_button_text"
                         android:background="@drawable/apple_button_bg"
                         android:layout_marginEnd="4dp"/>
 
@@ -219,7 +219,7 @@
                         android:layout_weight="1"
                         android:text="删除"
                         android:textSize="13sp"
-                        android:textColor="@color/apple_text"
+                        android:textColor="@color/apple_white"
                         android:background="@drawable/apple_button_danger_bg"
                         android:layout_marginEnd="4dp"/>
 
@@ -231,7 +231,7 @@
                         android:layout_weight="1"
                         android:text="随机"
                         android:textSize="13sp"
-                        android:textColor="@color/apple_text"
+                        android:textColor="@color/apple_button_text"
                         android:background="@drawable/apple_button_bg"
                         android:layout_marginEnd="4dp"/>
 
@@ -243,7 +243,7 @@
                         android:layout_weight="1"
                         android:text="升半音"
                         android:textSize="13sp"
-                        android:textColor="@color/apple_text"
+                        android:textColor="@color/apple_button_text"
                         android:background="@drawable/apple_button_bg"/>
 
                 </LinearLayout>
@@ -262,7 +262,7 @@
                         android:layout_weight="1"
                         android:text="保存"
                         android:textSize="14sp"
-                        android:textColor="@color/apple_text"
+                        android:textColor="@color/apple_button_text"
                         android:background="@drawable/apple_button_bg"
                         android:layout_marginEnd="6dp"/>
 
@@ -274,7 +274,7 @@
                         android:layout_weight="1"
                         android:text="另存为"
                         android:textSize="14sp"
-                        android:textColor="@color/apple_text"
+                        android:textColor="@color/apple_button_text"
                         android:background="@drawable/apple_button_bg"/>
 
                 </LinearLayout>
