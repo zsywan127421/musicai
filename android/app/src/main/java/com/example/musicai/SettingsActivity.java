@@ -38,16 +38,16 @@ public class SettingsActivity extends AppCompatActivity {
         etApiUrl = findViewById(R.id.et_api_url);
         etApiKey = findViewById(R.id.et_api_key);
         etModelName = findViewById(R.id.et_model_name);
-        sbTemperature = findViewById(R.id.sb_temperature);
-        sbMaxTokens = findViewById(R.id.sb_max_tokens);
-        tvTemperature = findViewById(R.id.tv_temperature);
-        tvMaxTokens = findViewById(R.id.tv_max_tokens);
+        sbTemperature = findViewById(R.id.seek_temperature);
+        sbMaxTokens = findViewById(R.id.seek_max_tokens);
+        tvTemperature = findViewById(R.id.tv_temperature_value);
+        tvMaxTokens = findViewById(R.id.tv_max_tokens_value);
         
         btnSave = findViewById(R.id.btn_save);
         btnReset = findViewById(R.id.btn_reset);
         btnTestConnection = findViewById(R.id.btn_test_connection);
         progressBar = findViewById(R.id.progress_bar);
-        tvConnectionStatus = findViewById(R.id.tv_connection_status);
+        tvConnectionStatus = findViewById(R.id.tv_test_result);
         
         loadSettings();
         

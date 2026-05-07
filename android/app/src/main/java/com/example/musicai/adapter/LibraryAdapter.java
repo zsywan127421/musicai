@@ -15,11 +15,11 @@ import java.util.List;
 public class LibraryAdapter extends BaseAdapter {
     
     private Context context;
-    private List<? extends MusicData> items;
+    private List<?> items;
     private boolean isMelody;
     private LayoutInflater inflater;
     
-    public LibraryAdapter(Context context, List<? extends MusicData> items, boolean isMelody) {
+    public LibraryAdapter(Context context, List<?> items, boolean isMelody) {
         this.context = context;
         this.items = items;
         this.isMelody = isMelody;
@@ -57,18 +57,20 @@ public class LibraryAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
         
-        MusicData item = items.get(position);
-        holder.tvName.setText(item.name);
-        holder.tvStyle.setText(item.style);
+        Object rawItem = items.get(position);
         
-        if (isMelody && item instanceof MusicData.Melody) {
-            MusicData.Melody melody = (MusicData.Melody) item;
+        if (rawItem instanceof MusicData.Melody) {
+            MusicData.Melody melody = (MusicData.Melody) rawItem;
+            holder.tvName.setText(melody.name);
+            holder.tvStyle.setText(melody.style);
             holder.tvCount.setText(melody.notes.size() + " 音符");
-            holder.tvInfo.setText(item.createdAt);
-        } else if (!isMelody && item instanceof MusicData.ChordProgression) {
-            MusicData.ChordProgression chord = (MusicData.ChordProgression) item;
+            holder.tvInfo.setText(String.valueOf(melody.createdAt));
+        } else if (rawItem instanceof MusicData.ChordProgression) {
+            MusicData.ChordProgression chord = (MusicData.ChordProgression) rawItem;
+            holder.tvName.setText(chord.name);
+            holder.tvStyle.setText(chord.style);
             holder.tvCount.setText(chord.chords.size() + " 和弦");
-            holder.tvInfo.setText(item.createdAt);
+            holder.tvInfo.setText(String.valueOf(chord.createdAt));
         }
         
         return convertView;

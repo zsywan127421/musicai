@@ -15,6 +15,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.musicai.adapter.LibraryAdapter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class LibraryActivity extends AppCompatActivity {
     
     private RadioGroup rgType;
@@ -32,7 +35,7 @@ public class LibraryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_library);
         
-        repository = new MusicRepository(this);
+        repository = MusicRepository.getInstance(this);
         
         initViews();
         setupListeners();
@@ -101,9 +104,17 @@ public class LibraryActivity extends AppCompatActivity {
             
             runOnUiThread(() -> {
                 if (isShowingMelodies) {
-                    adapter = new LibraryAdapter(this, repository.getAllMelodies(), true);
+                    List<Object> melodyItems = new ArrayList<>();
+                    for (MusicRepository.MelodyEntry entry : repository.getMelodyLibrary()) {
+                        melodyItems.add(entry.toMelody());
+                    }
+                    adapter = new LibraryAdapter(this, melodyItems, true);
                 } else {
-                    adapter = new LibraryAdapter(this, repository.getAllChordProgressions(), false);
+                    List<Object> chordItems = new ArrayList<>();
+                    for (MusicRepository.ChordEntry entry : repository.getChordLibrary()) {
+                        chordItems.add(entry.toChordProgression());
+                    }
+                    adapter = new LibraryAdapter(this, chordItems, false);
                 }
                 
                 lvLibrary.setAdapter(adapter);
