@@ -123,11 +123,24 @@ public class LibraryItemAdapter extends RecyclerView.Adapter<LibraryItemAdapter.
             } else if (itemType == LibraryTabsActivity.TYPE_SONG) {
                 SongEntry entry = (SongEntry) item;
                 tvTitle.setText(entry.name);
-                tvSubtitle.setText(entry.style + " · " + entry.segments.size() + " 段落");
-                tvTime.setText(TimeUtils.formatRelativeTime(entry.createdAt));
+                tvSubtitle.setText(entry.style + " · " + entry.segments.size() + " 段落 · " + formatDuration(entry.totalDurationMs));
+                tvTime.setText(formatDate(entry.createdAt));
                 tvBadge.setText("歌曲");
                 tvBadge.setVisibility(View.VISIBLE);
             }
+        }
+        
+        private String formatDuration(int millis) {
+            if (millis <= 0) return "0:00";
+            int seconds = millis / 1000;
+            int minutes = seconds / 60;
+            seconds = seconds % 60;
+            return String.format("%d:%02d", minutes, seconds);
+        }
+        
+        private String formatDate(long timestamp) {
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault());
+            return sdf.format(new java.util.Date(timestamp));
         }
     }
 }
