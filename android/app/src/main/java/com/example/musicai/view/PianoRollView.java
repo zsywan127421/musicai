@@ -157,6 +157,7 @@ public class PianoRollView extends View {
                 return true;
             }
         });
+        setWillNotDraw(false);
     }
     
     private void constrainScroll() {
