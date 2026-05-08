@@ -7,43 +7,43 @@
     android:padding="32dp">
 
     <ImageView
-        android:id="@+id/iv_empty"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:src="@drawable/ic_empty_music"
-        android:alpha="0.6"
-        android:layout_marginBottom="24dp"/>
+        android:id="@+id/iv_empty_icon"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/ic_music_note"
+        android:tint="?attr/colorControlNormal"
+        android:alpha="0.4"
+        android:contentDescription="@null"/>
 
     <TextView
         android:id="@+id/tv_empty_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="暂无内容"
-        android:textSize="18sp"
-        android:textColor="@color/apple_text"
-        android:textStyle="bold"
-        android:layout_marginBottom="8dp"/>
+        android:text="@string/empty_state_title"
+        android:textSize="@dimen/font_size_title"
+        android:textColor="?attr/colorControlNormal"
+        android:layout_marginTop="16dp"/>
 
     <TextView
-        android:id="@+id/tv_empty_message"
+        android:id="@+id/tv_empty_hint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="还没有生成过旋律，快去创作吧"
-        android:textSize="14sp"
-        android:textColor="@color/apple_text_secondary"
-        android:gravity="center"
-        android:layout_marginBottom="24dp"/>
+        android:text="@string/empty_state_hint"
+        android:textSize="@dimen/font_size_body"
+        android:textColor="@color/apple_text_tertiary"
+        android:layout_marginTop="8dp"
+        android:gravity="center"/>
 
     <Button
-        android:id="@+id/btn_go_create"
+        android:id="@+id/btn_empty_action"
         android:layout_width="wrap_content"
         android:layout_height="44dp"
-        android:minHeight="44dp"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:text="去创作"
-        android:textSize="15sp"
+        android:text="@string/main_new_song"
+        android:textSize="@dimen/font_size_body"
         android:textColor="@color/apple_white"
-        android:background="@drawable/apple_button_primary_bg"/>
+        android:background="@drawable/apple_button_primary_bg"
+        android:paddingHorizontal="24dp"
+        android:layout_marginTop="20dp"
+        android:visibility="gone"/>
 
 </LinearLayout>

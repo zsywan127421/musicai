@@ -1,4 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- App Name -->
     <string name="app_name">MusicAI</string>
-    <string name="action_settings">Settings</string>
+    
+    <!-- Common Actions -->
+    <string name="action_save">保存</string>
+    <string name="action_cancel">取消</string>
+    <string name="action_confirm">确认</string>
+    <string name="action_delete">删除</string>
+    <string name="action_edit">编辑</string>
+    <string name="action_close">关闭</string>
+    <string name="action_retry">重试</string>
+    <string name="action_share">分享</string>
+    <string name="action_export">导出</string>
+    <string name="action_import">导入</string>
+    <string name="action_settings">设置</string>
+    <string name="action_back">返回</string>
+    <string name="action_play">播放</string>
+    <string name="action_pause">暂停</string>
+    <string name="action_stop">停止</string>
+    <string name="action_generate">生成</string>
+    <string name="action_preview">预览</string>
+    
+    <!-- Main Screen -->
+    <string name="main_title">MusicAI</string>
+    <string name="main_new_song">AI创作</string>
+    <string name="main_library">资源库</string>
+    <string name="main_editor">歌曲编辑器</string>
+    <string name="main_settings">设置</string>
+    <string name="main_model_config">模型配置</string>
+    <string name="main_model_status">大模型状态</string>
+    <string name="main_model_configured">大模型已配置</string>
+    <string name="main_model_not_configured">大模型未配置</string>
+    <string name="main_configure_now">请在设置中配置</string>
+    
+    <!-- Library -->
+    <string name="library_title">资源库</string>
+    <string name="library_melody">旋律</string>
+    <string name="library_chord">和弦</string>
+    <string name="library_song">歌曲</string>
+    <string name="library_empty_melody">暂无旋律，去AI生成页面创建吧</string>
+    <string name="library_empty_chord">暂无和弦，去AI生成页面创建吧</string>
+    <string name="library_empty_song">暂无歌曲，去AI生成页面创建吧</string>
+    <string name="library_select_song">（选择歌曲）</string>
+    
+    <!-- Generator -->
+    <string name="generator_title">AI创作</string>
+    <string name="generator_melody">生成旋律</string>
+    <string name="generator_chord">生成和弦</string>
+    <string name="generator_song">生成歌曲</string>
+    <string name="generator_style">选择风格</string>
+    <string name="generator_length">旋律长度</string>
+    <string name="generator_name_hint">输入名称（可选）</string>
+    <string name="generator_description_hint">描述想要的音乐特点（可选）</string>
+    <string name="generator_key_signature">调号</string>
+    <string name="generator_mood">情绪</string>
+    <string name="generator_from_melody">基于旋律</string>
+    <string name="generator_custom">自定义</string>
+    <string name="generator_preview_melody">预览旋律</string>
+    <string name="generator_preview_chord">预览和弦</string>
+    <string name="generator_generating">正在生成…</string>
+    <string name="generator_success">生成成功</string>
+    <string name="generator_failed">生成失败</string>
+    <string name="generator_empty_result">AI返回了空内容，请重试</string>
+    <string name="generator_melody_saved">旋律已保存到库中！</string>
+    <string name="generator_chord_saved">和弦已保存到库中！</string>
+    <string name="generator_song_saved">歌曲已保存！</string>
+    <string name="generator_discarded">已丢弃</string>
+    <string name="generator_duration">时长：%1$s</string>
+    <string name="generator_segments">段落：%1$d</string>
+    
+    <!-- Styles -->
+    <string name="style_pop">流行</string>
+    <string name="style_rock">摇滚</string>
+    <string name="style_jazz">爵士</string>
+    <string name="style_classical">古典</string>
+    <string name="style_electronic">电子</string>
+    <string name="style_hiphop">嘻哈</string>
+    <string name="style_rnb">R&amp;B</string>
+    <string name="style_country">乡村</string>
+    <string name="style_blues">蓝调</string>
+    <string name="style_folk">民谣</string>
+    <string name="style_piano">钢琴曲</string>
+    <string name="style_ambient">氛围</string>
+    
+    <!-- Editor -->
+    <string name="editor_title">歌曲编辑器</string>
+    <string name="editor_piano_roll">钢琴卷帘</string>
+    <string name="editor_track_manager">轨道管理</string>
+    <string name="editor_metronome">节拍器</string>
+    <string name="editor_metronome_on">开启节拍器</string>
+    <string name="editor_metronome_off">关闭节拍器</string>
+    <string name="editor_speed">播放速度</string>
+    <string name="editor_bpm">BPM</string>
+    <string name="editor_time_signature">拍号</string>
+    <string name="editor_regenerate">重新生成</string>
+    <string name="editor_export_midi">导出MIDI</string>
+    <string name="editor_export_wav">导出WAV</string>
+    <string name="editor_save_as">另存为</string>
+    <string name="editor_name_hint">歌曲名称</string>
+    <string name="editor_source_melody">来源旋律</string>
+    <string name="editor_source_chord">来源和弦</string>
+    <string name="editor_unsaved_changes">有未保存的更改</string>
+    <string name="editor_discard_changes">是否放弃更改？</string>
+    
+    <!-- Track Manager -->
+    <string name="track_title">轨道管理</string>
+    <string name="track_add">添加新轨道</string>
+    <string name="track_name_hint">轨道名称</string>
+    <string name="track_select_instrument">选择乐器</string>
+    <string name="track_mute">Mute</string>
+    <string name="track_solo">Solo</string>
+    <string name="track_effects">效果器</string>
+    <string name="track_deleted">轨道已删除</string>
+    <string name="track_added">已添加轨道：%1$s</string>
+    
+    <!-- Effects -->
+    <string name="effect_title">效果器</string>
+    <string name="effect_gain">增益</string>
+    <string name="effect_compressor">压缩器</string>
+    <string name="effect_eq">均衡器</string>
+    <string name="effect_reverb">混响</string>
+    <string name="effect_hp_filter">高通滤波器</string>
+    <string name="effect_lp_filter">低通滤波器</string>
+    
+    <!-- Settings -->
+    <string name="settings_title">设置</string>
+    <string name="settings_theme">主题</string>
+    <string name="settings_theme_system">跟随系统</string>
+    <string name="settings_theme_light">浅色模式</string>
+    <string name="settings_theme_dark">深色模式</string>
+    <string name="settings_font_size">字体大小</string>
+    <string name="settings_font_small">小</string>
+    <string name="settings_font_medium">中</string>
+    <string name="settings_font_large">大</string>
+    <string name="settings_language">语言</string>
+    <string name="settings_language_system">跟随系统</string>
+    <string name="settings_language_zh">简体中文</string>
+    <string name="settings_language_tw">繁體中文</string>
+    <string name="settings_language_en">English</string>
+    <string name="settings_cache">缓存</string>
+    <string name="settings_clear_cache">清除缓存</string>
+    <string name="settings_cache_cleared">缓存已清除</string>
+    <string name="settings_license">开源许可</string>
+    <string name="settings_version">版本</string>
+    <string name="settings_language_restart">语言切换将在重启应用后生效</string>
+    
+    <!-- Dialogs -->
+    <string name="dialog_confirm_delete_title">确定删除</string>
+    <string name="dialog_confirm_delete_message">此操作不可恢复</string>
+    <string name="dialog_confirm_overwrite_title">已有同名条目</string>
+    <string name="dialog_confirm_overwrite_message">是否覆盖《%1$s》？</string>
+    <string name="dialog_confirm_discard_title">确定要丢弃此次生成结果吗？</string>
+    <string name="dialog_confirm_discard_message">此操作不可恢复</string>
+    
+    <!-- Errors -->
+    <string name="error_network">网络错误，请检查网络连接</string>
+    <string name="error_server">服务器错误，请稍后重试</string>
+    <string name="error_api_key">API密钥无效</string>
+    <string name="error_empty_melody">旋律库为空</string>
+    <string name="error_empty_chord">和弦库为空</string>
+    <string name="error_no_selection">请选择旋律和和弦</string>
+    <string name="error_empty_name">名称不能为空</string>
+    <string name="error_no_song">请先选择歌曲</string>
+    <string name="error_no_playable">没有可播放的歌曲</string>
+    <string name="error_playback">播放失败</string>
+    <string name="error_export">导出失败</string>
+    
+    <!-- Toast Messages -->
+    <string name="toast_saved">保存成功</string>
+    <string name="toast_deleted">已删除</string>
+    <string name="toast_updated">已更新</string>
+    <string name="toast_copied">已复制</string>
+    <string name="toast_playing">正在播放</string>
+    <string name="toast_generating">正在调用AI重新生成…</string>
+    
+    <!-- Empty States -->
+    <string name="empty_state_title">暂无内容</string>
+    <string name="empty_state_melody">暂无旋律</string>
+    <string name="empty_state_chord">暂无和弦</string>
+    <string name="empty_state_song">暂无歌曲</string>
+    <string name="empty_state_hint">去AI生成页面创建吧</string>
+    
+    <!-- Accessibility -->
+    <string name="a11y_back">返回</string>
+    <string name="a11y_menu">更多选项</string>
+    <string name="a11y_play">播放</string>
+    <string name="a11y_pause">暂停</string>
+    <string name="a11y_stop">停止</string>
+    <string name="a11y_delete">删除</string>
+    <string name="a11y_edit">编辑</string>
+    <string name="a11y_close">关闭</string>
+    <string name="a11y_expand">展开</string>
+    <string name="a11y_collapse">收起</string>
+    <string name="a11y_loading">加载中</string>
+    <string name="a11y_selected">已选择</string>
+    <string name="a11y_metronome_beat">节拍：%1$d</string>
 </resources>
