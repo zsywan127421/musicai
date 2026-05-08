@@ -515,7 +515,11 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
         org.json.JSONArray array = new org.json.JSONArray();
         if (melody != null && melody.notes != null) {
             for (MusicData.Note note : melody.notes) {
-                array.put(note.toJson());
+                try {
+                    array.put(note.toJson());
+                } catch (org.json.JSONException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return array.toString();

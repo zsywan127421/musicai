@@ -252,6 +252,7 @@
                 </LinearLayout>
 
                 <HorizontalScrollView
+                    android:id="@+id/piano_scroll_view"
                     android:layout_width="match_parent"
                     android:layout_height="250dp"
                     android:layout_marginBottom="12dp"
