@@ -23,8 +23,6 @@ import com.example.musicai.util.ConfirmDialog;
 import com.example.musicai.util.TimeUtils;
 import com.example.musicai.util.ToastHelper;
 import com.example.musicai.util.ToolbarHelper;
-import com.example.musicai.view.LoadingButton;
-import com.example.musicai.view.UnifiedPlaybackButton;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -62,7 +60,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
     private EditText etMelodyName;
     private EditText etChordName;
     private EditText etDescription;
-    private LoadingButton btnGenerateMelody;
+    private Button btnGenerateMelody;
     private ProgressBar progressBar;
     
     private Spinner spMelodySelect;
@@ -76,11 +74,12 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
     private Spinner spSongChords;
     private Button btnPreviewMelody;
     private Button btnPreviewChords;
-    private LoadingButton btnGenerateSong;
+    private Button btnGenerateSong;
     
     private CursorSeekBar playbackProgress;
     private TextView tvPlaybackTime;
-    private UnifiedPlaybackButton btnPlay;
+    private Button btnPlay;
+    private Button btnStop;
     private LinearLayout speedControlLayout;
     private TextView tvSpeed;
     private Button[] speedButtons = new Button[6];
@@ -181,6 +180,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         playbackProgress = findViewById(R.id.playback_progress);
         tvPlaybackTime = findViewById(R.id.tv_playback_time);
         btnPlay = findViewById(R.id.btn_play);
+        btnStop = findViewById(R.id.btn_stop);
         speedControlLayout = findViewById(R.id.speed_control_layout);
         tvSpeed = findViewById(R.id.tv_speed);
         
@@ -272,23 +272,8 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         btnGenerateChords.setOnClickListener(v -> generateChords());
         btnGenerateSong.setOnClickListener(v -> generateSong());
         
-        btnPlay.setOnPlaybackStateChangeListener(new UnifiedPlaybackButton.OnPlaybackStateChangeListener() {
-            @Override
-            public void onPlayClicked() {
-                playSong();
-            }
-
-            @Override
-            public void onPauseClicked() {
-                pauseSong();
-            }
-
-            @Override
-            public void onResumeClicked() {
-                resumeSong();
-            }
-        });
-        
+        btnPlay.setOnClickListener(v -> playSong());
+        btnStop.setOnClickListener(v -> stopSong());
         btnPreviewMelody.setOnClickListener(v -> previewSelectedMelody());
         btnPreviewChords.setOnClickListener(v -> previewSelectedChords());
         
@@ -315,9 +300,9 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
             loadSongSelectors();
         }
         
-        btnGenerateMelody.setLoading(isGenerating);
+        btnGenerateMelody.setEnabled(!isGenerating);
         btnGenerateChords.setEnabled(!isGenerating);
-        btnGenerateSong.setLoading(isGenerating);
+        btnGenerateSong.setEnabled(!isGenerating);
         progressBar.setVisibility(isGenerating ? View.VISIBLE : View.GONE);
     }
     
@@ -796,21 +781,8 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
             playbackProgress.setVisibility(View.VISIBLE);
             tvPlaybackTime.setVisibility(View.VISIBLE);
             speedControlLayout.setVisibility(View.VISIBLE);
-            btnPlay.setState(UnifiedPlaybackButton.State.PAUSE);
-        }
-    }
-    
-    private void pauseSong() {
-        if (isBound && playerService != null) {
-            playerService.pause();
-            btnPlay.setState(UnifiedPlaybackButton.State.RESUME);
-        }
-    }
-    
-    private void resumeSong() {
-        if (isBound && playerService != null) {
-            playerService.resume();
-            btnPlay.setState(UnifiedPlaybackButton.State.PAUSE);
+            btnPlay.setEnabled(false);
+            btnStop.setEnabled(true);
         }
     }
     
@@ -822,7 +794,8 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
             currentHighlightedNoteIndex = -1;
             resultAdapter.setHighlightIndex(-1);
             resultAdapter.notifyDataSetChanged();
-            btnPlay.setState(UnifiedPlaybackButton.State.PLAY);
+            btnPlay.setEnabled(true);
+            btnStop.setEnabled(false);
         }
     }
     
@@ -872,7 +845,8 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
     public void onPlaybackStateChanged(boolean isPlaying) {
         runOnUiThread(() -> {
             btnPlay.setEnabled(!isPlaying);
-            btnPlay.setState(isPlaying ? UnifiedPlaybackButton.State.PAUSE : UnifiedPlaybackButton.State.PLAY);
+            btnPlay.setText(isPlaying ? "暂停" : "播放");
+            btnStop.setEnabled(isPlaying);
         });
     }
     
@@ -885,7 +859,8 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
             resultAdapter.setHighlightIndex(-1);
             resultAdapter.notifyDataSetChanged();
             btnPlay.setEnabled(true);
-            btnPlay.setState(UnifiedPlaybackButton.State.PLAY);
+            btnPlay.setText("播放");
+            btnStop.setEnabled(false);
         });
     }
     

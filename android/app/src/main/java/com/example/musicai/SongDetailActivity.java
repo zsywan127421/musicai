@@ -49,7 +49,7 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
     private MusicRepository repository;
     private SongEntry songEntry;
     private MusicPlayerService playerService;
-    // Inherited from BaseActivity: protected ToolbarHelper toolbarHelper;
+    private ToolbarHelper toolbarHelper;
     private boolean isBound = false;
     private boolean isPlaying = false;
     private float currentSpeed = 1.0f;
@@ -102,7 +102,6 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
     }
 
     private void setupToolbarMenu() {
-        // toolbarHelper is already initialized by BaseActivity.initToolbar()
         if (toolbarHelper == null) return;
 
         List<ToolbarHelper.MenuItemData> menuItems = Arrays.asList(

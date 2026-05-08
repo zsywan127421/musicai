@@ -61,6 +61,7 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
     private CursorSeekBar playbackProgress;
     private TextView tvPlaybackTime;
     private UnifiedPlaybackButton btnPlay;
+    private Button btnStop;
     private View[] beatIndicators;
     
     private PianoRollView pianoRollView;
@@ -167,6 +168,7 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
         playbackProgress = findViewById(R.id.playback_progress);
         tvPlaybackTime = findViewById(R.id.tv_playback_time);
         btnPlay = findViewById(R.id.btn_play);
+        btnStop = findViewById(R.id.btn_stop);
 
         pianoRollView = findViewById(R.id.piano_roll_view);
         pianoScrollView = findViewById(R.id.piano_scroll_view);
@@ -858,6 +860,7 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
         isPlaying = playing;
         runOnUiThread(() -> {
             btnPlay.setState(playing ? UnifiedPlaybackButton.State.PAUSE : UnifiedPlaybackButton.State.RESUME);
+            btnStop.setEnabled(playing);
         });
     }
 
@@ -868,6 +871,7 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
             btnPlay.setState(UnifiedPlaybackButton.State.PLAY);
             playbackProgress.setProgress(0);
             tvPlaybackTime.setText("0:00 / " + formatTime((int) (currentSong != null ? currentSong.totalDurationMs / currentSpeed : 0)));
+            btnStop.setEnabled(false);
             pianoRollView.setPlayheadPosition(0);
             if (isBound && playerService != null) {
                 playerService.stopPlayback();

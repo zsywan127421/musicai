@@ -38,7 +38,8 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
     
     private TextView tvStyle, tvCreated, tvNotes, tvChords;
     private EditText etName;
-    private UnifiedPlaybackButton btnPlay;
+    private Button btnPlay;
+    private Button btnStop;
     private Button btnEdit, btnDelete, btnSave;
     private Button btnPianoRoll;
     private TextView tvSpeed, tvPlaybackTime;

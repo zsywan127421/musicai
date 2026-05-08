@@ -254,11 +254,28 @@
 
     </ScrollView>
 
-    <com.example.musicai.view.UnifiedPlaybackButton
+    <Button
         android:id="@+id/btn_play"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_margin="16dp"/>
+        android:text="播放"
+        android:textSize="16sp"
+        android:textColor="@color/apple_white"
+        android:background="@drawable/apple_button_primary_bg"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="8dp"/>
+
+    <Button
+        android:id="@+id/btn_stop"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:minHeight="50dp"
+        android:text="停止"
+        android:textSize="16sp"
+        android:textColor="@color/apple_white"
+        android:background="@drawable/apple_button_danger_bg"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="8dp"/>
 
         <Button
             android:id="@+id/btn_edit"
