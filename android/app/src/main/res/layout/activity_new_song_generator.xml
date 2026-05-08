@@ -297,7 +297,7 @@
                     android:layout_marginBottom="14dp"
                     android:visibility="gone"/>
 
-                <com.example.musicai.view.LoadingButton
+                <Button
                     android:id="@+id/btn_generate_chords"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
