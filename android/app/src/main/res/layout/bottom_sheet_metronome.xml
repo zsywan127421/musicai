@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/apple_card_bg"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="节拍器"
+            android:textSize="18sp"
+            android:textColor="@color/apple_text"
+            android:textStyle="bold"/>
+
+        <ImageButton
+            android:id="@+id/btn_close"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:contentDescription="关闭"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_bpm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="120 BPM"
+        android:textSize="36sp"
+        android:textColor="@color/apple_accent"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="16dp">
+
+        <Button
+            android:id="@+id/btn_decrease"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:text="-"
+            android:textSize="24sp"
+            android:textColor="@color/apple_button_text"
+            android:background="@drawable/apple_button_bg"/>
+
+        <SeekBar
+            android:id="@+id/seekbar_bpm"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="16dp"
+            android:min="20"
+            android:max="300"
+            android:progress="100"
+            android:progressTint="@color/apple_accent"
+            android:thumbTint="@color/apple_accent"/>
+
+        <Button
+            android:id="@+id/btn_increase"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:text="+"
+            android:textSize="24sp"
+            android:textColor="@color/apple_button_text"
+            android:background="@drawable/apple_button_bg"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/beat_indicator_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="20dp"/>
+
+    <TextView
+        android:id="@+id/tv_beat_indicators"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="每小节 4 拍"
+        android:textSize="13sp"
+        android:textColor="@color/apple_text_secondary"
+        android:gravity="center"
+        android:layout_marginBottom="20dp"/>
+
+    <Button
+        android:id="@+id/btn_start_stop"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="开始"
+        android:textSize="16sp"
+        android:textColor="@color/apple_white"
+        android:background="@drawable/apple_button_primary_bg"/>
+
+</LinearLayout>
