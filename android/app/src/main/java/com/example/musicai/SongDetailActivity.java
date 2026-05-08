@@ -17,11 +17,21 @@ import android.widget.TextView;
 import com.example.musicai.util.ConfirmDialog;
 import com.example.musicai.util.TimeUtils;
 import com.example.musicai.util.ToastHelper;
+import com.example.musicai.util.ToolbarHelper;
 import com.example.musicai.MusicPlayerService.PlaybackListener;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class SongDetailActivity extends BaseActivity implements PlaybackListener {
 
     public static final String EXTRA_SONG_ID = "song_id";
+
+    private static final int MENU_EDIT = 1;
+    private static final int MENU_RENAME = 2;
+    private static final int MENU_DELETE = 3;
+    private static final int MENU_EXPORT_MIDI = 4;
+    private static final int MENU_EXPORT_WAV = 5;
 
     private TextView tvTitle, tvStyle, tvCreated, tvSource, tvSegments;
     private EditText etName;
@@ -48,6 +58,11 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song_detail);
+
+        initToolbar(R.id.toolbar, "歌曲详情");
+        setBackVisible(true);
+        setMenuVisible(true);
+        setupToolbarMenu();
 
         repository = MusicRepository.getInstance(this);
 
@@ -245,6 +260,36 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
             tvTitle.setText(name);
             ToastHelper.showSuccess(this, "保存成功");
         }
+    }
+
+    private void setupToolbarMenu() {
+        List<ToolbarHelper.MenuItemData> menuItems = Arrays.asList(
+            new ToolbarHelper.MenuItemData(MENU_EDIT, "编辑"),
+            new ToolbarHelper.MenuItemData(MENU_RENAME, "改名"),
+            new ToolbarHelper.MenuItemData(MENU_DELETE, "删除", 0, true),
+            new ToolbarHelper.MenuItemData(MENU_EXPORT_MIDI, "导出MIDI"),
+            new ToolbarHelper.MenuItemData(MENU_EXPORT_WAV, "导出WAV")
+        );
+
+        toolbarHelper.setMenuItems(menuItems, itemId -> {
+            switch (itemId) {
+                case MENU_EDIT:
+                    ToastHelper.showInfo("打开编辑器...");
+                    break;
+                case MENU_RENAME:
+                    ToastHelper.showInfo("改名功能开发中");
+                    break;
+                case MENU_DELETE:
+                    confirmDelete();
+                    break;
+                case MENU_EXPORT_MIDI:
+                    ToastHelper.showInfo("导出MIDI功能开发中");
+                    break;
+                case MENU_EXPORT_WAV:
+                    ToastHelper.showInfo("导出WAV功能开发中");
+                    break;
+            }
+        });
     }
 
     private void startProgressUpdater() {

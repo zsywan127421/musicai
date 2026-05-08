@@ -24,6 +24,9 @@ import com.example.musicai.util.ToastHelper;
 import com.example.musicai.util.ConfirmDialog;
 import com.example.musicai.MusicPlayerService.PlaybackListener;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class LibraryDetailActivity extends BaseActivity implements PlaybackListener {
     
     public static final String EXTRA_TYPE = "type";
@@ -63,18 +66,33 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
     private static final String[] CHORD_NAMES = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
     private static final String[] CHORD_TYPES = {"major", "minor", "seventh", "diminished", "augmented", "sus2", "sus4"};
     
+    private static final int MENU_RENAME = 1;
+    private static final int MENU_DELETE = 2;
+    private static final int MENU_EXPORT = 3;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_library_detail);
         
+        itemType = getIntent().getIntExtra(EXTRA_TYPE, TYPE_MELODY);
+        itemId = getIntent().getStringExtra(EXTRA_ID);
+        
+        String title = itemType == TYPE_MELODY ? "旋律详情" : "和弦详情";
+        initToolbar(R.id.toolbar, title);
+        setBackVisible(true);
+        setMenuVisible(true);
+        
+        List<ToolbarHelper.MenuItemData> menuItems = new ArrayList<>();
+        menuItems.add(new ToolbarHelper.MenuItemData(MENU_RENAME, "改名"));
+        menuItems.add(new ToolbarHelper.MenuItemData(MENU_DELETE, "删除", 0, true));
+        menuItems.add(new ToolbarHelper.MenuItemData(MENU_EXPORT, "导出"));
+        toolbarHelper.setMenuItems(menuItems, this::onMenuItemClick);
+        
         repository = MusicRepository.getInstance(this);
         
         Intent serviceIntent = new Intent(this, MusicPlayerService.class);
         bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE);
-        
-        itemType = getIntent().getIntExtra(EXTRA_TYPE, TYPE_MELODY);
-        itemId = getIntent().getStringExtra(EXTRA_ID);
         
         initViews();
         loadData();
@@ -242,6 +260,22 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
                 }
             }
         });
+    }
+    
+    private void onMenuItemClick(int itemId) {
+        switch (itemId) {
+            case MENU_RENAME:
+                etName.requestFocus();
+                etName.setSelection(etName.getText().length());
+                ToastHelper.showInfo(this, "请在下方修改名称后点击保存");
+                break;
+            case MENU_DELETE:
+                confirmDelete();
+                break;
+            case MENU_EXPORT:
+                ToastHelper.showInfo(this, "导出功能开发中");
+                break;
+        }
     }
     
     private void setSpeed(float speed) {

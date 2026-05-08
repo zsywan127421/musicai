@@ -1,410 +1,422 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/apple_light_bg"
-    android:fillViewport="true"
-    android:scrollbars="none">
+    android:orientation="vertical"
+    android:background="@color/apple_light_bg">
 
-    <LinearLayout
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/layout_toolbar"/>
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="32dp"
-        android:paddingBottom="32dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="外观"
-            android:textSize="13sp"
-            android:textColor="@color/apple_text_secondary"
-            android:paddingHorizontal="20dp"
-            android:paddingBottom="8dp"/>
+        android:layout_height="match_parent"
+        android:background="@color/apple_light_bg"
+        android:fillViewport="true"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/apple_card_bg"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="24dp">
+            android:paddingTop="16dp"
+            android:paddingBottom="32dp">
 
-            <LinearLayout
-                android:id="@+id/item_theme"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingVertical="16dp"
-                android:paddingHorizontal="16dp"
-                android:background="?attr/selectableItemBackground"
-                android:minHeight="56dp">
+                android:text="外观"
+                android:textSize="13sp"
+                android:textColor="@color/apple_text_secondary"
+                android:paddingHorizontal="20dp"
+                android:paddingBottom="8dp"/>
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_theme"
-                    android:tint="@color/apple_accent"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/apple_card_bg"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="24dp">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:id="@+id/item_theme"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="14dp">
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="16dp"
+                    android:paddingHorizontal="16dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:minHeight="56dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="深色模式"
-                        android:textSize="16sp"
-                        android:textColor="@color/apple_text"/>
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_theme"
+                        android:tint="@color/apple_accent"/>
 
-                    <TextView
-                        android:id="@+id/tv_theme_value"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="跟随系统"
-                        android:textSize="13sp"
-                        android:textColor="@color/apple_text_tertiary"
-                        android:layout_marginTop="2dp"/>
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="14dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="深色模式"
+                            android:textSize="16sp"
+                            android:textColor="@color/apple_text"/>
+
+                        <TextView
+                            android:id="@+id/tv_theme_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="跟随系统"
+                            android:textSize="13sp"
+                            android:textColor="@color/apple_text_tertiary"
+                            android:layout_marginTop="2dp"/>
+
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_arrow_right"
+                        android:tint="@color/apple_text_tertiary"/>
 
                 </LinearLayout>
 
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_arrow_right"
-                    android:tint="@color/apple_text_tertiary"/>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/apple_separator"
+                    android:layout_marginStart="54dp"/>
+
+                <LinearLayout
+                    android:id="@+id/item_font_size"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="16dp"
+                    android:paddingHorizontal="16dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:minHeight="56dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_font_size"
+                        android:tint="@color/apple_accent"/>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="14dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="播放器字体大小"
+                            android:textSize="16sp"
+                            android:textColor="@color/apple_text"/>
+
+                        <TextView
+                            android:id="@+id/tv_font_size_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="中"
+                            android:textSize="13sp"
+                            android:textColor="@color/apple_text_tertiary"
+                            android:layout_marginTop="2dp"/>
+
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_arrow_right"
+                        android:tint="@color/apple_text_tertiary"/>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/apple_separator"
+                    android:layout_marginStart="54dp"/>
+
+                <LinearLayout
+                    android:id="@+id/item_language"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="16dp"
+                    android:paddingHorizontal="16dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:minHeight="56dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_language"
+                        android:tint="@color/apple_accent"/>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="14dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="语言"
+                            android:textSize="16sp"
+                            android:textColor="@color/apple_text"/>
+
+                        <TextView
+                            android:id="@+id/tv_language_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="跟随系统"
+                            android:textSize="13sp"
+                            android:textColor="@color/apple_text_tertiary"
+                            android:layout_marginTop="2dp"/>
+
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_arrow_right"
+                        android:tint="@color/apple_text_tertiary"/>
+
+                </LinearLayout>
 
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/apple_separator"
-                android:layout_marginStart="54dp"/>
-
-            <LinearLayout
-                android:id="@+id/item_font_size"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingVertical="16dp"
-                android:paddingHorizontal="16dp"
-                android:background="?attr/selectableItemBackground"
-                android:minHeight="56dp">
+                android:text="生成"
+                android:textSize="13sp"
+                android:textColor="@color/apple_text_secondary"
+                android:paddingHorizontal="20dp"
+                android:paddingBottom="8dp"/>
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_font_size"
-                    android:tint="@color/apple_accent"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/apple_card_bg"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="24dp">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="14dp">
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="16dp"
+                    android:paddingHorizontal="16dp"
+                    android:minHeight="56dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_save"
+                        android:tint="@color/apple_accent"/>
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="播放器字体大小"
+                        android:layout_weight="1"
+                        android:text="自动保存至历史记录"
                         android:textSize="16sp"
-                        android:textColor="@color/apple_text"/>
+                        android:textColor="@color/apple_text"
+                        android:layout_marginStart="14dp"/>
 
-                    <TextView
-                        android:id="@+id/tv_font_size_value"
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/switch_auto_save"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="中"
-                        android:textSize="13sp"
-                        android:textColor="@color/apple_text_tertiary"
-                        android:layout_marginTop="2dp"/>
+                        android:layout_height="wrap_content"/>
 
                 </LinearLayout>
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_arrow_right"
-                    android:tint="@color/apple_text_tertiary"/>
 
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/apple_separator"
-                android:layout_marginStart="54dp"/>
-
-            <LinearLayout
-                android:id="@+id/item_language"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingVertical="16dp"
-                android:paddingHorizontal="16dp"
-                android:background="?attr/selectableItemBackground"
-                android:minHeight="56dp">
+                android:text="存储"
+                android:textSize="13sp"
+                android:textColor="@color/apple_text_secondary"
+                android:paddingHorizontal="20dp"
+                android:paddingBottom="8dp"/>
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_language"
-                    android:tint="@color/apple_accent"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/apple_card_bg"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="24dp">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:id="@+id/item_clear_cache"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="14dp">
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="16dp"
+                    android:paddingHorizontal="16dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:minHeight="56dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="语言"
-                        android:textSize="16sp"
-                        android:textColor="@color/apple_text"/>
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_delete"
+                        android:tint="@color/apple_accent"/>
 
-                    <TextView
-                        android:id="@+id/tv_language_value"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="跟随系统"
-                        android:textSize="13sp"
-                        android:textColor="@color/apple_text_tertiary"
-                        android:layout_marginTop="2dp"/>
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="14dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="清除生成缓存"
+                            android:textSize="16sp"
+                            android:textColor="@color/apple_text"/>
+
+                        <TextView
+                            android:id="@+id/tv_cache_size"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0 KB"
+                            android:textSize="13sp"
+                            android:textColor="@color/apple_text_tertiary"
+                            android:layout_marginTop="2dp"/>
+
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_arrow_right"
+                        android:tint="@color/apple_text_tertiary"/>
 
                 </LinearLayout>
 
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_arrow_right"
-                    android:tint="@color/apple_text_tertiary"/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="关于"
+                android:textSize="13sp"
+                android:textColor="@color/apple_text_secondary"
+                android:paddingHorizontal="20dp"
+                android:paddingBottom="8dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/apple_card_bg"
+                android:layout_marginHorizontal="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="16dp"
+                    android:paddingHorizontal="16dp"
+                    android:minHeight="56dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_info"
+                        android:tint="@color/apple_accent"/>
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="版本"
+                        android:textSize="16sp"
+                        android:textColor="@color/apple_text"
+                        android:layout_marginStart="14dp"/>
+
+                    <TextView
+                        android:id="@+id/tv_version"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="1.0.0"
+                        android:textSize="16sp"
+                        android:textColor="@color/apple_text_tertiary"/>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/apple_separator"
+                    android:layout_marginStart="54dp"/>
+
+                <LinearLayout
+                    android:id="@+id/item_license"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="16dp"
+                    android:paddingHorizontal="16dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:minHeight="56dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_license"
+                        android:tint="@color/apple_accent"/>
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="开源许可"
+                        android:textSize="16sp"
+                        android:textColor="@color/apple_text"
+                        android:layout_marginStart="14dp"/>
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_arrow_right"
+                        android:tint="@color/apple_text_tertiary"/>
+
+                </LinearLayout>
 
             </LinearLayout>
 
         </LinearLayout>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="生成"
-            android:textSize="13sp"
-            android:textColor="@color/apple_text_secondary"
-            android:paddingHorizontal="20dp"
-            android:paddingBottom="8dp"/>
+    </ScrollView>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@color/apple_card_bg"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="24dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingVertical="16dp"
-                android:paddingHorizontal="16dp"
-                android:minHeight="56dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_save"
-                    android:tint="@color/apple_accent"/>
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="自动保存至历史记录"
-                    android:textSize="16sp"
-                    android:textColor="@color/apple_text"
-                    android:layout_marginStart="14dp"/>
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/switch_auto_save"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="存储"
-            android:textSize="13sp"
-            android:textColor="@color/apple_text_secondary"
-            android:paddingHorizontal="20dp"
-            android:paddingBottom="8dp"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@color/apple_card_bg"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="24dp">
-
-            <LinearLayout
-                android:id="@+id/item_clear_cache"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingVertical="16dp"
-                android:paddingHorizontal="16dp"
-                android:background="?attr/selectableItemBackground"
-                android:minHeight="56dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_delete"
-                    android:tint="@color/apple_accent"/>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="14dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="清除生成缓存"
-                        android:textSize="16sp"
-                        android:textColor="@color/apple_text"/>
-
-                    <TextView
-                        android:id="@+id/tv_cache_size"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0 KB"
-                        android:textSize="13sp"
-                        android:textColor="@color/apple_text_tertiary"
-                        android:layout_marginTop="2dp"/>
-
-                </LinearLayout>
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_arrow_right"
-                    android:tint="@color/apple_text_tertiary"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="关于"
-            android:textSize="13sp"
-            android:textColor="@color/apple_text_secondary"
-            android:paddingHorizontal="20dp"
-            android:paddingBottom="8dp"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@color/apple_card_bg"
-            android:layout_marginHorizontal="16dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingVertical="16dp"
-                android:paddingHorizontal="16dp"
-                android:minHeight="56dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_info"
-                    android:tint="@color/apple_accent"/>
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="版本"
-                    android:textSize="16sp"
-                    android:textColor="@color/apple_text"
-                    android:layout_marginStart="14dp"/>
-
-                <TextView
-                    android:id="@+id/tv_version"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1.0.0"
-                    android:textSize="16sp"
-                    android:textColor="@color/apple_text_tertiary"/>
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/apple_separator"
-                android:layout_marginStart="54dp"/>
-
-            <LinearLayout
-                android:id="@+id/item_license"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingVertical="16dp"
-                android:paddingHorizontal="16dp"
-                android:background="?attr/selectableItemBackground"
-                android:minHeight="56dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_license"
-                    android:tint="@color/apple_accent"/>
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="开源许可"
-                    android:textSize="16sp"
-                    android:textColor="@color/apple_text"
-                    android:layout_marginStart="14dp"/>
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_arrow_right"
-                    android:tint="@color/apple_text_tertiary"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-</ScrollView>
+</LinearLayout>

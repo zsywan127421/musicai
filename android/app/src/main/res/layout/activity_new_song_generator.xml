@@ -3,18 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/apple_light_bg"
-    android:fitsSystemWindows="true">
+    android:background="@color/apple_light_bg">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:background="@drawable/apple_card_bg"
-        android:layout_margin="16dp"
-        android:elevation="0dp"
-        android:outlineProvider="background">
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/layout_toolbar"/>
 
         <RadioGroup
             android:id="@+id/rg_mode"

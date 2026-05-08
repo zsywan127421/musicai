@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import com.example.musicai.util.ConfirmDialog;
 import com.example.musicai.util.SelectItemAdapter;
 import com.example.musicai.util.ToastHelper;
+import com.example.musicai.util.ToolbarHelper;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener;
 
@@ -23,6 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LibraryTabsActivity extends BaseActivity {
+
+    private static final int MENU_SORT = 1;
+    private static final int MENU_FILTER = 2;
+    private static final int MENU_IMPORT = 3;
 
     public static final String EXTRA_TYPE = "type";
     public static final int TYPE_MELODY = 1;
@@ -49,6 +54,11 @@ public class LibraryTabsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_library_tabs);
+
+        initToolbar(R.id.toolbar, "资源库");
+        setBackVisible(true);
+        setMenuVisible(true);
+        setMenuItems(createMenuItems(), this::onMenuItemClick);
 
         repository = MusicRepository.getInstance(this);
 
@@ -256,5 +266,27 @@ public class LibraryTabsActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         loadData();
+    }
+
+    private List<ToolbarHelper.MenuItemData> createMenuItems() {
+        List<ToolbarHelper.MenuItemData> items = new ArrayList<>();
+        items.add(new ToolbarHelper.MenuItemData(MENU_SORT, "排序方式"));
+        items.add(new ToolbarHelper.MenuItemData(MENU_FILTER, "筛选"));
+        items.add(new ToolbarHelper.MenuItemData(MENU_IMPORT, "导入"));
+        return items;
+    }
+
+    private void onMenuItemClick(int itemId) {
+        switch (itemId) {
+            case MENU_SORT:
+                ToastHelper.showInfo(this, "排序功能开发中");
+                break;
+            case MENU_FILTER:
+                ToastHelper.showInfo(this, "筛选功能开发中");
+                break;
+            case MENU_IMPORT:
+                ToastHelper.showInfo(this, "导入功能开发中");
+                break;
+        }
     }
 }

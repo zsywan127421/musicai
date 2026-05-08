@@ -16,10 +16,16 @@ import com.example.musicai.util.LanguageManager;
 import com.example.musicai.util.SelectItemBottomSheet;
 import com.example.musicai.util.ThemeManager;
 import com.example.musicai.util.ToastHelper;
+import com.example.musicai.util.ToolbarHelper;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SettingsActivity extends BaseActivity {
+    
+    private static final int MENU_RESET = 1;
+    private static final int MENU_ABOUT = 2;
     
     private static final String PREFS_NAME = "MusicAISettings";
     private static final String KEY_AUTO_SAVE = "auto_save";
@@ -38,6 +44,11 @@ public class SettingsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        
+        initToolbar(R.id.toolbar, "设置");
+        setBackVisible(true);
+        setMenuVisible(true);
+        setupMenuItems();
         
         settingsPrefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         languageManager = LanguageManager.getInstance(this);
@@ -243,5 +254,29 @@ public class SettingsActivity extends BaseActivity {
     public static boolean isAutoSaveEnabled(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         return prefs.getBoolean(KEY_AUTO_SAVE, true);
+    }
+    
+    private void setupMenuItems() {
+        List<ToolbarHelper.MenuItemData> menuItems = new ArrayList<>();
+        menuItems.add(new ToolbarHelper.MenuItemData(MENU_RESET, "恢复默认设置"));
+        menuItems.add(new ToolbarHelper.MenuItemData(MENU_ABOUT, "关于"));
+        
+        toolbarHelper.setMenuItems(menuItems, this::onMenuItemClick);
+    }
+    
+    private void onMenuItemClick(int itemId) {
+        if (itemId == MENU_RESET) {
+            ToastHelper.showInfo(this, "设置已恢复默认");
+        } else if (itemId == MENU_ABOUT) {
+            showAboutDialog();
+        }
+    }
+    
+    private void showAboutDialog() {
+        new android.app.AlertDialog.Builder(this)
+            .setTitle("关于 MusicAI")
+            .setMessage("MusicAI v1.0.0\n\nAI 音乐创作助手\n\n© 2024 MusicAI")
+            .setPositiveButton("确定", null)
+            .show();
     }
 }

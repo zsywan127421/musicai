@@ -1,344 +1,323 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/apple_light_bg"
-    android:fillViewport="true"
-    android:scrollbars="none">
+    android:orientation="vertical"
+    android:background="@color/apple_light_bg">
 
-    <LinearLayout
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/layout_toolbar"/>
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="32dp"
-        android:paddingBottom="32dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingHorizontal="16dp"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/tv_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="歌曲详情"
-                android:textSize="20sp"
-                android:textColor="@color/apple_text"
-                android:textStyle="bold"/>
-
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
-            android:background="@color/apple_separator"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="16dp"
-            android:layout_marginBottom="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="歌曲名称"
-                android:textSize="13sp"
-                android:textColor="@color/apple_text_secondary"
-                android:layout_marginBottom="8dp"/>
-
-            <EditText
-                android:id="@+id/et_name"
-                android:layout_width="match_parent"
-                android:layout_height="44dp"
-                android:minHeight="44dp"
-                android:paddingHorizontal="14dp"
-                android:textSize="15sp"
-                android:textColor="@color/apple_text"
-                android:textColorHint="@color/apple_text_tertiary"
-                android:background="@drawable/apple_edittext_bg"
-                android:inputType="text"
-                android:hint="输入歌曲名称"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingHorizontal="16dp"
-            android:layout_marginBottom="16dp">
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp">
 
             <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="风格"
-                    android:textSize="13sp"
-                    android:textColor="@color/apple_text_secondary"/>
-
-                <TextView
-                    android:id="@+id/tv_style"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="流行"
-                    android:textSize="15sp"
-                    android:textColor="@color/apple_text"
-                    android:layout_marginTop="4dp"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="创建时间"
-                    android:textSize="13sp"
-                    android:textColor="@color/apple_text_secondary"/>
-
-                <TextView
-                    android:id="@+id/tv_created"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="刚刚"
-                    android:textSize="15sp"
-                    android:textColor="@color/apple_text"
-                    android:layout_marginTop="4dp"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="16dp"
-            android:layout_marginBottom="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="来源信息"
-                android:textSize="13sp"
-                android:textColor="@color/apple_text_secondary"
-                android:layout_marginBottom="8dp"/>
-
-            <TextView
-                android:id="@+id/tv_source"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="来源旋律: -\n来源和弦: -"
-                android:textSize="14sp"
-                android:textColor="@color/apple_text"
-                android:padding="12dp"
-                android:background="@drawable/apple_card_bg"/>
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:layout_marginBottom="16dp">
 
-        </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="歌曲名称"
+                    android:textSize="13sp"
+                    android:textColor="@color/apple_text_secondary"
+                    android:layout_marginBottom="8dp"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="16dp"
-            android:layout_marginBottom="16dp">
+                <EditText
+                    android:id="@+id/et_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:minHeight="44dp"
+                    android:paddingHorizontal="14dp"
+                    android:textSize="15sp"
+                    android:textColor="@color/apple_text"
+                    android:textColorHint="@color/apple_text_tertiary"
+                    android:background="@drawable/apple_edittext_bg"
+                    android:inputType="text"
+                    android:hint="输入歌曲名称"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="歌曲结构"
-                android:textSize="13sp"
-                android:textColor="@color/apple_text_secondary"
-                android:layout_marginBottom="8dp"/>
-
-            <TextView
-                android:id="@+id/tv_segments"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="段落数: 0 | 时长: 0:00"
-                android:textSize="14sp"
-                android:textColor="@color/apple_text"
-                android:padding="12dp"
-                android:background="@drawable/apple_card_bg"/>
-
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="16dp"
-            android:background="@color/apple_separator"/>
-
-        <LinearLayout
-            android:id="@+id/playback_section"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="16dp"
-            android:layout_marginBottom="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="播放器"
-                android:textSize="13sp"
-                android:textColor="@color/apple_text_secondary"
-                android:layout_marginBottom="12dp"/>
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:paddingHorizontal="16dp"
+                android:layout_marginBottom="16dp">
 
-                <Button
-                    android:id="@+id/btn_play"
-                    android:layout_width="wrap_content"
-                    android:layout_height="42dp"
-                    android:minHeight="42dp"
-                    android:text="播放"
-                    android:textSize="14sp"
-                    android:textColor="@color/apple_white"
-                    android:background="@drawable/apple_button_primary_bg"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp"
-                    android:layout_marginEnd="12dp"/>
-
-                <Button
-                    android:id="@+id/btn_stop"
-                    android:layout_width="wrap_content"
-                    android:layout_height="42dp"
-                    android:minHeight="42dp"
-                    android:text="停止"
-                    android:textSize="14sp"
-                    android:textColor="@color/apple_button_text"
-                    android:background="@drawable/apple_button_bg"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp"/>
-
-            </LinearLayout>
-
-            <com.example.musicai.CursorSeekBar
-                android:id="@+id/playback_progress"
-                android:layout_width="match_parent"
-                android:layout_height="24dp"
-                android:layout_marginBottom="8dp"/>
-
-            <TextView
-                android:id="@+id/tv_playback_time"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="0:00 / 0:00"
-                android:textSize="12sp"
-                android:textColor="@color/apple_text_secondary"
-                android:gravity="center"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/speed_section"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="16dp"
-            android:layout_marginBottom="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="播放速度"
-                android:textSize="13sp"
-                android:textColor="@color/apple_text_secondary"
-                android:layout_marginBottom="12dp"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <SeekBar
-                    android:id="@+id/seekbar_speed"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:max="50"
-                    android:progress="10"
-                    android:progressTint="@color/apple_accent"
-                    android:thumbTint="@color/apple_accent"/>
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="风格"
+                        android:textSize="13sp"
+                        android:textColor="@color/apple_text_secondary"/>
+
+                    <TextView
+                        android:id="@+id/tv_style"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="流行"
+                        android:textSize="15sp"
+                        android:textColor="@color/apple_text"
+                        android:layout_marginTop="4dp"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="创建时间"
+                        android:textSize="13sp"
+                        android:textColor="@color/apple_text_secondary"/>
+
+                    <TextView
+                        android:id="@+id/tv_created"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="刚刚"
+                        android:textSize="15sp"
+                        android:textColor="@color/apple_text"
+                        android:layout_marginTop="4dp"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:layout_marginBottom="16dp">
 
                 <TextView
-                    android:id="@+id/tv_speed"
-                    android:layout_width="80dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="速度: 1.0x"
+                    android:text="来源信息"
                     android:textSize="13sp"
+                    android:textColor="@color/apple_text_secondary"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:id="@+id/tv_source"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="来源旋律: -\n来源和弦: -"
+                    android:textSize="14sp"
                     android:textColor="@color/apple_text"
-                    android:gravity="end"/>
+                    android:padding="12dp"
+                    android:background="@drawable/apple_card_bg"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="歌曲结构"
+                    android:textSize="13sp"
+                    android:textColor="@color/apple_text_secondary"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:id="@+id/tv_segments"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="段落数: 0 | 时长: 0:00"
+                    android:textSize="14sp"
+                    android:textColor="@color/apple_text"
+                    android:padding="12dp"
+                    android:background="@drawable/apple_card_bg"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/playback_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="播放器"
+                    android:textSize="13sp"
+                    android:textColor="@color/apple_text_secondary"
+                    android:layout_marginBottom="12dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <Button
+                        android:id="@+id/btn_play"
+                        android:layout_width="wrap_content"
+                        android:layout_height="42dp"
+                        android:minHeight="42dp"
+                        android:text="播放"
+                        android:textSize="14sp"
+                        android:textColor="@color/apple_white"
+                        android:background="@drawable/apple_button_primary_bg"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp"
+                        android:layout_marginEnd="12dp"/>
+
+                    <Button
+                        android:id="@+id/btn_stop"
+                        android:layout_width="wrap_content"
+                        android:layout_height="42dp"
+                        android:minHeight="42dp"
+                        android:text="停止"
+                        android:textSize="14sp"
+                        android:textColor="@color/apple_button_text"
+                        android:background="@drawable/apple_button_bg"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp"/>
+
+                </LinearLayout>
+
+                <com.example.musicai.CursorSeekBar
+                    android:id="@+id/playback_progress"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:id="@+id/tv_playback_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="0:00 / 0:00"
+                    android:textSize="12sp"
+                    android:textColor="@color/apple_text_secondary"
+                    android:gravity="center"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/speed_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="播放速度"
+                    android:textSize="13sp"
+                    android:textColor="@color/apple_text_secondary"
+                    android:layout_marginBottom="12dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <SeekBar
+                        android:id="@+id/seekbar_speed"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:max="50"
+                        android:progress="10"
+                        android:progressTint="@color/apple_accent"
+                        android:thumbTint="@color/apple_accent"/>
+
+                    <TextView
+                        android:id="@+id/tv_speed"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:text="速度: 1.0x"
+                        android:textSize="13sp"
+                        android:textColor="@color/apple_text"
+                        android:gravity="end"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:indeterminate="true"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp">
+
+                <Button
+                    android:id="@+id/btn_save"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:text="保存"
+                    android:textSize="16sp"
+                    android:textColor="@color/apple_white"
+                    android:background="@drawable/apple_button_primary_bg"
+                    android:layout_marginEnd="8dp"/>
+
+                <Button
+                    android:id="@+id/btn_delete"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:text="删除"
+                    android:textSize="16sp"
+                    android:textColor="@color/apple_white"
+                    android:background="@drawable/apple_button_danger_bg"
+                    android:layout_marginStart="8dp"/>
 
             </LinearLayout>
 
         </LinearLayout>
 
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            android:layout_width="match_parent"
-            android:layout_height="4dp"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="16dp"
-            android:visibility="gone"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:indeterminate="true"/>
+    </ScrollView>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingHorizontal="16dp">
-
-            <Button
-                android:id="@+id/btn_save"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_weight="1"
-                android:text="保存"
-                android:textSize="16sp"
-                android:textColor="@color/apple_white"
-                android:background="@drawable/apple_button_primary_bg"
-                android:layout_marginEnd="8dp"/>
-
-            <Button
-                android:id="@+id/btn_delete"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_weight="1"
-                android:text="删除"
-                android:textSize="16sp"
-                android:textColor="@color/apple_white"
-                android:background="@drawable/apple_button_danger_bg"
-                android:layout_marginStart="8dp"/>
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-</ScrollView>
+</LinearLayout>

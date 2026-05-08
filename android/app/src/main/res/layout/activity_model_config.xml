@@ -1,380 +1,380 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/apple_light_bg"
-    android:fillViewport="true"
-    android:scrollbars="none">
+    android:orientation="vertical"
+    android:background="@color/apple_light_bg">
 
-    <LinearLayout
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/layout_toolbar"/>
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="32dp"
-        android:paddingBottom="32dp"
-        android:paddingHorizontal="0dp">
-
-        <!-- API配置 -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="API 配置"
-            android:textSize="13sp"
-            android:textColor="@color/apple_text_secondary"
-            android:paddingHorizontal="20dp"
-            android:paddingBottom="8dp"/>
+        android:layout_height="match_parent"
+        android:background="@color/apple_light_bg"
+        android:fillViewport="true"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/apple_card_bg"
-            android:layout_marginHorizontal="16dp">
+            android:paddingTop="16dp"
+            android:paddingBottom="32dp"
+            android:paddingHorizontal="0dp">
 
-            <!-- API 地址 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="API 配置"
+                android:textSize="13sp"
+                android:textColor="@color/apple_text_secondary"
+                android:paddingHorizontal="20dp"
+                android:paddingBottom="8dp"/>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingVertical="12dp"
-                android:paddingHorizontal="16dp">
+                android:background="@color/apple_card_bg"
+                android:layout_marginHorizontal="16dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="API 地址"
-                    android:textSize="15sp"
-                    android:textColor="@color/apple_text"
-                    android:layout_marginBottom="8dp"/>
-
-                <EditText
-                    android:id="@+id/et_api_url"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:minHeight="44dp"
-                    android:padding="12dp"
-                    android:textSize="14sp"
-                    android:textColor="@color/apple_text"
-                    android:textColorHint="@color/apple_text_tertiary"
-                    android:background="@drawable/apple_edittext_bg"
-                    android:inputType="textUri"
-                    android:hint="https://api.deepseek.com/v1"
-                    android:autofillHints="url"/>
+                    android:orientation="vertical"
+                    android:paddingVertical="12dp"
+                    android:paddingHorizontal="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="API 地址"
+                        android:textSize="15sp"
+                        android:textColor="@color/apple_text"
+                        android:layout_marginBottom="8dp"/>
+
+                    <EditText
+                        android:id="@+id/et_api_url"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="44dp"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textColor="@color/apple_text"
+                        android:textColorHint="@color/apple_text_tertiary"
+                        android:background="@drawable/apple_edittext_bg"
+                        android:inputType="textUri"
+                        android:hint="https://api.deepseek.com/v1"
+                        android:autofillHints="url"/>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/apple_separator"
+                    android:layout_marginStart="16dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingVertical="16dp"
+                    android:paddingHorizontal="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="API Key"
+                        android:textSize="15sp"
+                        android:textColor="@color/apple_text"
+                        android:layout_marginBottom="8dp"/>
+
+                    <EditText
+                        android:id="@+id/et_api_key"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="44dp"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textColor="@color/apple_text"
+                        android:textColorHint="@color/apple_text_tertiary"
+                        android:background="@drawable/apple_edittext_bg"
+                        android:inputType="textPassword"
+                        android:hint="请输入您的 API Key"
+                        android:autofillHints="password"/>
+
+                </LinearLayout>
 
             </LinearLayout>
 
-            <View
+            <TextView
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/apple_separator"
-                android:layout_marginStart="16dp"/>
+                android:layout_height="wrap_content"
+                android:text="模型配置"
+                android:textSize="13sp"
+                android:textColor="@color/apple_text_secondary"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="24dp"
+                android:paddingBottom="8dp"/>
 
-            <!-- API Key -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingVertical="16dp"
-                android:paddingHorizontal="16dp">
+                android:background="@color/apple_card_bg"
+                android:layout_marginHorizontal="16dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="API Key"
-                    android:textSize="15sp"
-                    android:textColor="@color/apple_text"
-                    android:layout_marginBottom="8dp"/>
-
-                <EditText
-                    android:id="@+id/et_api_key"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:minHeight="44dp"
-                    android:padding="12dp"
-                    android:textSize="14sp"
-                    android:textColor="@color/apple_text"
-                    android:textColorHint="@color/apple_text_tertiary"
-                    android:background="@drawable/apple_edittext_bg"
-                    android:inputType="textPassword"
-                    android:hint="请输入您的 API Key"
-                    android:autofillHints="password"/>
+                    android:orientation="vertical"
+                    android:paddingVertical="12dp"
+                    android:paddingHorizontal="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="模型名称"
+                        android:textSize="15sp"
+                        android:textColor="@color/apple_text"
+                        android:layout_marginBottom="8dp"/>
+
+                    <EditText
+                        android:id="@+id/et_model_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="44dp"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textColor="@color/apple_text"
+                        android:textColorHint="@color/apple_text_tertiary"
+                        android:background="@drawable/apple_edittext_bg"
+                        android:inputType="text"
+                        android:hint="deepseek-chat"
+                        android:autofillHints="none"/>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/apple_separator"
+                    android:layout_marginStart="16dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingVertical="16dp"
+                    android:paddingHorizontal="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Temperature"
+                            android:textSize="15sp"
+                            android:textColor="@color/apple_text"/>
+
+                        <TextView
+                            android:id="@+id/tv_temperature_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0.7"
+                            android:textSize="14sp"
+                            android:textColor="@color/apple_accent"/>
+
+                    </LinearLayout>
+
+                    <SeekBar
+                        android:id="@+id/seekbar_temperature"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:min="1"
+                        android:max="10"
+                        android:progress="7"
+                        android:progressTint="@color/apple_accent"
+                        android:thumbTint="@color/apple_accent"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="值越高生成越有创意，越低越确定"
+                        android:textSize="12sp"
+                        android:textColor="@color/apple_text_tertiary"
+                        android:layout_marginTop="4dp"/>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/apple_separator"
+                    android:layout_marginStart="16dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingVertical="16dp"
+                    android:paddingHorizontal="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="最大Token数"
+                            android:textSize="15sp"
+                            android:textColor="@color/apple_text"/>
+
+                        <TextView
+                            android:id="@+id/tv_max_tokens_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="4096"
+                            android:textSize="14sp"
+                            android:textColor="@color/apple_accent"/>
+
+                    </LinearLayout>
+
+                    <SeekBar
+                        android:id="@+id/seekbar_max_tokens"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:min="1000"
+                        android:max="2500"
+                        android:progress="2048"
+                        android:progressTint="@color/apple_accent"
+                        android:thumbTint="@color/apple_accent"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="建议值1000-2500，值越大生成内容越长"
+                        android:textSize="12sp"
+                        android:textColor="@color/apple_text_tertiary"
+                        android:layout_marginTop="4dp"/>
+
+                </LinearLayout>
 
             </LinearLayout>
 
-        </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="连接测试"
+                android:textSize="13sp"
+                android:textColor="@color/apple_text_secondary"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="24dp"
+                android:paddingBottom="8dp"/>
 
-        <!-- 模型配置 -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="模型配置"
-            android:textSize="13sp"
-            android:textColor="@color/apple_text_secondary"
-            android:paddingHorizontal="20dp"
-            android:paddingTop="24dp"
-            android:paddingBottom="8dp"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@color/apple_card_bg"
-            android:layout_marginHorizontal="16dp">
-
-            <!-- 模型名称 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingVertical="12dp"
-                android:paddingHorizontal="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="模型名称"
-                    android:textSize="15sp"
-                    android:textColor="@color/apple_text"
-                    android:layout_marginBottom="8dp"/>
-
-                <EditText
-                    android:id="@+id/et_model_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="44dp"
-                    android:padding="12dp"
-                    android:textSize="14sp"
-                    android:textColor="@color/apple_text"
-                    android:textColorHint="@color/apple_text_tertiary"
-                    android:background="@drawable/apple_edittext_bg"
-                    android:inputType="text"
-                    android:hint="deepseek-chat"
-                    android:autofillHints="none"/>
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/apple_separator"
-                android:layout_marginStart="16dp"/>
-
-            <!-- Temperature -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingVertical="16dp"
-                android:paddingHorizontal="16dp">
+                android:background="@color/apple_card_bg"
+                android:layout_marginHorizontal="16dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="8dp">
+                    android:paddingVertical="14dp"
+                    android:paddingHorizontal="16dp"
+                    android:minHeight="48dp">
+
+                    <ImageView
+                        android:id="@+id/iv_test_status"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_info"
+                        android:visibility="gone"/>
 
                     <TextView
+                        android:id="@+id/tv_test_result"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Temperature"
+                        android:text="点击下方按钮测试连接"
                         android:textSize="15sp"
-                        android:textColor="@color/apple_text"/>
-
-                    <TextView
-                        android:id="@+id/tv_temperature_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0.7"
-                        android:textSize="14sp"
-                        android:textColor="@color/apple_accent"/>
+                        android:textColor="@color/apple_text_tertiary"
+                        android:layout_marginStart="4dp"/>
 
                 </LinearLayout>
 
-                <SeekBar
-                    android:id="@+id/seekbar_temperature"
+                <View
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:min="1"
-                    android:max="10"
-                    android:progress="7"
-                    android:progressTint="@color/apple_accent"
-                    android:thumbTint="@color/apple_accent"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="值越高生成越有创意，越低越确定"
-                    android:textSize="12sp"
-                    android:textColor="@color/apple_text_tertiary"
-                    android:layout_marginTop="4dp"/>
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/apple_separator"
-                android:layout_marginStart="16dp"/>
-
-            <!-- Max Tokens -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingVertical="16dp"
-                android:paddingHorizontal="16dp">
+                    android:layout_height="1dp"
+                    android:background="@color/apple_separator"
+                    android:layout_marginStart="16dp"/>
 
                 <LinearLayout
+                    android:id="@+id/btn_test_connection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="8dp">
+                    android:gravity="center"
+                    android:paddingVertical="14dp"
+                    android:paddingHorizontal="16dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:minHeight="48dp">
 
                     <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="最大Token数"
-                        android:textSize="15sp"
-                        android:textColor="@color/apple_text"/>
-
-                    <TextView
-                        android:id="@+id/tv_max_tokens_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="4096"
-                        android:textSize="14sp"
+                        android:text="测试连接"
+                        android:textSize="16sp"
                         android:textColor="@color/apple_accent"/>
 
                 </LinearLayout>
 
-                <SeekBar
-                    android:id="@+id/seekbar_max_tokens"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:min="1000"
-                    android:max="2500"
-                    android:progress="2048"
-                    android:progressTint="@color/apple_accent"
-                    android:thumbTint="@color/apple_accent"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="建议值1000-2500，值越大生成内容越长"
-                    android:textSize="12sp"
-                    android:textColor="@color/apple_text_tertiary"
-                    android:layout_marginTop="4dp"/>
-
             </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_save"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:minHeight="50dp"
+                android:text="保存配置"
+                android:textSize="16sp"
+                android:textColor="@color/apple_white"
+                android:background="@drawable/apple_button_primary_bg"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="32dp"/>
+
+            <Button
+                android:id="@+id/btn_reset"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:minHeight="50dp"
+                android:text="恢复默认设置"
+                android:textSize="16sp"
+                android:textColor="@color/apple_danger"
+                android:background="@drawable/apple_button_bg"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"/>
 
         </LinearLayout>
 
-        <!-- 测试连接 -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="连接测试"
-            android:textSize="13sp"
-            android:textColor="@color/apple_text_secondary"
-            android:paddingHorizontal="20dp"
-            android:paddingTop="24dp"
-            android:paddingBottom="8dp"/>
+    </ScrollView>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@color/apple_card_bg"
-            android:layout_marginHorizontal="16dp">
-
-            <!-- 测试结果 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingVertical="14dp"
-                android:paddingHorizontal="16dp"
-                android:minHeight="48dp">
-
-                <ImageView
-                    android:id="@+id/iv_test_status"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_info"
-                    android:visibility="gone"/>
-
-                <TextView
-                    android:id="@+id/tv_test_result"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="点击下方按钮测试连接"
-                    android:textSize="15sp"
-                    android:textColor="@color/apple_text_tertiary"
-                    android:layout_marginStart="4dp"/>
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/apple_separator"
-                android:layout_marginStart="16dp"/>
-
-            <!-- 测试连接按钮 -->
-            <LinearLayout
-                android:id="@+id/btn_test_connection"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:paddingVertical="14dp"
-                android:paddingHorizontal="16dp"
-                android:background="?attr/selectableItemBackground"
-                android:minHeight="48dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="测试连接"
-                    android:textSize="16sp"
-                    android:textColor="@color/apple_accent"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <!-- 保存按钮 -->
-        <Button
-            android:id="@+id/btn_save"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:minHeight="50dp"
-            android:text="保存配置"
-            android:textSize="16sp"
-            android:textColor="@color/apple_white"
-            android:background="@drawable/apple_button_primary_bg"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="32dp"/>
-
-        <!-- 重置按钮 -->
-        <Button
-            android:id="@+id/btn_reset"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:minHeight="50dp"
-            android:text="恢复默认设置"
-            android:textSize="16sp"
-            android:textColor="@color/apple_danger"
-            android:background="@drawable/apple_button_bg"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="12dp"/>
-
-    </LinearLayout>
-
-</ScrollView>
+</LinearLayout>

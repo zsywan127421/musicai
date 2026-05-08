@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.example.musicai.util.ConfirmDialog;
 import com.example.musicai.util.TimeUtils;
 import com.example.musicai.util.ToastHelper;
+import com.example.musicai.util.ToolbarHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,6 +35,10 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
     private static final int MODE_MELODY = 0;
     private static final int MODE_CHORDS = 1;
     private static final int MODE_SONG = 2;
+    
+    private static final int MENU_HISTORY = 1;
+    private static final int MENU_RESET = 2;
+    private static final int MENU_HELP = 3;
     
     private static final float[] SPEEDS = {0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f};
     private static final String[] SPEED_LABELS = {"0.5x", "0.75x", "1x", "1.25x", "1.5x", "2x"};
@@ -123,6 +128,16 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_song_generator);
+        
+        initToolbar(R.id.toolbar, "AI创作");
+        setBackVisible(true);
+        setMenuVisible(true);
+        
+        List<ToolbarHelper.MenuItemData> menuItems = new ArrayList<>();
+        menuItems.add(new ToolbarHelper.MenuItemData(MENU_HISTORY, "生成历史"));
+        menuItems.add(new ToolbarHelper.MenuItemData(MENU_RESET, "参数重置"));
+        menuItems.add(new ToolbarHelper.MenuItemData(MENU_HELP, "帮助"));
+        setMenuItems(menuItems);
         
         musicGenerator = new MusicGenerator(this);
         repository = MusicRepository.getInstance(this);
@@ -847,6 +862,21 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
             btnPlay.setText("播放");
             btnStop.setEnabled(false);
         });
+    }
+    
+    @Override
+    public void onMenuItemClick(int menuId) {
+        switch (menuId) {
+            case MENU_HISTORY:
+                ToastHelper.showInfo(this, "生成历史功能开发中");
+                break;
+            case MENU_RESET:
+                ToastHelper.showInfo(this, "参数已重置");
+                break;
+            case MENU_HELP:
+                ToastHelper.showInfo(this, "帮助功能开发中");
+                break;
+        }
     }
     
     @Override
