@@ -343,13 +343,13 @@ public class AudioExporter {
             0x07, (byte) 0xA1, 0x20
         };
         System.arraycopy(tempoEvent, 0, trackData, trackLength, tempoEvent.length);
-        trackLength += tempoEvent;
+        trackLength += tempoEvent.length;
         
         byte[] programChange = new byte[] {
             0x00, (byte) 0xC0, 0x00
         };
         System.arraycopy(programChange, 0, trackData, trackLength, programChange.length);
-        trackLength += programChange;
+        trackLength += programChange.length;
         
         int bpm = songEntry.bpm > 0 ? songEntry.bpm : 120;
         

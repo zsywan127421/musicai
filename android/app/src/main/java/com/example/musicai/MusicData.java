@@ -171,6 +171,7 @@ public class MusicData {
         public int totalDurationMs;
         public List<Note> bassLine;
         public List<Note> drums;
+        public int bpm;
         public long createdAt;
         
         public Song() {
@@ -182,6 +183,7 @@ public class MusicData {
             segments = new ArrayList<>();
             bassLine = new ArrayList<>();
             drums = new ArrayList<>();
+            bpm = 120;
             createdAt = System.currentTimeMillis();
             totalDurationMs = 0;
         }

@@ -570,7 +570,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         etSongName.setText(defaultName);
         etSongName.setSelection(defaultName.length());
         
-        new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight_Dialog_Alert)
+        new AlertDialog.Builder(this)
             .setTitle("保存歌曲")
             .setMessage("生成完成！请输入歌曲名称：")
             .setView(etSongName)

@@ -1,6 +1,8 @@
 package com.example.musicai.util;
 
 import android.app.Dialog;
+import android.os.Handler;
+import android.os.Looper;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -167,7 +169,7 @@ public class ExportBottomSheet {
     }
 
     private void showSuccess(File file, String format) {
-        dialog.runOnUiThread(() -> {
+        new Handler(Looper.getMainLooper()).post(() -> {
             exportOptions.setVisibility(View.VISIBLE);
             exportProgress.setVisibility(View.GONE);
 
@@ -188,7 +190,7 @@ public class ExportBottomSheet {
     }
 
     private void showError(String error) {
-        dialog.runOnUiThread(() -> {
+        new Handler(Looper.getMainLooper()).post(() -> {
             exportOptions.setVisibility(View.VISIBLE);
             exportProgress.setVisibility(View.GONE);
 
