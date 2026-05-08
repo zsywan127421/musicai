@@ -34,6 +34,27 @@ public class MusicGenerator {
     public MusicData.Melody generateMelodyWithDescription(String style, int length, MusicData.Melody userMelody, String description) throws IOException {
         StringBuilder prompt = new StringBuilder();
         prompt.append("请为").append(style).append("风格创作一段旋律。\n\n");
+        
+        String keyInfo = "";
+        String chordInfo = "";
+        
+        if (userMelody != null && !userMelody.notes.isEmpty()) {
+            prompt.append("【参考旋律】\n");
+            prompt.append("请基于以下参考旋律创作新旋律：\n");
+            JSONArray melodyArray = new JSONArray();
+            for (MusicData.Note note : userMelody.notes) {
+                try { melodyArray.put(note.toJson()); } catch (Exception ignored) { }
+            }
+            prompt.append(melodyArray.toString()).append("\n\n");
+            
+            String firstPitch = userMelody.notes.get(0).pitch;
+            String lastPitch = userMelody.notes.get(userMelody.notes.size() - 1).pitch;
+            keyInfo = "Key: C Major\n";
+            if (lastPitch.equals("A") || lastPitch.equals("D") || lastPitch.equals("E")) {
+                keyInfo = "Key: A minor\n";
+            }
+        }
+        
         prompt.append("【输出格式要求】\n");
         prompt.append("必须返回一个JSON数组，格式如下：\n");
         prompt.append("[{\"pitch\":\"C\",\"octave\":4,\"duration\":4},{\"pitch\":\"E\",\"octave\":4,\"duration\":4}]\n\n");
@@ -41,10 +62,14 @@ public class MusicGenerator {
         prompt.append("- pitch: 音高，取值范围 C C# D D# E F F# G G# A A# B\n");
         prompt.append("- octave: 八度，取值范围 2-7\n");
         prompt.append("- duration: 时值，1=全音符 2=二分 4=四分 8=八分 16=十六分\n\n");
+        prompt.append(keyInfo);
+        prompt.append(chordInfo);
         prompt.append("【创作要求】\n");
         prompt.append("- 请创作").append(length).append("个音符的旋律\n");
         prompt.append("- 旋律要有起伏，节奏要有变化\n");
-        prompt.append("- 确保音符数据完整且格式正确\n");
+        prompt.append("- 音符应与当前调性匹配，优先使用调内音\n");
+        prompt.append("- 协和音程（纯四五度、大小三度）优先\n");
+        prompt.append("- 不协和音程（大二、增减）谨慎使用\n");
         prompt.append("- 旋律应该优美动听，有音乐性\n\n");
         prompt.append("直接输出JSON数组，不要任何其他文字：");
         
@@ -109,7 +134,10 @@ public class MusicGenerator {
     
     public MusicData.ChordProgression generateChordsWithMelody(String style, int length, MusicData.ChordProgression userChords, MusicData.Melody melody) throws IOException {
         StringBuilder prompt = new StringBuilder();
-        prompt.append("请根据以下旋律生成对应的和弦进行。\n\n");
+        prompt.append("请根据以下旋律生成高质量的和弦进行。\n\n");
+        
+        String keySignature = "C Major";
+        String chordProgression = "I - V - vi - IV";
         
         if (melody != null && !melody.notes.isEmpty()) {
             prompt.append("【旋律分析】\n");
@@ -117,40 +145,60 @@ public class MusicGenerator {
             String firstPitch = melody.notes.get(0).pitch;
             String lastPitch = melody.notes.get(melody.notes.size() - 1).pitch;
             int firstOctave = melody.notes.get(0).octave;
+            
             boolean startsHigh = firstPitch.contains("#") || firstOctave >= 5;
-            boolean endsOnRoot = lastPitch.equals("C") || lastPitch.equals("F") || lastPitch.equals("G");
+            boolean endsOnRoot = lastPitch.equals("C") || lastPitch.equals("F") || lastPitch.equals("G") || 
+                                 lastPitch.equals("D") || lastPitch.equals("E");
+            boolean endsOnMinor = lastPitch.equals("A") || lastPitch.equals("D") || lastPitch.equals("E");
             
             if (startsHigh && endsOnRoot) {
-                prompt.append("旋律特点：大调风格（以高音开始，结束在主音）\n");
-                prompt.append("请使用大调功能和声：主和弦(I)、下属和弦(IV)、属和弦(V)为主\n\n");
-            } else if (!startsHigh && lastPitch.equals("A")) {
+                prompt.append("旋律特点：大调风格（以高音/主音开始和结束）\n");
+                prompt.append("调性分析：确定为大调调式\n");
+                prompt.append("请使用大调功能和声：主和弦(I)、下属和弦(IV)、属和弦(V)为主\n");
+                keySignature = "C Major";
+                chordProgression = "I - V - vi - IV (C - G - Am - F)";
+            } else if (firstOctave <= 3 && endsOnMinor) {
                 prompt.append("旋律特点：小调风格（以低音开始）\n");
-                prompt.append("请使用小调功能和声：主和弦(i)、下属和弦(iv)、属和弦(V)为主\n\n");
+                prompt.append("调性分析：确定为基础小调调式\n");
+                prompt.append("请使用小调功能和声：主和弦(i)、下属和弦(iv)、属和弦(V)为主\n");
+                keySignature = "A minor";
+                chordProgression = "i - VI - III - VII (Am - F - C - G)";
             } else {
-                prompt.append("旋律特点：混合风格\n");
-                prompt.append("请使用灵活的和声进行\n\n");
+                prompt.append("旋律特点：混合/爵士风格\n");
+                prompt.append("请使用丰富多样的和弦进行\n");
+                keySignature = "C Major";
+                chordProgression = "ii - V - I - vi (Dm - G - C - Am)";
             }
             
-            prompt.append("【Key信息】\n");
-            prompt.append("请分析旋律确定调性后，选择合适的和弦\n\n");
+            prompt.append("\n【和弦功能圈规则】\n");
+            prompt.append("功能和声三要素：\n");
+            prompt.append("- 主功能（Tonic）: I, iii, vi - 给人稳定感\n");
+            prompt.append("- 下属功能（Subdominant）: IV, ii - 有上升感\n");
+            prompt.append("- 属功能（Dominant）: V, vii° - 有强烈解决欲望\n\n");
+            prompt.append("【推荐和弦进行】\n");
+            prompt.append("C大调经典进行：\n");
+            prompt.append("1. C - G - Am - F (I - V - vi - IV) - 最流行\n");
+            prompt.append("2. C - Am - F - G (I - vi - IV - V) - 黄金比例\n");
+            prompt.append("3. Am - F - C - G (vi - IV - I - V) - 上行力量\n");
+            prompt.append("4. C - Em - F - G (I - iii - IV - V) - 下行流动\n");
+            prompt.append("5. C - F - G - C (I - IV - V - I) - 古典终结\n\n");
         }
         
         prompt.append("【输出格式要求】\n");
         prompt.append("必须返回一个JSON数组，格式如下：\n");
         prompt.append("[{\"name\":\"C\",\"type\":\"major\",\"duration\":4},{\"name\":\"G\",\"type\":\"major\",\"duration\":4}]\n\n");
         prompt.append("【字段说明】\n");
-        prompt.append("- name: 根音，取值范围 C C# D D# E F F# G G# A A# B\n");
+        prompt.append("- name: 根音，C C# D D# E F F# G G# A A# B\n");
         prompt.append("- type: 和弦类型 major minor seventh diminished augmented sus2 sus4\n");
         prompt.append("- duration: 时值（以四分音符为单位）\n\n");
-        prompt.append("【和弦功能圈】\n");
-        prompt.append("C大调常用进行：C - G - Am - F (I - V - vi - IV)\n");
-        prompt.append("C大调经典进行：Am - F - C - G (vi - IV - I - V)\n");
-        prompt.append("C大调下行进行：C - Em - F - G (I - iii - IV - V)\n\n");
+        prompt.append("【Key信息】\n");
+        prompt.append("Key: ").append(keySignature).append("\n");
+        prompt.append("参考进行: ").append(chordProgression).append("\n\n");
         prompt.append("【创作要求】\n");
         prompt.append("- 请生成").append(length).append("个和弦\n");
-        prompt.append("- 和弦进行要符合音乐理论，与旋律风格匹配\n");
-        prompt.append("- 优先使用功能圈进行（I-V-vi-IV 或变体）\n");
-        prompt.append("- 确保每个和弦都与旋律的调性协调\n\n");
+        prompt.append("- 必须遵循功能圈规则，确保和声进行流畅\n");
+        prompt.append("- 每个和弦的根音必须在调性内\n");
+        prompt.append("- 和弦之间要有层次感和流动性\n\n");
         prompt.append("直接输出JSON数组，不要任何其他文字：");
         
         if (melody != null && !melody.notes.isEmpty()) {

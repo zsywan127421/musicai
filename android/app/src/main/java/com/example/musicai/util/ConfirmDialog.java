@@ -115,4 +115,44 @@ public class ConfirmDialog {
     public static void showSave(Context context, String itemName, OnConfirmListener listener) {
         show(context, "已有同名条目", "是否覆盖《" + itemName + "》？", listener);
     }
+    
+    public static void showCustom(Context context, String title, View customView, OnConfirmListener listener) {
+        Dialog dialog = new Dialog(context);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_confirm);
+        
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            window.setGravity(Gravity.BOTTOM);
+            window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+            window.setWindowAnimations(android.R.style.Animation_Dialog);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            window.setDimAmount(0.4f);
+        }
+        
+        TextView tvTitle = dialog.findViewById(R.id.tv_dialog_title);
+        TextView tvMessage = dialog.findViewById(R.id.tv_dialog_message);
+        Button btnCancel = dialog.findViewById(R.id.btn_cancel);
+        Button btnConfirm = dialog.findViewById(R.id.btn_confirm);
+        ImageButton btnClose = dialog.findViewById(R.id.btn_close);
+        
+        tvTitle.setText(title);
+        tvMessage.setVisibility(View.GONE);
+        
+        ViewGroup parent = (ViewGroup) tvMessage.getParent();
+        int messageIndex = parent.indexOfChild(tvMessage);
+        parent.addView(customView, messageIndex);
+        
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        btnConfirm.setOnClickListener(v -> {
+            dialog.dismiss();
+            if (listener != null) {
+                listener.onConfirm();
+            }
+        });
+        
+        dialog.show();
+    }
 }

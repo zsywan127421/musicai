@@ -405,6 +405,10 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
             try {
                 MusicData.Melody melody = musicGenerator.generateMelodyWithDescription(style, length, null, description);
                 
+                if (melody == null || melody.notes == null || melody.notes.isEmpty()) {
+                    throw new Exception("生成失败：AI返回了空内容，请重试");
+                }
+                
                 MusicRepository.MelodyEntry entry = new MusicRepository.MelodyEntry();
                 entry.name = finalName;
                 entry.style = style;
@@ -414,8 +418,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
                 repository.addMelody(entry);
                 
                 runOnUiThread(() -> {
-                    Toast.makeText(NewSongGeneratorActivity.this, 
-                        "旋律已保存到库中！", Toast.LENGTH_SHORT).show();
+                    ToastHelper.showSuccess(NewSongGeneratorActivity.this, "旋律已保存到库中！");
                     etMelodyName.setText("");
                     addResultItem("✓ 旋律已完成", entry.getPreviewText());
                     isGenerating = false;
@@ -423,8 +426,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> {
-                    Toast.makeText(NewSongGeneratorActivity.this, 
-                        "生成失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    ToastHelper.showError(NewSongGeneratorActivity.this, "生成失败: " + e.getMessage());
                     isGenerating = false;
                     updateUI();
                 });
@@ -482,6 +484,10 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
                     progression = musicGenerator.generateCustomChords(style, 4, keySignature, mood, description);
                 }
                 
+                if (progression == null || progression.chords == null || progression.chords.isEmpty()) {
+                    throw new Exception("生成失败：AI返回了空内容，请重试");
+                }
+                
                 MusicRepository.ChordEntry entry = new MusicRepository.ChordEntry();
                 entry.name = finalName;
                 entry.style = style;
@@ -493,8 +499,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
                 repository.addChord(entry);
                 
                 runOnUiThread(() -> {
-                    Toast.makeText(NewSongGeneratorActivity.this, 
-                        "和弦已保存到库中！", Toast.LENGTH_SHORT).show();
+                    ToastHelper.showSuccess(NewSongGeneratorActivity.this, "和弦已保存到库中！");
                     etChordName.setText("");
                     addResultItem("✓ 和弦已完成", entry.getPreviewText());
                     isGenerating = false;
@@ -502,8 +507,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> {
-                    Toast.makeText(NewSongGeneratorActivity.this, 
-                        "生成失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    ToastHelper.showError(NewSongGeneratorActivity.this, "生成失败: " + e.getMessage());
                     isGenerating = false;
                     updateUI();
                 });

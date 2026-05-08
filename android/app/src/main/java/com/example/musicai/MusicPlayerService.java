@@ -11,9 +11,11 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 
+import com.example.musicai.util.Metronome;
+
 import java.util.List;
 
-public class MusicPlayerService extends Service {
+public class MusicPlayerService extends Service implements Metronome.MetronomeListener {
     
     private static final String TAG = "MusicPlayerService";
     private static final int SAMPLE_RATE = 44100;
@@ -34,6 +36,10 @@ public class MusicPlayerService extends Service {
     private float speed = 1.0f;
     private PlaybackListener playbackListener;
     private Handler listenerHandler;
+    
+    private Metronome metronome;
+    private boolean metronomeEnabled = false;
+    private MetronomeListener externalMetronomeListener;
     
     private MusicData.Song currentSong;
     private volatile int currentPositionMs = 0;
@@ -56,7 +62,53 @@ public class MusicPlayerService extends Service {
     public void onCreate() {
         super.onCreate();
         listenerHandler = new Handler(Looper.getMainLooper());
+        metronome = new Metronome();
+        metronome.setListener(this);
         Log.d(TAG, "Service created");
+    }
+    
+    public void setMetronomeListener(MetronomeListener listener) {
+        this.externalMetronomeListener = listener;
+    }
+    
+    public interface MetronomeListener {
+        void onMetronomeBeat(int beat, boolean isDownbeat);
+    }
+    
+    @Override
+    public void onBeat(int beat, boolean isDownbeat) {
+        if (externalMetronomeListener != null) {
+            externalMetronomeListener.onMetronomeBeat(beat, isDownbeat);
+        }
+    }
+    
+    public void setMetronomeEnabled(boolean enabled) {
+        this.metronomeEnabled = enabled;
+        if (!enabled && metronome.isRunning()) {
+            metronome.stop();
+        }
+    }
+    
+    public boolean isMetronomeEnabled() {
+        return metronomeEnabled;
+    }
+    
+    public void setMetronomeBpm(int bpm) {
+        metronome.setBpm(bpm);
+    }
+    
+    public void setMetronomeBeatsPerMeasure(int beats) {
+        metronome.setBeatsPerMeasure(beats);
+    }
+    
+    public void startMetronome() {
+        if (metronomeEnabled) {
+            metronome.start();
+        }
+    }
+    
+    public void stopMetronome() {
+        metronome.stop();
     }
     
     @Override
@@ -191,6 +243,10 @@ public class MusicPlayerService extends Service {
         isPlaying = false;
         currentPositionMs = 0;
         currentNoteIndex = -1;
+        
+        if (metronome.isRunning()) {
+            metronome.stop();
+        }
         
         if (playbackThread != null) {
             playbackThread.interrupt();

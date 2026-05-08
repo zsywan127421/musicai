@@ -391,6 +391,9 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
             playbackProgress.setProgress(0);
             tvPlaybackTime.setText("0:00 / " + formatDuration(currentSong != null ? currentSong.totalDurationMs : 0));
             btnStop.setEnabled(false);
+            if (isBound && playerService != null) {
+                playerService.stopPlayback();
+            }
         });
     }
     

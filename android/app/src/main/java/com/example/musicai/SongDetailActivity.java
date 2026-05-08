@@ -125,6 +125,7 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 float speed = 0.25f + (progress / 50.0f * 3.75f);
                 speed = Math.round(speed * 100) / 100.0f;
+                speed = Math.max(0.25f, Math.min(4.0f, speed));
                 tvSpeed.setText(String.format("速度: %.2fx", speed));
                 if (fromUser) {
                     setSpeed(speed);
@@ -313,8 +314,11 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
             isPaused = false;
             btnPlay.setText("播放");
             playbackProgress.setProgress(0);
-            tvPlaybackTime.setText("0:00 / 0:00");
+            tvPlaybackTime.setText("0:00 / " + formatTime(songEntry != null ? songEntry.totalDurationMs : 0));
             stopProgressUpdater();
+            if (isBound && playerService != null) {
+                playerService.stopPlayback();
+            }
         });
     }
 

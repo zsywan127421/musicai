@@ -34,6 +34,7 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
     private TextView tvStyle, tvCreated, tvNotes, tvChords;
     private EditText etName;
     private Button btnPlay, btnStop, btnEdit, btnDelete, btnSave;
+    private Button btnPianoRoll;
     private TextView tvSpeed, tvPlaybackTime;
     private CursorSeekBar playbackProgress;
     private ProgressBar progressBar;
@@ -91,6 +92,7 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
         btnEdit = findViewById(R.id.btn_edit);
         btnDelete = findViewById(R.id.btn_delete);
         btnSave = findViewById(R.id.btn_save);
+        btnPianoRoll = findViewById(R.id.btn_piano_roll);
         tvSpeed = findViewById(R.id.tv_speed);
         tvPlaybackTime = findViewById(R.id.tv_playback_time);
         playbackProgress = findViewById(R.id.playback_progress);
@@ -109,6 +111,7 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
             speedSection.setVisibility(View.VISIBLE);
             btnPlay.setVisibility(View.VISIBLE);
             btnStop.setVisibility(View.VISIBLE);
+            btnPianoRoll.setVisibility(View.VISIBLE);
         } else {
             notesSection.setVisibility(View.GONE);
             chordsSection.setVisibility(View.VISIBLE);
@@ -117,6 +120,7 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
             btnEdit.setVisibility(View.VISIBLE);
             btnPlay.setVisibility(View.GONE);
             btnStop.setVisibility(View.GONE);
+            btnPianoRoll.setVisibility(View.GONE);
         }
         
         seekBarSpeed.setMax(50);
@@ -201,21 +205,23 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
         btnEdit.setOnClickListener(v -> showEditDialog());
         btnDelete.setOnClickListener(v -> confirmDelete());
         btnSave.setOnClickListener(v -> save());
+        btnPianoRoll.setOnClickListener(v -> openPianoRoll());
         
         seekBarSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                float speed = 0.5f + (progress / 20.0f);
+                float speed = 0.25f + (progress / 50.0f * 3.75f);
                 speed = Math.round(speed * 100) / 100.0f;
+                speed = Math.max(0.25f, Math.min(4.0f, speed));
                 tvSpeed.setText(String.format("速度: %.2fx", speed));
                 if (fromUser) {
                     setSpeed(speed);
                 }
             }
-            
+
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {}
-            
+
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
@@ -314,30 +320,36 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
     
     private void showNoteEditBottomSheet(int index) {
         if (melodyEntry == null || index >= melodyEntry.notes.size()) return;
-        final int[] idxHolder = new int[]{index};
+        final int originalIndex = index;
         
         MusicRepository.NoteData note = melodyEntry.notes.get(index);
+        final int[] currentIndex = {index};
+        final int total = melodyEntry.notes.size();
         
-        NoteEditBottomSheet.show(this, idxHolder[0], melodyEntry.notes.size(), note, new NoteEditBottomSheet.OnNoteUpdateListener() {
+        NoteEditBottomSheet.show(this, currentIndex[0], total, note, new NoteEditBottomSheet.OnNoteUpdateListener() {
             @Override
             public void onUpdated(MusicRepository.NoteData updatedNote, int newIndex) {
-                melodyEntry.notes.remove(idxHolder[0]);
-                melodyEntry.notes.add(newIndex, updatedNote);
-                melody = melodyEntry.toMelody();
-                updateNotesDisplay();
-                repository.saveMelodiesToPrefs();
-                ToastHelper.showSuccess(LibraryDetailActivity.this, "音符已更新");
+                if (originalIndex >= 0 && originalIndex < melodyEntry.notes.size()) {
+                    melodyEntry.notes.remove(originalIndex);
+                    int insertIndex = Math.min(newIndex, melodyEntry.notes.size());
+                    melodyEntry.notes.add(insertIndex, updatedNote);
+                    melody = melodyEntry.toMelody();
+                    updateNotesDisplay();
+                    repository.saveMelodiesToPrefs();
+                    ToastHelper.showSuccess(LibraryDetailActivity.this, "音符已更新");
+                }
             }
             
             @Override
             public void onPositionChanged(int newIndex) {
-                if (newIndex != idxHolder[0]) {
-                    MusicRepository.NoteData currentNote = melodyEntry.notes.get(idxHolder[0]);
-                    melodyEntry.notes.remove(idxHolder[0]);
+                if (currentIndex[0] != newIndex && newIndex >= 0 && newIndex < melodyEntry.notes.size()) {
+                    MusicRepository.NoteData currentNote = melodyEntry.notes.get(currentIndex[0]);
+                    melodyEntry.notes.remove(currentIndex[0]);
                     melodyEntry.notes.add(newIndex, currentNote);
-                    idxHolder[0] = newIndex;
+                    currentIndex[0] = newIndex;
                     melody = melodyEntry.toMelody();
                     updateNotesDisplay();
+                    repository.saveMelodiesToPrefs();
                 }
             }
         });
@@ -382,6 +394,31 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
         }
         
         ConfirmDialog.showDelete(this, itemName, () -> delete());
+    }
+    
+    private void openPianoRoll() {
+        if (melodyEntry == null || itemId == null) {
+            ToastHelper.showError(this, "无法打开钢琴卷帘");
+            return;
+        }
+        
+        Intent intent = new Intent(this, PianoRollActivity.class);
+        intent.putExtra(PianoRollActivity.EXTRA_MELODY_ID, itemId);
+        startActivityForResult(intent, 100);
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 100 && resultCode == RESULT_OK) {
+            melodyEntry = repository.getMelodyById(itemId);
+            if (melodyEntry != null) {
+                melody = melodyEntry.toMelody();
+                updateNotesDisplay();
+                int durationMs = calculateMelodyDuration(melody);
+                tvPlaybackTime.setText("0:00 / " + formatTime(durationMs));
+            }
+        }
     }
     
     private void delete() {
@@ -496,8 +533,12 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
             isPaused = false;
             btnPlay.setText("播放");
             playbackProgress.setProgress(0);
-            tvPlaybackTime.setText("0:00 / 0:00");
+            int durationMs = calculateMelodyDuration(melody);
+            tvPlaybackTime.setText("0:00 / " + formatTime(durationMs));
             stopProgressUpdater();
+            if (isBound && playerService != null) {
+                playerService.stopPlayback();
+            }
         });
     }
     

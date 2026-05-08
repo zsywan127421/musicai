@@ -21,6 +21,7 @@ public class SongEntry {
     public String sourceChordId;
     public String sourceChordName;
     public List<SegmentData> segments;
+    public List<Track> tracks;
     public int totalDurationMs;
     public int bpm;
     public String keySignature;
@@ -62,6 +63,7 @@ public class SongEntry {
     public SongEntry() {
         this.id = generateId();
         this.segments = new ArrayList<>();
+        this.tracks = new ArrayList<>();
         this.bpm = 120;
         this.keySignature = "C";
         this.createdAt = System.currentTimeMillis();
@@ -341,7 +343,34 @@ public class SongEntry {
         }
         return sb.toString();
     }
-
+    
+    public Project toProject() {
+        Project project = new Project(name);
+        project.id = this.id;
+        project.bpm = this.bpm;
+        project.keySignature = this.keySignature;
+        
+        if (tracks != null && !tracks.isEmpty()) {
+            project.tracks = new ArrayList<>(tracks);
+        } else {
+            Track defaultTrack = new Track("主旋律", "Piano");
+            MusicData.Melody melody = new MusicData.Melody();
+            melody.name = name;
+            melody.style = style;
+            
+            for (SegmentData segment : segments) {
+                MusicData.Melody segmentMelody = getSegmentMelody(segments.indexOf(segment));
+                if (segmentMelody != null && segmentMelody.notes != null) {
+                    melody.notes.addAll(segmentMelody.notes);
+                }
+            }
+            defaultTrack.melody = melody;
+            project.tracks.add(defaultTrack);
+        }
+        
+        return project;
+    }
+    
     private String formatDuration(int millis) {
         int seconds = millis / 1000;
         int minutes = seconds / 60;
