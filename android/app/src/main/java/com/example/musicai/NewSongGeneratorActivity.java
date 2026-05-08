@@ -24,6 +24,7 @@ import com.example.musicai.util.TimeUtils;
 import com.example.musicai.util.ToastHelper;
 import com.example.musicai.util.ToolbarHelper;
 import com.example.musicai.view.LoadingButton;
+import com.example.musicai.view.UnifiedPlaybackButton;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -79,8 +80,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
     
     private CursorSeekBar playbackProgress;
     private TextView tvPlaybackTime;
-    private Button btnPlay;
-    private Button btnStop;
+    private UnifiedPlaybackButton btnPlay;
     private LinearLayout speedControlLayout;
     private TextView tvSpeed;
     private Button[] speedButtons = new Button[6];
@@ -184,7 +184,6 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         playbackProgress = findViewById(R.id.playback_progress);
         tvPlaybackTime = findViewById(R.id.tv_playback_time);
         btnPlay = findViewById(R.id.btn_play);
-        btnStop = findViewById(R.id.btn_stop);
         speedControlLayout = findViewById(R.id.speed_control_layout);
         tvSpeed = findViewById(R.id.tv_speed);
         
@@ -276,8 +275,23 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         btnGenerateChords.setOnClickListener(v -> generateChords());
         btnGenerateSong.setOnClickListener(v -> generateSong());
         
-        btnPlay.setOnClickListener(v -> playSong());
-        btnStop.setOnClickListener(v -> stopSong());
+        btnPlay.setOnPlaybackStateChangeListener(new UnifiedPlaybackButton.OnPlaybackStateChangeListener() {
+            @Override
+            public void onPlayClicked() {
+                playSong();
+            }
+
+            @Override
+            public void onPauseClicked() {
+                pauseSong();
+            }
+
+            @Override
+            public void onResumeClicked() {
+                resumeSong();
+            }
+        });
+        
         btnPreviewMelody.setOnClickListener(v -> previewSelectedMelody());
         btnPreviewChords.setOnClickListener(v -> previewSelectedChords());
         
@@ -785,8 +799,21 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
             playbackProgress.setVisibility(View.VISIBLE);
             tvPlaybackTime.setVisibility(View.VISIBLE);
             speedControlLayout.setVisibility(View.VISIBLE);
-            btnPlay.setEnabled(false);
-            btnStop.setEnabled(true);
+            btnPlay.setState(UnifiedPlaybackButton.State.PAUSE);
+        }
+    }
+    
+    private void pauseSong() {
+        if (isBound && playerService != null) {
+            playerService.pause();
+            btnPlay.setState(UnifiedPlaybackButton.State.RESUME);
+        }
+    }
+    
+    private void resumeSong() {
+        if (isBound && playerService != null) {
+            playerService.resume();
+            btnPlay.setState(UnifiedPlaybackButton.State.PAUSE);
         }
     }
     
@@ -798,8 +825,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
             currentHighlightedNoteIndex = -1;
             resultAdapter.setHighlightIndex(-1);
             resultAdapter.notifyDataSetChanged();
-            btnPlay.setEnabled(true);
-            btnStop.setEnabled(false);
+            btnPlay.setState(UnifiedPlaybackButton.State.PLAY);
         }
     }
     
