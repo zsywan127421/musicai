@@ -72,6 +72,16 @@
             android:windowLayoutInDisplayCutoutMode="shortEdges" />
             
         <activity
+            android:name=".SongDetailActivity"
+            android:exported="false"
+            android:windowLayoutInDisplayCutoutMode="shortEdges" />
+            
+        <activity
+            android:name=".LibraryTabsActivity"
+            android:exported="false"
+            android:windowLayoutInDisplayCutoutMode="shortEdges" />
+            
+        <activity
             android:name=".ProjectEditorActivity"
             android:exported="false"
             android:windowLayoutInDisplayCutoutMode="shortEdges" />
