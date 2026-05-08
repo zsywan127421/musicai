@@ -106,27 +106,49 @@ public class LibraryItemAdapter extends RecyclerView.Adapter<LibraryItemAdapter.
         }
 
         void bind(Object item, int position) {
-            if (itemType == LibraryTabsActivity.TYPE_MELODY) {
-                MusicRepository.MelodyEntry entry = (MusicRepository.MelodyEntry) item;
-                tvTitle.setText(entry.name);
-                tvSubtitle.setText(entry.style + " · " + entry.notes.size() + " 个音符");
-                tvTime.setText(TimeUtils.formatRelativeTime(entry.createdAt));
-                tvBadge.setText("旋律");
-                tvBadge.setVisibility(View.VISIBLE);
-            } else if (itemType == LibraryTabsActivity.TYPE_CHORD) {
-                MusicRepository.ChordEntry entry = (MusicRepository.ChordEntry) item;
-                tvTitle.setText(entry.name);
-                tvSubtitle.setText(entry.style + " · " + entry.chords.size() + " 个和弦");
-                tvTime.setText(TimeUtils.formatRelativeTime(entry.createdAt));
-                tvBadge.setText("和弦");
-                tvBadge.setVisibility(View.VISIBLE);
-            } else if (itemType == LibraryTabsActivity.TYPE_SONG) {
-                SongEntry entry = (SongEntry) item;
-                tvTitle.setText(entry.name);
-                tvSubtitle.setText(entry.style + " · " + entry.segments.size() + " 段落 · " + formatDuration(entry.totalDurationMs));
-                tvTime.setText(formatDate(entry.createdAt));
-                tvBadge.setText("歌曲");
-                tvBadge.setVisibility(View.VISIBLE);
+            try {
+                if (item == null) {
+                    tvTitle.setText("未知");
+                    tvSubtitle.setText("数据为空");
+                    tvTime.setText("");
+                    tvBadge.setVisibility(View.GONE);
+                    return;
+                }
+                
+                if (itemType == LibraryTabsActivity.TYPE_MELODY) {
+                    MusicRepository.MelodyEntry entry = (MusicRepository.MelodyEntry) item;
+                    tvTitle.setText(entry != null && entry.name != null ? entry.name : "未命名旋律");
+                    String style = (entry != null && entry.style != null) ? entry.style : "流行";
+                    int noteCount = (entry != null && entry.notes != null) ? entry.notes.size() : 0;
+                    tvSubtitle.setText(style + " · " + noteCount + " 个音符");
+                    tvTime.setText(entry != null ? TimeUtils.formatRelativeTime(entry.createdAt) : "");
+                    tvBadge.setText("旋律");
+                    tvBadge.setVisibility(View.VISIBLE);
+                } else if (itemType == LibraryTabsActivity.TYPE_CHORD) {
+                    MusicRepository.ChordEntry entry = (MusicRepository.ChordEntry) item;
+                    tvTitle.setText(entry != null && entry.name != null ? entry.name : "未命名和弦");
+                    String style = (entry != null && entry.style != null) ? entry.style : "流行";
+                    int chordCount = (entry != null && entry.chords != null) ? entry.chords.size() : 0;
+                    tvSubtitle.setText(style + " · " + chordCount + " 个和弦");
+                    tvTime.setText(entry != null ? TimeUtils.formatRelativeTime(entry.createdAt) : "");
+                    tvBadge.setText("和弦");
+                    tvBadge.setVisibility(View.VISIBLE);
+                } else if (itemType == LibraryTabsActivity.TYPE_SONG) {
+                    SongEntry entry = (SongEntry) item;
+                    tvTitle.setText(entry != null && entry.name != null ? entry.name : "未命名歌曲");
+                    String style = (entry != null && entry.style != null) ? entry.style : "流行";
+                    int segmentCount = (entry != null && entry.segments != null) ? entry.segments.size() : 0;
+                    int durationMs = (entry != null) ? entry.totalDurationMs : 0;
+                    tvSubtitle.setText(style + " · " + segmentCount + " 段落 · " + formatDuration(durationMs));
+                    tvTime.setText(entry != null ? formatDate(entry.createdAt) : "");
+                    tvBadge.setText("歌曲");
+                    tvBadge.setVisibility(View.VISIBLE);
+                }
+            } catch (Exception e) {
+                tvTitle.setText("数据加载失败");
+                tvSubtitle.setText("");
+                tvTime.setText("");
+                tvBadge.setVisibility(View.GONE);
             }
         }
         

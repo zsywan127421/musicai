@@ -28,8 +28,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class LibraryTabsActivity extends BaseActivity {
+import android.util.Log;
 
+public class LibraryTabsActivity extends BaseActivity {
+    
+    private static final String TAG = "LibraryTabs";
     private static final int MENU_SORT = 1;
     private static final int MENU_FILTER = 2;
     private static final int MENU_IMPORT = 3;
@@ -219,6 +222,24 @@ public class LibraryTabsActivity extends BaseActivity {
             melodies = repository.getMelodyLibrary();
             chords = repository.getChordLibrary();
             songs = repository.getSongLibrary();
+            
+            Log.d(TAG, "=== Data Load Results ===");
+            Log.d(TAG, "Melodies count: " + melodies.size());
+            if (!melodies.isEmpty()) {
+                MusicRepository.MelodyEntry first = melodies.get(0);
+                Log.d(TAG, "First melody: " + first.name + ", notes: " + first.notes.size());
+            }
+            Log.d(TAG, "Chords count: " + chords.size());
+            if (!chords.isEmpty()) {
+                MusicRepository.ChordEntry first = chords.get(0);
+                Log.d(TAG, "First chord: " + first.name + ", chords: " + first.chords.size());
+            }
+            Log.d(TAG, "Songs count: " + songs.size());
+            if (!songs.isEmpty()) {
+                SongEntry first = songs.get(0);
+                Log.d(TAG, "First song: " + first.name + ", segments: " + first.segments.size() + ", duration: " + first.totalDurationMs);
+            }
+            Log.d(TAG, "========================");
             
             applySorting();
 

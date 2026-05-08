@@ -141,7 +141,7 @@
                 android:orientation="vertical"
                 android:background="@drawable/apple_card_bg"
                 android:padding="16dp"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="16dp"
                 android:visibility="gone"
                 android:elevation="0dp"
                 android:outlineProvider="background">
@@ -220,32 +220,32 @@
                         android:progressTint="@color/apple_accent"
                         android:thumbTint="@color/apple_accent"/>
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginTop="4dp">
+                            android:text="0.5x"
+                            android:textSize="11sp"
+                            android:textColor="@color/apple_text_tertiary"/>
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="0.5x"
-                                android:textSize="11sp"
-                                android:textColor="@color/apple_text_tertiary"/>
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"/>
 
-                            <View
-                                android:layout_width="0dp"
-                                android:layout_height="0dp"
-                                android:layout_weight="1"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="3.0x"
+                            android:textSize="11sp"
+                            android:textColor="@color/apple_text_tertiary"/>
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="3.0x"
-                                android:textSize="11sp"
-                                android:textColor="@color/apple_text_tertiary"/>
-
-                        </LinearLayout>
+                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -274,6 +274,13 @@
         android:layout_marginHorizontal="16dp"
         android:layout_marginBottom="8dp"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="8dp">
+
         <Button
             android:id="@+id/btn_edit"
             android:layout_width="0dp"
@@ -284,8 +291,7 @@
             android:textSize="16sp"
             android:textColor="@color/apple_button_text"
             android:background="@drawable/apple_button_secondary_bg"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"/>
+            android:layout_marginEnd="4dp"/>
 
         <Button
             android:id="@+id/btn_piano_roll"
@@ -297,10 +303,10 @@
             android:textSize="16sp"
             android:textColor="@color/apple_button_text"
             android:background="@drawable/apple_button_secondary_bg"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
             android:visibility="gone"/>
-        
+
         <Button
             android:id="@+id/btn_delete"
             android:layout_width="0dp"
@@ -311,8 +317,9 @@
             android:textSize="16sp"
             android:textColor="@color/apple_white"
             android:background="@drawable/apple_button_danger_bg"
-            android:layout_marginStart="8dp"/>
+            android:layout_marginStart="4dp"/>
 
+    </LinearLayout>
 
     <Button
         android:id="@+id/btn_save"
