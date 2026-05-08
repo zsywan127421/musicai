@@ -224,6 +224,14 @@ public class MusicPlayerService extends Service implements Metronome.MetronomeLi
         }
     }
     
+    private int getMsPerBeat() {
+        int bpm = 120;
+        if (currentSong != null && currentSong.bpm > 0) {
+            bpm = currentSong.bpm;
+        }
+        return 60000 / bpm;
+    }
+    
     public void pause() {
         if (isPlaying) {
             pausedPositionMs = currentPositionMs;
@@ -388,6 +396,8 @@ public class MusicPlayerService extends Service implements Metronome.MetronomeLi
             int samplePos = 0;
             int noteIndex = 0;
             int skipSamples = 0;
+            int msPerBeat = getMsPerBeat();
+            int totalSamplesPlayed = 0;
             
             if (startPositionMs > 0) {
                 skipSamples = (int) (SAMPLE_RATE * (startPositionMs / 1000.0));
@@ -403,7 +413,7 @@ public class MusicPlayerService extends Service implements Metronome.MetronomeLi
                     int midi = MusicData.pitchToMidi(note.pitch, note.octave);
                     double frequency = 440.0 * Math.pow(2.0, (midi - 69) / 12.0);
                     
-                    int baseNoteDurationMs = note.duration * 250;
+                    int baseNoteDurationMs = note.duration * msPerBeat;
                     int noteDurationMs = (int) (baseNoteDurationMs / speed);
                     int noteSamples = (int) (SAMPLE_RATE * (noteDurationMs / 1000.0));
                     
@@ -415,29 +425,28 @@ public class MusicPlayerService extends Service implements Metronome.MetronomeLi
                         skipSamples -= samplesToSkip;
                     }
                     
+                    int playedSamplesInNote = 0;
                     for (int i = samplesToSkip; i < noteSamples; i++) {
                         if (!isPlaying) break;
                         
-                        double t = (double) i / SAMPLE_RATE;
+                        playedSamplesInNote++;
+                        totalSamplesPlayed++;
+                        
+                        double t = (double) playedSamplesInNote / SAMPLE_RATE;
                         double sample = Math.sin(2 * Math.PI * frequency * t) * 0.3;
                         sample *= Math.exp(-t * 5.0 * speed);
                         
                         short value = (short) (sample * Short.MAX_VALUE);
                         buffer[i * 2] = value;
                         buffer[i * 2 + 1] = value;
-                        
-                        if (i % 100 == 0) {
-                            int progressMs = (int) ((note.startTime * 250 / speed) + ((i - samplesToSkip) * 1000.0 / SAMPLE_RATE));
-                            currentPositionMs = progressMs + startPositionMs;
-                            notifyProgress(currentPositionMs, noteIndex);
-                        }
                     }
                     
                     audioTrack.write(buffer, samplesToSkip * 2, (noteSamples - samplesToSkip) * 2);
                     samplePos += noteSamples - samplesToSkip;
-                    int endMs = (int) ((note.startTime + note.duration) * 250 / speed) + startPositionMs;
-                    currentPositionMs = endMs;
-                    notifyProgress(endMs, noteIndex);
+                    
+                    int playedMs = (int) (totalSamplesPlayed * 1000.0 / SAMPLE_RATE / speed);
+                    currentPositionMs = startPositionMs + playedMs;
+                    notifyProgress(currentPositionMs, noteIndex);
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Playback error", e);

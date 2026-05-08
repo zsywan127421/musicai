@@ -17,6 +17,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 
 import com.example.musicai.util.ConfirmDialog;
+import com.example.musicai.util.DataChangeObserver;
 import com.example.musicai.util.TimeUtils;
 import com.example.musicai.util.ToastHelper;
 import com.example.musicai.util.ToolbarHelper;
@@ -26,7 +27,7 @@ import com.example.musicai.MusicPlayerService.PlaybackListener;
 import java.util.Arrays;
 import java.util.List;
 
-public class SongDetailActivity extends BaseActivity implements PlaybackListener {
+public class SongDetailActivity extends BaseActivity implements PlaybackListener, DataChangeObserver.OnDataChangeListener {
 
     public static final String EXTRA_SONG_ID = "song_id";
 
@@ -93,6 +94,7 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
         setupToolbarMenu();
         loadSongData(songId);
         updatePlaybackTimeDisplay();
+        DataChangeObserver.getInstance().registerListener(this);
     }
 
     private void initToolbar() {
@@ -349,8 +351,7 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
             if (totalMs > 0) {
                 int progress = (int) ((long) positionMs * 100 / totalMs);
                 playbackProgress.setProgress(progress);
-                int adjustedTotal = (int) (totalMs / currentSpeed);
-                tvPlaybackTime.setText(formatDuration(positionMs) + " / " + formatDuration(adjustedTotal));
+                tvPlaybackTime.setText(formatDuration(positionMs) + " / " + formatDuration(totalMs));
             }
         });
     }
@@ -398,5 +399,45 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
             isBound = false;
         }
         isPlaying = false;
+    }
+
+    @Override
+    public void onMelodyChanged() {
+        refreshSongData();
+    }
+
+    @Override
+    public void onChordChanged() {
+        refreshSongData();
+    }
+
+    @Override
+    public void onSongChanged() {
+        refreshSongData();
+    }
+
+    @Override
+    public void onAllChanged() {
+        refreshSongData();
+    }
+
+    private void refreshSongData() {
+        if (songEntry != null && songEntry.id != null) {
+            runOnUiThread(() -> {
+                songEntry = repository.getSongById(songEntry.id);
+                if (songEntry != null) {
+                    loadSongData(songEntry.id);
+                } else {
+                    ToastHelper.showInfo(this, "该歌曲已被删除");
+                    finish();
+                }
+            });
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        DataChangeObserver.getInstance().unregisterListener(this);
     }
 }

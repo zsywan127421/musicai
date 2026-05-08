@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.example.musicai.util.DataChangeObserver;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -357,11 +359,13 @@ public class MusicRepository {
     public void addMelody(MelodyEntry entry) {
         melodyLibrary.add(0, entry);
         saveMelodiesToPrefs();
+        DataChangeObserver.getInstance().notifyMelodyChanged();
     }
     
     public void addChord(ChordEntry entry) {
         chordLibrary.add(0, entry);
         saveChordsToPrefs();
+        DataChangeObserver.getInstance().notifyChordChanged();
     }
     
     public MelodyEntry getMelodyById(String id) {
@@ -387,6 +391,7 @@ public class MusicRepository {
             if (melodyLibrary.get(i).id.equals(id)) {
                 melodyLibrary.remove(i);
                 saveMelodiesToPrefs();
+                DataChangeObserver.getInstance().notifyMelodyChanged();
                 return;
             }
         }
@@ -397,6 +402,7 @@ public class MusicRepository {
             if (chordLibrary.get(i).id.equals(id)) {
                 chordLibrary.remove(i);
                 saveChordsToPrefs();
+                DataChangeObserver.getInstance().notifyChordChanged();
                 return;
             }
         }
@@ -407,6 +413,7 @@ public class MusicRepository {
             if (entry.id.equals(id)) {
                 entry.name = newName;
                 saveMelodiesToPrefs();
+                DataChangeObserver.getInstance().notifyMelodyChanged();
                 return;
             }
         }
@@ -417,6 +424,7 @@ public class MusicRepository {
             if (entry.id.equals(id)) {
                 entry.name = newName;
                 saveChordsToPrefs();
+                DataChangeObserver.getInstance().notifyChordChanged();
                 return;
             }
         }
@@ -483,6 +491,7 @@ public class MusicRepository {
     public void addSong(SongEntry entry) {
         songLibrary.add(0, entry);
         saveSongsToPrefs();
+        DataChangeObserver.getInstance().notifySongChanged();
     }
     
     public SongEntry getSongById(String id) {
@@ -499,6 +508,7 @@ public class MusicRepository {
             if (songLibrary.get(i).id.equals(id)) {
                 songLibrary.remove(i);
                 saveSongsToPrefs();
+                DataChangeObserver.getInstance().notifySongChanged();
                 return;
             }
         }
@@ -510,6 +520,7 @@ public class MusicRepository {
                 entry.name = newName;
                 entry.updatedAt = System.currentTimeMillis();
                 saveSongsToPrefs();
+                DataChangeObserver.getInstance().notifySongChanged();
                 return;
             }
         }

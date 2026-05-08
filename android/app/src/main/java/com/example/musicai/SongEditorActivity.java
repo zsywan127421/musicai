@@ -847,10 +847,10 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
             if (totalMs > 0) {
                 int progress = (int) ((long) positionMs * 100 / totalMs);
                 playbackProgress.setProgress(progress);
-                int adjustedTotal = (int) (totalMs / currentSpeed);
-                tvPlaybackTime.setText(formatTime(positionMs) + " / " + formatTime(adjustedTotal));
+                tvPlaybackTime.setText(formatTime(positionMs) + " / " + formatTime(totalMs));
                 
-                pianoRollView.setPlayheadPosition(positionMs / 500);
+                int beatPosition = (int) (positionMs / (60000.0 / currentSong.bpm));
+                pianoRollView.setPlayheadPosition(beatPosition);
             }
         });
     }
@@ -870,8 +870,8 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
             isPlaying = false;
             btnPlay.setState(UnifiedPlaybackButton.State.PLAY);
             playbackProgress.setProgress(0);
-            tvPlaybackTime.setText("0:00 / " + formatTime((int) (currentSong != null ? currentSong.totalDurationMs / currentSpeed : 0)));
-            btnStop.setEnabled(false);
+            int totalMs = currentSong != null ? currentSong.totalDurationMs : 0;
+            tvPlaybackTime.setText("0:00 / " + formatTime(totalMs));
             pianoRollView.setPlayheadPosition(0);
             if (isBound && playerService != null) {
                 playerService.stopPlayback();

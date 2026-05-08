@@ -17,6 +17,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.musicai.util.ChordEditBottomSheet;
+import com.example.musicai.util.DataChangeObserver;
 import com.example.musicai.util.NoteEditBottomSheet;
 import com.example.musicai.util.TimeUtils;
 import com.example.musicai.util.SelectItemBottomSheet;
@@ -29,7 +30,7 @@ import com.example.musicai.MusicPlayerService.PlaybackListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LibraryDetailActivity extends BaseActivity implements PlaybackListener {
+public class LibraryDetailActivity extends BaseActivity implements PlaybackListener, DataChangeObserver.OnDataChangeListener {
     
     public static final String EXTRA_TYPE = "type";
     public static final String EXTRA_ID = "id";
@@ -101,6 +102,7 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
         initViews();
         loadData();
         setupListeners();
+        DataChangeObserver.getInstance().registerListener(this);
     }
     
     private void initViews() {
@@ -219,7 +221,22 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
     }
     
     private void setupListeners() {
-        btnPlay.setOnClickListener(v -> play());
+        btnPlay.setOnPlaybackStateChangeListener(new UnifiedPlaybackButton.OnPlaybackStateChangeListener() {
+            @Override
+            public void onPlayClicked() {
+                play();
+            }
+
+            @Override
+            public void onPauseClicked() {
+                pause();
+            }
+
+            @Override
+            public void onResumeClicked() {
+                resume();
+            }
+        });
         btnEdit.setOnClickListener(v -> showEditDialog());
         btnDelete.setOnClickListener(v -> confirmDelete());
         btnSave.setOnClickListener(v -> save());
@@ -391,11 +408,7 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
         }
         
         if (isPlaying) {
-            playerService.pause();
-            isPaused = true;
-            isPlaying = false;
-            btnPlay.setState(UnifiedPlaybackButton.State.RESUME);
-            stopProgressUpdater();
+            pause();
         } else {
             if (itemType == TYPE_MELODY && melody != null) {
                 playerService.playMelody(melody);
@@ -404,6 +417,26 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
                 return;
             }
             playerService.setSpeed(playbackSpeed);
+            isPlaying = true;
+            isPaused = false;
+            btnPlay.setState(UnifiedPlaybackButton.State.PAUSE);
+            startProgressUpdater();
+        }
+    }
+    
+    private void pause() {
+        if (isBound && playerService != null) {
+            playerService.pause();
+            isPaused = true;
+            isPlaying = false;
+            btnPlay.setState(UnifiedPlaybackButton.State.RESUME);
+            stopProgressUpdater();
+        }
+    }
+    
+    private void resume() {
+        if (isBound && playerService != null) {
+            playerService.resume();
             isPlaying = true;
             isPaused = false;
             btnPlay.setState(UnifiedPlaybackButton.State.PAUSE);
@@ -684,6 +717,34 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
         if (isBound) {
             unbindService(serviceConnection);
             isBound = false;
+        }
+        DataChangeObserver.getInstance().unregisterListener(this);
+    }
+
+    @Override
+    public void onMelodyChanged() {
+        refreshData();
+    }
+
+    @Override
+    public void onChordChanged() {
+        refreshData();
+    }
+
+    @Override
+    public void onSongChanged() {
+    }
+
+    @Override
+    public void onAllChanged() {
+        refreshData();
+    }
+
+    private void refreshData() {
+        if (itemId != null) {
+            runOnUiThread(() -> {
+                loadData();
+            });
         }
     }
 }

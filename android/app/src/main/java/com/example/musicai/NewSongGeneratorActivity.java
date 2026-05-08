@@ -844,9 +844,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
     @Override
     public void onPlaybackStateChanged(boolean isPlaying) {
         runOnUiThread(() -> {
-            btnPlay.setEnabled(!isPlaying);
-            btnPlay.setText(isPlaying ? "暂停" : "播放");
-            btnStop.setEnabled(isPlaying);
+            btnPlay.setEnabled(true);
         });
     }
     
@@ -859,8 +857,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
             resultAdapter.setHighlightIndex(-1);
             resultAdapter.notifyDataSetChanged();
             btnPlay.setEnabled(true);
-            btnPlay.setText("播放");
-            btnStop.setEnabled(false);
+            btnPlay.setState(UnifiedPlaybackButton.State.PLAY);
         });
     }
     
