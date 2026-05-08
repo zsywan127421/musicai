@@ -573,7 +573,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         resultList.add(title);
         resultList.add("  " + detail);
         resultList.add("");
-        resultAdapter.notifyItemInserted(insertIndex);
+        resultAdapter.notifyDataSetChanged();
         lvResult.smoothScrollToPosition(resultList.size() - 1);
     }
     

@@ -115,7 +115,7 @@ public class MusicGenerator {
             prompt.append("【旋律分析】\n");
             
             String firstPitch = melody.notes.get(0).pitch;
-            String lastPitch = melody.notes.get(melody.notes.get(melody.notes.size() - 1).pitch + "").pitch;
+            String lastPitch = melody.notes.get(melody.notes.size() - 1).pitch;
             int firstOctave = melody.notes.get(0).octave;
             boolean startsHigh = firstPitch.contains("#") || firstOctave >= 5;
             boolean endsOnRoot = lastPitch.equals("C") || lastPitch.equals("F") || lastPitch.equals("G");
