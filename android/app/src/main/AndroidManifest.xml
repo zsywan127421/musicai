@@ -29,38 +29,23 @@
             android:exported="false" />
             
         <activity
-            android:name=".MelodyEditorActivity"
-            android:exported="false" />
-            
-        <activity
-            android:name=".ChordEditorActivity"
-            android:exported="false" />
-            
-        <activity
-            android:name=".SongGeneratorActivity"
-            android:exported="false" />
-            
-        <activity
-            android:name=".NewSongGeneratorActivity"
-            android:exported="false" />
-            
-        <activity
-            android:name=".LibraryActivity"
-            android:exported="false" />
-            
-        <activity
-            android:name=".LibraryDetailActivity"
-            android:exported="false" />
-            
-        <activity
             android:name=".ModelConfigActivity"
             android:exported="false"
             android:windowLayoutInDisplayCutoutMode="shortEdges" />
             
         <activity
-            android:name=".PianoRollActivity"
+            android:name=".NewSongGeneratorActivity"
             android:exported="false"
             android:windowLayoutInDisplayCutoutMode="shortEdges" />
+            
+        <activity
+            android:name=".LibraryTabsActivity"
+            android:exported="false"
+            android:windowLayoutInDisplayCutoutMode="shortEdges" />
+            
+        <activity
+            android:name=".LibraryDetailActivity"
+            android:exported="false" />
             
         <activity
             android:name=".SongDetailActivity"
@@ -68,7 +53,7 @@
             android:windowLayoutInDisplayCutoutMode="shortEdges" />
             
         <activity
-            android:name=".LibraryTabsActivity"
+            android:name=".PianoRollActivity"
             android:exported="false"
             android:windowLayoutInDisplayCutoutMode="shortEdges" />
             

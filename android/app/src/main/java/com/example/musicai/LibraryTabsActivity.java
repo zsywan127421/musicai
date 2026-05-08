@@ -87,8 +87,9 @@ public class LibraryTabsActivity extends BaseActivity {
                 @Override
                 public void onItemClick(int position) {
                     MusicRepository.MelodyEntry entry = melodies.get(position);
-                    Intent intent = new Intent(LibraryTabsActivity.this, MelodyEditorActivity.class);
-                    intent.putExtra(MelodyEditorActivity.EXTRA_MELODY_ID, entry.id);
+                    Intent intent = new Intent(LibraryTabsActivity.this, LibraryDetailActivity.class);
+                    intent.putExtra(LibraryDetailActivity.EXTRA_TYPE, LibraryDetailActivity.TYPE_MELODY);
+                    intent.putExtra(LibraryDetailActivity.EXTRA_ID, entry.id);
                     startActivity(intent);
                 }
 
@@ -114,8 +115,9 @@ public class LibraryTabsActivity extends BaseActivity {
                 @Override
                 public void onItemClick(int position) {
                     MusicRepository.ChordEntry entry = chords.get(position);
-                    Intent intent = new Intent(LibraryTabsActivity.this, ChordEditorActivity.class);
-                    intent.putExtra(ChordEditorActivity.EXTRA_CHORD_ID, entry.id);
+                    Intent intent = new Intent(LibraryTabsActivity.this, LibraryDetailActivity.class);
+                    intent.putExtra(LibraryDetailActivity.EXTRA_TYPE, LibraryDetailActivity.TYPE_CHORD);
+                    intent.putExtra(LibraryDetailActivity.EXTRA_ID, entry.id);
                     startActivity(intent);
                 }
 
