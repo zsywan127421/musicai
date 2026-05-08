@@ -133,6 +133,9 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
                 tvStyle.setText(melodyEntry.style);
                 tvCreated.setText(TimeUtils.formatRelativeTime(melodyEntry.createdAt));
                 updateNotesDisplay();
+                int durationMs = calculateMelodyDuration(melody);
+                tvPlaybackTime.setText("0:00 / " + formatTime(durationMs));
+                playbackProgress.setProgress(0);
             }
         } else {
             chordEntry = repository.getChordById(itemId);
@@ -149,6 +152,18 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
             ToastHelper.showError(this, "数据加载失败");
             finish();
         }
+    }
+    
+    private int calculateMelodyDuration(MusicData.Melody mel) {
+        if (mel == null || mel.notes == null || mel.notes.isEmpty()) {
+            return 0;
+        }
+        int lastEnd = 0;
+        for (MusicData.Note note : mel.notes) {
+            int end = note.startTime + note.duration;
+            if (end > lastEnd) lastEnd = end;
+        }
+        return lastEnd * 500;
     }
     
     private void updateNotesDisplay() {

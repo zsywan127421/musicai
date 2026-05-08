@@ -79,14 +79,43 @@ public class SongEntry {
     }
 
     public void addSegment(MusicData.Melody melody, MusicData.ChordProgression chord, int startTimeMs) {
+        addSegmentWithDuration(melody, chord, startTimeMs, calculateSegmentDuration(chord));
+    }
+    
+    public void addSegmentWithDuration(MusicData.Melody melody, MusicData.ChordProgression chord, int startTimeMs, int durationMs) {
         SegmentData segment = new SegmentData();
         segment.index = segments.size();
         segment.melodyJson = melodyToJson(melody);
         segment.chordJson = chordToJson(chord);
         segment.startTimeMs = startTimeMs;
-        segment.durationMs = calculateMelodyDuration(melody);
+        segment.durationMs = durationMs;
         segments.add(segment);
-        totalDurationMs = startTimeMs + segment.durationMs;
+        recalculateTotalDuration();
+    }
+    
+    private void recalculateTotalDuration() {
+        totalDurationMs = 0;
+        for (SegmentData seg : segments) {
+            int segEnd = seg.startTimeMs + seg.durationMs;
+            if (segEnd > totalDurationMs) {
+                totalDurationMs = segEnd;
+            }
+        }
+    }
+    
+    private int calculateSegmentDuration(MusicData.ChordProgression chord) {
+        if (chord != null && !chord.chords.isEmpty()) {
+            int beatsPerChord = chord.chords.get(0).duration;
+            int beatsPerBar = 4;
+            int beatsPerSecond = bpm / 60;
+            int msPerBeat = 1000 / beatsPerSecond;
+            if (msPerBeat == 0) msPerBeat = 500;
+            int barsPerChord = beatsPerChord / beatsPerBar;
+            if (barsPerChord < 1) barsPerChord = 1;
+            int beatsPerSegment = barsPerChord * beatsPerBar;
+            return beatsPerSegment * msPerBeat;
+        }
+        return 8000;
     }
 
     private String melodyToJson(MusicData.Melody melody) {

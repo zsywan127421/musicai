@@ -25,7 +25,6 @@ import java.util.List;
 public class LibraryTabsActivity extends BaseActivity {
 
     public static final String EXTRA_TYPE = "type";
-    public static final int TYPE_ALL = 0;
     public static final int TYPE_MELODY = 1;
     public static final int TYPE_CHORD = 2;
     public static final int TYPE_SONG = 3;
@@ -169,7 +168,6 @@ public class LibraryTabsActivity extends BaseActivity {
     }
 
     private void setupTabs() {
-        tabLayout.addTab(tabLayout.newTab().setText("全部"));
         tabLayout.addTab(tabLayout.newTab().setText("旋律"));
         tabLayout.addTab(tabLayout.newTab().setText("和弦"));
         tabLayout.addTab(tabLayout.newTab().setText("歌曲"));
@@ -223,12 +221,9 @@ public class LibraryTabsActivity extends BaseActivity {
                 rvMelodies.setVisibility(View.VISIBLE);
                 break;
             case 1:
-                rvMelodies.setVisibility(View.VISIBLE);
-                break;
-            case 2:
                 rvChords.setVisibility(View.VISIBLE);
                 break;
-            case 3:
+            case 2:
                 rvSongs.setVisibility(View.VISIBLE);
                 break;
         }
@@ -240,15 +235,14 @@ public class LibraryTabsActivity extends BaseActivity {
 
         switch (currentTab) {
             case 0:
-            case 1:
                 itemCount = melodies.size();
                 emptyMessage = "暂无旋律，去AI生成页面创建吧";
                 break;
-            case 2:
+            case 1:
                 itemCount = chords.size();
                 emptyMessage = "暂无和弦，去AI生成页面创建吧";
                 break;
-            case 3:
+            case 2:
                 itemCount = songs.size();
                 emptyMessage = "暂无歌曲，去AI生成页面创建吧";
                 break;

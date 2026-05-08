@@ -673,13 +673,16 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         songEntry.sourceChordId = chordEntry.id;
         songEntry.sourceChordName = chordEntry.name;
         songEntry.bpm = 120;
-        songEntry.totalDurationMs = currentSong.totalDurationMs;
         
         if (currentSong.segments != null) {
+            int startTimeMs = 0;
             for (MusicData.Segment segment : currentSong.segments) {
-                songEntry.addSegment(segment.melody, segment.chord, segment.startTimeMs);
+                songEntry.addSegmentWithDuration(segment.melody, segment.chord, startTimeMs, segment.durationMs);
+                startTimeMs += segment.durationMs;
             }
         }
+        
+        songEntry.totalDurationMs = currentSong.totalDurationMs;
         
         repository.addSong(songEntry);
     }

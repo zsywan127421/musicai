@@ -231,11 +231,11 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
         String info = "风格: " + currentSong.style + " | 段落: " + currentSong.segments.size();
         tvSongInfo.setText(info);
         
+        tvPlaybackTime.setText("0:00 / " + formatDuration(currentSong.totalDurationMs));
+        playbackProgress.setProgress(0);
+        
         btnPlay.setEnabled(true);
         btnStop.setEnabled(false);
-        
-        playbackProgress.setProgress(0);
-        tvPlaybackTime.setText("0:00 / " + formatDuration(currentSong.totalDurationMs));
     }
     
     private void playSong() {

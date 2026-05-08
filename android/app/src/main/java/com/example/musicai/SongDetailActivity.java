@@ -105,6 +105,9 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
             String segmentsText = "段落数: " + songEntry.segments.size() + " | " +
                     "时长: " + formatDuration(songEntry.totalDurationMs);
             tvSegments.setText(segmentsText);
+            
+            tvPlaybackTime.setText("0:00 / " + formatDuration(songEntry.totalDurationMs));
+            playbackProgress.setProgress(0);
         } else {
             ToastHelper.showError(this, "歌曲加载失败");
             finish();
