@@ -63,6 +63,7 @@ public class LoadingButton extends View {
         
         setClickable(true);
         setMinimumHeight((int) dpToPx(44));
+        setBackgroundColor(android.graphics.Color.TRANSPARENT);
         
         loadingAnimator = ValueAnimator.ofFloat(0, 360);
         loadingAnimator.setDuration(1000);

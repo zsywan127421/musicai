@@ -70,7 +70,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
     private EditText etKeySignature;
     private EditText etMood;
     private EditText etChordDescription;
-    private LoadingButton btnGenerateChords;
+    private Button btnGenerateChords;
     
     private Spinner spSongMelody;
     private Spinner spSongChords;
@@ -316,7 +316,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         }
         
         btnGenerateMelody.setLoading(isGenerating);
-        btnGenerateChords.setLoading(isGenerating);
+        btnGenerateChords.setEnabled(!isGenerating);
         btnGenerateSong.setLoading(isGenerating);
         progressBar.setVisibility(isGenerating ? View.VISIBLE : View.GONE);
     }
