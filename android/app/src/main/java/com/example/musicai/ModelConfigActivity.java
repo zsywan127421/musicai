@@ -11,16 +11,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.example.musicai.util.ToastHelper;
-import com.example.musicai.util.ToolbarHelper;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ModelConfigActivity extends BaseActivity {
-
-    private static final int MENU_RESET = 1;
-    private static final int MENU_TEST = 2;
-    private static final int MENU_HELP = 3;
 
     private EditText etApiUrl, etApiKey, etModelName;
     private SeekBar seekbarTemperature, seekbarMaxTokens;
@@ -38,13 +30,7 @@ public class ModelConfigActivity extends BaseActivity {
 
         initToolbar(R.id.toolbar, "大模型配置");
         setBackVisible(true);
-        setMenuVisible(true);
-
-        List<ToolbarHelper.MenuItemData> menuItems = new ArrayList<>();
-        menuItems.add(new ToolbarHelper.MenuItemData(MENU_RESET, "恢复默认配置"));
-        menuItems.add(new ToolbarHelper.MenuItemData(MENU_TEST, "测试连接"));
-        menuItems.add(new ToolbarHelper.MenuItemData(MENU_HELP, "帮助"));
-        toolbarHelper.setMenuItems(menuItems, this::onMenuItemClick);
+        setMenuVisible(false);
 
         modelConfig = new ModelConfig(this);
         handler = new Handler(Looper.getMainLooper());
@@ -119,16 +105,6 @@ public class ModelConfigActivity extends BaseActivity {
         findViewById(R.id.btn_test_connection).setOnClickListener(v -> testConnection());
         btnSave.setOnClickListener(v -> saveConfig());
         btnReset.setOnClickListener(v -> resetConfig());
-    }
-
-    private void onMenuItemClick(int itemId) {
-        if (itemId == MENU_RESET) {
-            ToastHelper.showInfo(this, "配置已恢复默认");
-        } else if (itemId == MENU_TEST) {
-            ToastHelper.showInfo(this, "连接测试功能开发中");
-        } else if (itemId == MENU_HELP) {
-            ToastHelper.showInfo(this, "帮助功能开发中");
-        }
     }
 
     private void testConnection() {

@@ -274,8 +274,102 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
                 confirmDelete();
                 break;
             case MENU_EXPORT:
-                ToastHelper.showInfo(this, "导出功能开发中");
+                exportItem();
                 break;
+        }
+    }
+    
+    private void exportItem() {
+        String name = "";
+        String exportData = "";
+        
+        if (itemType == TYPE_MELODY && melodyEntry != null) {
+            name = melodyEntry.name;
+            exportData = exportMelodyData();
+        } else if (itemType == TYPE_CHORD && chordEntry != null) {
+            name = chordEntry.name;
+            exportData = exportChordData();
+        }
+        
+        if (exportData.isEmpty()) {
+            ToastHelper.showError(this, "无数据可导出");
+            return;
+        }
+        
+        try {
+            String fileName = name.replaceAll("[^a-zA-Z0-9\\u4e00-\\u9fa5]", "_") + ".json";
+            java.io.File exportDir = new java.io.File(getExternalFilesDir(null), "exports");
+            if (!exportDir.exists()) {
+                exportDir.mkdirs();
+            }
+            java.io.File exportFile = new java.io.File(exportDir, fileName);
+            
+            java.io.FileWriter writer = new java.io.FileWriter(exportFile);
+            writer.write(exportData);
+            writer.close();
+            
+            android.content.Intent shareIntent = new android.content.Intent(android.content.Intent.ACTION_SEND);
+            shareIntent.setType("application/json");
+            shareIntent.putExtra(android.content.Intent.EXTRA_STREAM, android.net.Uri.fromFile(exportFile));
+            shareIntent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(android.content.Intent.createChooser(shareIntent, "导出" + name));
+            
+        } catch (Exception e) {
+            ToastHelper.showError(this, "导出失败: " + e.getMessage());
+        }
+    }
+    
+    private String exportMelodyData() {
+        if (melodyEntry == null) return "";
+        try {
+            org.json.JSONObject obj = new org.json.JSONObject();
+            obj.put("type", "melody");
+            obj.put("name", melodyEntry.name);
+            obj.put("style", melodyEntry.style);
+            obj.put("createdAt", melodyEntry.createdAt);
+            
+            org.json.JSONArray notesArray = new org.json.JSONArray();
+            for (MusicRepository.NoteData note : melodyEntry.notes) {
+                org.json.JSONObject noteObj = new org.json.JSONObject();
+                noteObj.put("pitch", note.pitch);
+                noteObj.put("octave", note.octave);
+                noteObj.put("duration", note.duration);
+                noteObj.put("startTime", note.startTime);
+                notesArray.put(noteObj);
+            }
+            obj.put("notes", notesArray);
+            
+            return obj.toString(2);
+        } catch (Exception e) {
+            return "";
+        }
+    }
+    
+    private String exportChordData() {
+        if (chordEntry == null) return "";
+        try {
+            org.json.JSONObject obj = new org.json.JSONObject();
+            obj.put("type", "chord");
+            obj.put("name", chordEntry.name);
+            obj.put("style", chordEntry.style);
+            obj.put("keySignature", chordEntry.keySignature);
+            obj.put("mood", chordEntry.mood);
+            obj.put("createdAt", chordEntry.createdAt);
+            
+            org.json.JSONArray chordsArray = new org.json.JSONArray();
+            for (MusicRepository.ChordData chord : chordEntry.chords) {
+                org.json.JSONObject chordObj = new org.json.JSONObject();
+                chordObj.put("name", chord.name);
+                chordObj.put("type", chord.type);
+                chordObj.put("duration", chord.duration);
+                chordObj.put("startTime", chord.startTime);
+                chordsArray.put(chordObj);
+            }
+            obj.put("chords", chordsArray);
+            
+            return obj.toString(2);
+        } catch (Exception e) {
+            return "";
         }
     }
     

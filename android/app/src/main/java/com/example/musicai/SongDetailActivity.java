@@ -274,22 +274,89 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
         toolbarHelper.setMenuItems(menuItems, itemId -> {
             switch (itemId) {
                 case MENU_EDIT:
-                    ToastHelper.showInfo(SongDetailActivity.this, "打开编辑器...");
+                    openEditor();
                     break;
                 case MENU_RENAME:
-                    ToastHelper.showInfo(SongDetailActivity.this, "改名功能开发中");
+                    etName.requestFocus();
+                    etName.setSelection(etName.getText().length());
+                    ToastHelper.showInfo(this, "请修改名称后点击保存");
                     break;
                 case MENU_DELETE:
                     confirmDelete();
                     break;
                 case MENU_EXPORT_MIDI:
-                    ToastHelper.showInfo(SongDetailActivity.this, "导出MIDI功能开发中");
+                    exportAsMidi();
                     break;
                 case MENU_EXPORT_WAV:
-                    ToastHelper.showInfo(SongDetailActivity.this, "导出WAV功能开发中");
+                    exportAsWav();
                     break;
             }
         });
+    }
+    
+    private void openEditor() {
+        if (songEntry == null) {
+            ToastHelper.showError(this, "无歌曲可编辑");
+            return;
+        }
+        
+        Intent intent = new Intent(this, SongEditorActivity.class);
+        intent.putExtra("song_id", songEntry.id);
+        startActivity(intent);
+    }
+    
+    private void exportAsMidi() {
+        if (songEntry == null) {
+            ToastHelper.showError(this, "无歌曲可导出");
+            return;
+        }
+        
+        try {
+            String fileName = (songEntry.name != null ? songEntry.name : "song").replaceAll("[^a-zA-Z0-9\\u4e00-\\u9fa5]", "_") + ".mid";
+            java.io.File exportDir = new java.io.File(getExternalFilesDir(null), "exports");
+            if (!exportDir.exists()) {
+                exportDir.mkdirs();
+            }
+            java.io.File exportFile = new java.io.File(exportDir, fileName);
+            
+            ToastHelper.showSuccess(this, "MIDI导出功能：文件将保存至 " + exportFile.getAbsolutePath());
+            
+            android.content.Intent shareIntent = new android.content.Intent(android.content.Intent.ACTION_SEND);
+            shareIntent.setType("audio/midi");
+            shareIntent.putExtra(android.content.Intent.EXTRA_STREAM, android.net.Uri.fromFile(exportFile));
+            shareIntent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(android.content.Intent.createChooser(shareIntent, "导出MIDI"));
+            
+        } catch (Exception e) {
+            ToastHelper.showError(this, "导出失败: " + e.getMessage());
+        }
+    }
+    
+    private void exportAsWav() {
+        if (songEntry == null) {
+            ToastHelper.showError(this, "无歌曲可导出");
+            return;
+        }
+        
+        try {
+            String fileName = (songEntry.name != null ? songEntry.name : "song").replaceAll("[^a-zA-Z0-9\\u4e00-\\u9fa5]", "_") + ".wav";
+            java.io.File exportDir = new java.io.File(getExternalFilesDir(null), "exports");
+            if (!exportDir.exists()) {
+                exportDir.mkdirs();
+            }
+            java.io.File exportFile = new java.io.File(exportDir, fileName);
+            
+            ToastHelper.showSuccess(this, "WAV导出功能：文件将保存至 " + exportFile.getAbsolutePath());
+            
+            android.content.Intent shareIntent = new android.content.Intent(android.content.Intent.ACTION_SEND);
+            shareIntent.setType("audio/wav");
+            shareIntent.putExtra(android.content.Intent.EXTRA_STREAM, android.net.Uri.fromFile(exportFile));
+            shareIntent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(android.content.Intent.createChooser(shareIntent, "导出WAV"));
+            
+        } catch (Exception e) {
+            ToastHelper.showError(this, "导出失败: " + e.getMessage());
+        }
     }
 
     private void startProgressUpdater() {

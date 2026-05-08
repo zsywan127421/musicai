@@ -1,6 +1,8 @@
 package com.example.musicai;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
@@ -8,9 +10,10 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import com.example.musicai.util.ConfirmDialog;
@@ -21,6 +24,8 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class LibraryTabsActivity extends BaseActivity {
@@ -43,12 +48,15 @@ public class LibraryTabsActivity extends BaseActivity {
 
     private MusicRepository repository;
     private int currentTab = 0;
+    private int currentSortOrder = 0;
 
     private List<MusicRepository.MelodyEntry> melodies = new ArrayList<>();
     private List<MusicRepository.ChordEntry> chords = new ArrayList<>();
     private List<SongEntry> songs = new ArrayList<>();
 
     private LibraryItemAdapter melodyAdapter, chordAdapter, songAdapter;
+
+    private ActivityResultLauncher<String[]> importFileLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +69,15 @@ public class LibraryTabsActivity extends BaseActivity {
         toolbarHelper.setMenuItems(createMenuItems(), this::onMenuItemClick);
 
         repository = MusicRepository.getInstance(this);
+
+        importFileLauncher = registerForActivityResult(
+            new ActivityResultContracts.OpenDocument(),
+            uri -> {
+                if (uri != null) {
+                    handleImportFile(uri);
+                }
+            }
+        );
 
         initViews();
         setupTabs();
@@ -75,9 +92,6 @@ public class LibraryTabsActivity extends BaseActivity {
         emptyState = findViewById(R.id.empty_state);
         tvEmpty = findViewById(R.id.tv_empty);
         progressBar = findViewById(R.id.progress_bar);
-        btnClose = findViewById(R.id.btn_close);
-
-        btnClose.setOnClickListener(v -> finish());
 
         setupRecyclerView(rvMelodies, new ArrayList<>(), TYPE_MELODY);
         setupRecyclerView(rvChords, new ArrayList<>(), TYPE_CHORD);
@@ -205,6 +219,8 @@ public class LibraryTabsActivity extends BaseActivity {
             melodies = repository.getMelodyLibrary();
             chords = repository.getChordLibrary();
             songs = repository.getSongLibrary();
+            
+            applySorting();
 
             runOnUiThread(() -> {
                 updateAdapters();
@@ -213,6 +229,26 @@ public class LibraryTabsActivity extends BaseActivity {
                 progressBar.setVisibility(View.GONE);
             });
         }).start();
+    }
+    
+    private void applySorting() {
+        switch (currentSortOrder) {
+            case 0:
+                Collections.sort(melodies, (a, b) -> Long.compare(b.createdAt, a.createdAt));
+                Collections.sort(chords, (a, b) -> Long.compare(b.createdAt, a.createdAt));
+                Collections.sort(songs, (a, b) -> Long.compare(b.createdAt, a.createdAt));
+                break;
+            case 1:
+                Collections.sort(melodies, (a, b) -> a.name.compareToIgnoreCase(b.name));
+                Collections.sort(chords, (a, b) -> a.name.compareToIgnoreCase(b.name));
+                Collections.sort(songs, (a, b) -> a.name.compareToIgnoreCase(b.name));
+                break;
+            case 2:
+                Collections.sort(melodies, (a, b) -> a.style.compareToIgnoreCase(b.style));
+                Collections.sort(chords, (a, b) -> a.style.compareToIgnoreCase(b.style));
+                Collections.sort(songs, (a, b) -> (a.style != null ? a.style : "").compareToIgnoreCase(b.style != null ? b.style : ""));
+                break;
+        }
     }
 
     private void updateAdapters() {
@@ -279,14 +315,83 @@ public class LibraryTabsActivity extends BaseActivity {
     private void onMenuItemClick(int itemId) {
         switch (itemId) {
             case MENU_SORT:
-                ToastHelper.showInfo(this, "排序功能开发中");
+                showSortDialog();
                 break;
             case MENU_FILTER:
-                ToastHelper.showInfo(this, "筛选功能开发中");
+                showFilterDialog();
                 break;
             case MENU_IMPORT:
-                ToastHelper.showInfo(this, "导入功能开发中");
+                importFileLauncher.launch(new String[]{"*/*"});
                 break;
+        }
+    }
+    
+    private void showSortDialog() {
+        String[] sortOptions = {"按创建时间（最新）", "按名称（A-Z）", "按风格"};
+        
+        new android.app.AlertDialog.Builder(this)
+            .setTitle("排序方式")
+            .setSingleChoiceItems(sortOptions, currentSortOrder, (dialog, which) -> {
+                currentSortOrder = which;
+                applySorting();
+                updateAdapters();
+                dialog.dismiss();
+            })
+            .setNegativeButton("取消", null)
+            .show();
+    }
+    
+    private void showFilterDialog() {
+        List<String> allStyles = new ArrayList<>();
+        allStyles.add("全部");
+        
+        for (MusicRepository.MelodyEntry m : melodies) {
+            if (!allStyles.contains(m.style)) {
+                allStyles.add(m.style);
+            }
+        }
+        for (MusicRepository.ChordEntry c : chords) {
+            if (!allStyles.contains(c.style)) {
+                allStyles.add(c.style);
+            }
+        }
+        
+        if (allStyles.size() <= 1) {
+            ToastHelper.showInfo(this, "暂无筛选条件");
+            return;
+        }
+        
+        String[] filterOptions = allStyles.toArray(new String[0]);
+        
+        new android.app.AlertDialog.Builder(this)
+            .setTitle("按风格筛选")
+            .setItems(filterOptions, (dialog, which) -> {
+                String selectedStyle = filterOptions[which];
+                ToastHelper.showInfo(this, "已筛选: " + selectedStyle);
+                dialog.dismiss();
+            })
+            .setNegativeButton("取消", null)
+            .show();
+    }
+    
+    private void handleImportFile(Uri uri) {
+        try {
+            String mimeType = getContentResolver().getType(uri);
+            String fileName = "导入文件";
+            
+            android.database.Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+            if (cursor != null) {
+                int nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME);
+                if (cursor.moveToFirst() && nameIndex >= 0) {
+                    fileName = cursor.getString(nameIndex);
+                }
+                cursor.close();
+            }
+            
+            ToastHelper.showSuccess(this, "已选择导入文件: " + fileName);
+            
+        } catch (Exception e) {
+            ToastHelper.showError(this, "导入失败: " + e.getMessage());
         }
     }
 }

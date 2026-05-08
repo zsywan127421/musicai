@@ -64,7 +64,6 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
     private TextView tvPlaybackTime;
     private Button btnPlay;
     private Button btnStop;
-    private LinearLayout bottomBar;
     private View[] beatIndicators;
 
     private MusicRepository repository;
@@ -161,7 +160,6 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
         tvPlaybackTime = findViewById(R.id.tv_playback_time);
         btnPlay = findViewById(R.id.btn_play);
         btnStop = findViewById(R.id.btn_stop);
-        bottomBar = findViewById(R.id.bottom_bar);
 
         beatIndicators = new View[]{
             findViewById(R.id.beat_1),
@@ -171,7 +169,7 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
         };
 
         editorSection.setVisibility(View.GONE);
-        bottomBar.setVisibility(View.GONE);
+        tvEmptyHint.setVisibility(View.VISIBLE);
     }
 
     private void setupSpinners() {
@@ -202,10 +200,8 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
                     selectSong(position - 1);
                 } else {
                     editorSection.setVisibility(View.GONE);
-                    bottomBar.setVisibility(View.GONE);
                     tvEmptyHint.setVisibility(View.VISIBLE);
                 }
-            }
 
             @Override
             public void onNothingSelected(android.widget.AdapterView<?> parent) {}
@@ -338,7 +334,6 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
         currentSong = songs.get(index);
 
         editorSection.setVisibility(View.VISIBLE);
-        bottomBar.setVisibility(View.VISIBLE);
         tvEmptyHint.setVisibility(View.GONE);
 
         etName.setText(currentSong.name);

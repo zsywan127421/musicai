@@ -1,6 +1,5 @@
 package com.example.musicai;
 
-import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
@@ -20,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.musicai.util.ConfirmDialog;
+import com.example.musicai.util.HelpBottomSheet;
 import com.example.musicai.util.TimeUtils;
 import com.example.musicai.util.ToastHelper;
 import com.example.musicai.util.ToolbarHelper;
@@ -867,15 +867,96 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
     public void onMenuItemClick(int menuId) {
         switch (menuId) {
             case MENU_HISTORY:
-                ToastHelper.showInfo(this, "生成历史功能开发中");
+                showGenerationHistory();
                 break;
             case MENU_RESET:
-                ToastHelper.showInfo(this, "参数已重置");
+                resetParameters();
                 break;
             case MENU_HELP:
-                ToastHelper.showInfo(this, "帮助功能开发中");
+                showHelp();
                 break;
         }
+    }
+    
+    private void showGenerationHistory() {
+        StringBuilder history = new StringBuilder();
+        history.append("最近的生成记录：\n\n");
+        
+        List<MusicRepository.MelodyEntry> recentMelodies = repository.getMelodyLibrary();
+        int count = Math.min(5, recentMelodies.size());
+        if (count > 0) {
+            history.append("【旋律】\n");
+            for (int i = recentMelodies.size() - 1; i >= Math.max(0, recentMelodies.size() - count); i--) {
+                MusicRepository.MelodyEntry m = recentMelodies.get(i);
+                history.append("• ").append(m.name).append(" (").append(m.style).append(")\n");
+            }
+        }
+        
+        List<MusicRepository.ChordEntry> recentChords = repository.getChordLibrary();
+        count = Math.min(5, recentChords.size());
+        if (count > 0) {
+            history.append("\n【和弦】\n");
+            for (int i = recentChords.size() - 1; i >= Math.max(0, recentChords.size() - count); i--) {
+                MusicRepository.ChordEntry c = recentChords.get(i);
+                history.append("• ").append(c.name).append(" (").append(c.style).append(")\n");
+            }
+        }
+        
+        if (history.length() <= 20) {
+            history.append("暂无生成记录");
+        }
+        
+        new android.app.AlertDialog.Builder(this)
+            .setTitle("生成历史")
+            .setMessage(history.toString())
+            .setPositiveButton("确定", null)
+            .show();
+    }
+    
+    private void resetParameters() {
+        new android.app.AlertDialog.Builder(this)
+            .setTitle("参数重置")
+            .setMessage("确定要重置所有参数吗？")
+            .setPositiveButton("确定", (dialog, which) -> {
+                etMelodyName.setText("");
+                etChordName.setText("");
+                etDescription.setText("");
+                etKeySignature.setText("");
+                etMood.setText("");
+                etChordDescription.setText("");
+                spStyle.setSelection(0);
+                spMelodyLength.setSelection(7);
+                rgMode.check(R.id.rb_melody);
+                ToastHelper.showSuccess(this, "参数已重置");
+            })
+            .setNegativeButton("取消", null)
+            .show();
+    }
+    
+    private void showHelp() {
+        String helpText = "【AI创作助手使用说明】\n\n" +
+            "📝 旋律生成：\n" +
+            "1. 选择音乐风格\n" +
+            "2. 设置旋律长度（1-24小节）\n" +
+            "3. 可选：添加描述说明\n" +
+            "4. 点击生成按钮开始创作\n\n" +
+            "🎸 和弦生成：\n" +
+            "• 从旋律生成：选择已有旋律自动生成配套和弦\n" +
+            "• 自定义生成：设置调号、情绪和描述\n\n" +
+            "🎵 歌曲生成：\n" +
+            "1. 先分别生成旋律和和弦\n" +
+            "2. 在歌曲模式选择旋律和和弦\n" +
+            "3. 点击生成完整歌曲\n\n" +
+            "💡 提示：\n" +
+            "• 点击结果可查看详细音符\n" +
+            "• 使用播放按钮试听效果\n" +
+            "• 可调节播放速度（0.5x-2x）";
+        
+        new android.app.AlertDialog.Builder(this)
+            .setTitle("使用帮助")
+            .setMessage(helpText)
+            .setPositiveButton("确定", null)
+            .show();
     }
     
     @Override

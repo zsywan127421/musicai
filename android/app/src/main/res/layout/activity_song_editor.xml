@@ -49,7 +49,9 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:scrollbars="none"
+        android:overScrollMode="never">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -497,38 +499,5 @@
         </LinearLayout>
 
     </ScrollView>
-
-    <LinearLayout
-        android:id="@+id/bottom_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:paddingBottom="24dp"
-        android:background="@color/apple_light_bg">
-
-        <Button
-            android:id="@+id/btn_save"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_weight="1"
-            android:text="保存"
-            android:textSize="16sp"
-            android:textColor="@color/apple_white"
-            android:background="@drawable/apple_button_primary_bg"
-            android:layout_marginEnd="8dp"/>
-
-        <Button
-            android:id="@+id/btn_save_as"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_weight="1"
-            android:text="另存为"
-            android:textSize="16sp"
-            android:textColor="@color/apple_text"
-            android:background="@drawable/apple_button_secondary_bg"
-            android:layout_marginStart="8dp"/>
-
-    </LinearLayout>
 
 </LinearLayout>
