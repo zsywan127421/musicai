@@ -17,6 +17,7 @@ import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.musicai.util.ConfirmDialog;
 import com.example.musicai.util.TimeUtils;
@@ -653,7 +654,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
     }
     
     private void discardCurrentSong() {
-        ConfirmDialog.show(this, "确定要丢弃此次生成结果吗？", "取消", "确认丢弃", () -> {
+        ConfirmDialog.show(this, "确定要丢弃此次生成结果吗？", "", "取消", "确认丢弃", () -> {
             currentSong = null;
             detailBar.setVisibility(View.GONE);
             resultList.clear();

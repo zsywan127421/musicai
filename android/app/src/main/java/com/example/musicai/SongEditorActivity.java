@@ -188,7 +188,7 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 if (isBound && playerService != null && isPlaying) {
-                    int posMs = (int) (playerService.getDuration() * (long) progress / 100L);
+                    int posMs = (int) (playerService.getDuration() * (long) seekBar.getProgress() / 100L);
                     playerService.seekTo(posMs);
                 }
             }
