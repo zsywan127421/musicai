@@ -137,7 +137,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         menuItems.add(new ToolbarHelper.MenuItemData(MENU_HISTORY, "生成历史"));
         menuItems.add(new ToolbarHelper.MenuItemData(MENU_RESET, "参数重置"));
         menuItems.add(new ToolbarHelper.MenuItemData(MENU_HELP, "帮助"));
-        setMenuItems(menuItems);
+        toolbarHelper.setMenuItems(menuItems, this::onMenuItemClick);
         
         musicGenerator = new MusicGenerator(this);
         repository = MusicRepository.getInstance(this);
@@ -864,7 +864,6 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         });
     }
     
-    @Override
     public void onMenuItemClick(int menuId) {
         switch (menuId) {
             case MENU_HISTORY:

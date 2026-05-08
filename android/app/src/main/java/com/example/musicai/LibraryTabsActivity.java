@@ -58,7 +58,7 @@ public class LibraryTabsActivity extends BaseActivity {
         initToolbar(R.id.toolbar, "资源库");
         setBackVisible(true);
         setMenuVisible(true);
-        setMenuItems(createMenuItems(), this::onMenuItemClick);
+        toolbarHelper.setMenuItems(createMenuItems(), this::onMenuItemClick);
 
         repository = MusicRepository.getInstance(this);
 

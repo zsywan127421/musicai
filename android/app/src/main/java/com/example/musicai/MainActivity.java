@@ -64,7 +64,7 @@ public class MainActivity extends BaseActivity {
     private void initViews() {
         ivStatusIcon = findViewById(R.id.iv_status_icon);
         tvModelStatus = findViewById(R.id.tv_model_status);
-        tvmodelName = findViewById(R.id.tv_model_name);
+        tvModelName = findViewById(R.id.tv_model_name);
         
         Button btnSongGenerator = findViewById(R.id.btn_new_song_generator);
         Button btnLibrary = findViewById(R.id.btn_library);
@@ -110,13 +110,13 @@ public class MainActivity extends BaseActivity {
             ivStatusIcon.setColorFilter(getResources().getColor(R.color.apple_warning));
             tvModelStatus.setText("大模型未配置");
             tvModelStatus.setTextColor(getResources().getColor(R.color.apple_warning));
-            tvmodelName.setText("请在设置中配置");
+            tvModelName.setText("请在设置中配置");
         } else {
             ivStatusIcon.setImageResource(R.drawable.ic_check_circle);
             ivStatusIcon.setColorFilter(getResources().getColor(R.color.apple_success));
             tvModelStatus.setText("大模型已配置");
             tvModelStatus.setTextColor(getResources().getColor(R.color.apple_text));
-            tvmodelName.setText(modelName);
+            tvModelName.setText(modelName);
         }
     }
     

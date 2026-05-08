@@ -274,19 +274,19 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
         toolbarHelper.setMenuItems(menuItems, itemId -> {
             switch (itemId) {
                 case MENU_EDIT:
-                    ToastHelper.showInfo("打开编辑器...");
+                    ToastHelper.showInfo(SongDetailActivity.this, "打开编辑器...");
                     break;
                 case MENU_RENAME:
-                    ToastHelper.showInfo("改名功能开发中");
+                    ToastHelper.showInfo(SongDetailActivity.this, "改名功能开发中");
                     break;
                 case MENU_DELETE:
                     confirmDelete();
                     break;
                 case MENU_EXPORT_MIDI:
-                    ToastHelper.showInfo("导出MIDI功能开发中");
+                    ToastHelper.showInfo(SongDetailActivity.this, "导出MIDI功能开发中");
                     break;
                 case MENU_EXPORT_WAV:
-                    ToastHelper.showInfo("导出WAV功能开发中");
+                    ToastHelper.showInfo(SongDetailActivity.this, "导出WAV功能开发中");
                     break;
             }
         });

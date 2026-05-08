@@ -97,7 +97,7 @@ public class ToolbarHelper {
     }
     
     private void showPopupMenu(Context context, List<MenuItemData> items) {
-        PopupMenu popup = new PopupMenu(context, btnMenu, Gravity.NO_GRAVITY, R.attr.actionOverflowMenuStyle, 0);
+        PopupMenu popup = new PopupMenu(context, btnMenu, Gravity.NO_GRAVITY, android.R.attr.actionOverflowMenuStyle, 0);
         Menu menu = popup.getMenu();
         
         for (MenuItemData item : items) {
@@ -106,7 +106,10 @@ public class ToolbarHelper {
                 menuItem.setIcon(item.iconRes);
             }
             if (item.isDanger) {
-                menuItem.setTitleTextColor(ContextCompat.getColor(context, R.color.apple_danger));
+                android.text.SpannableString spannable = new android.text.SpannableString(item.title);
+                spannable.setSpan(new android.text.style.ForegroundColorSpan(
+                    ContextCompat.getColor(context, R.color.apple_danger)), 0, spannable.length(), 0);
+                menuItem.setTitle(spannable);
             }
         }
         
