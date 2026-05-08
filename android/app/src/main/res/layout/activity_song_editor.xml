@@ -19,7 +19,8 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_arrow_down"
+            android:src="@drawable/ic_back"
+            android:tint="?attr/colorControlNormal"
             android:contentDescription="返回"/>
 
         <TextView
@@ -31,8 +32,16 @@
             android:textSize="18sp"
             android:textColor="@color/apple_text"
             android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginEnd="48dp"/>
+            android:gravity="center"/>
+
+        <ImageButton
+            android:id="@+id/btn_menu"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_more_vert"
+            android:tint="?attr/colorControlNormal"
+            android:contentDescription="更多选项"/>
 
     </LinearLayout>
 
@@ -40,8 +49,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true"
-        android:scrollbars="none">
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -248,7 +256,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="12dp">
+                        android:layout_marginBottom="16dp">
 
                         <TextView
                             android:layout_width="0dp"
@@ -323,6 +331,30 @@
                     android:layout_marginBottom="12dp"
                     android:elevation="0dp"
                     android:outlineProvider="background">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="播放速度"
+                            android:textSize="15sp"
+                            android:textColor="@color/apple_text"/>
+
+                        <Spinner
+                            android:id="@+id/sp_speed"
+                            android:layout_width="100dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/spinner_bg"
+                            android:paddingHorizontal="12dp"/>
+
+                    </LinearLayout>
 
                     <TextView
                         android:layout_width="match_parent"
@@ -450,35 +482,6 @@
 
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="12dp">
-
-                    <Button
-                        android:id="@+id/btn_regenerate"
-                        android:layout_width="0dp"
-                        android:layout_height="48dp"
-                        android:layout_weight="1"
-                        android:text="重新生成"
-                        android:textSize="15sp"
-                        android:textColor="@color/apple_text"
-                        android:background="@drawable/apple_button_bg"
-                        android:layout_marginEnd="8dp"/>
-
-                    <Button
-                        android:id="@+id/btn_export"
-                        android:layout_width="0dp"
-                        android:layout_height="48dp"
-                        android:layout_weight="1"
-                        android:text="导出"
-                        android:textSize="15sp"
-                        android:textColor="@color/apple_text"
-                        android:background="@drawable/apple_button_bg"/>
-
-                </LinearLayout>
-
             </LinearLayout>
 
             <TextView
@@ -527,5 +530,11 @@
             android:layout_marginStart="8dp"/>
 
     </LinearLayout>
+
+    <PopupMenu
+        android:id="@+id/popup_menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
 
 </LinearLayout>

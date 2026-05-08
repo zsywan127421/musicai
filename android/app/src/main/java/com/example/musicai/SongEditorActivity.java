@@ -7,20 +7,23 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.musicai.util.ConfirmDialog;
 import com.example.musicai.util.ExportBottomSheet;
-import com.example.musicai.util.MetronomeBottomSheet;
-import com.example.musicai.util.TimeUtils;
 import com.example.musicai.util.ToastHelper;
 
 import java.util.ArrayList;
@@ -29,11 +32,20 @@ import java.util.List;
 public class SongEditorActivity extends BaseActivity implements MusicPlayerService.PlaybackListener {
 
     private static final String[] TIME_SIGNATURES = {"4/4", "3/4", "6/8", "2/4", "5/4", "7/8", "12/8"};
+    private static final float[] SPEEDS = {0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f, 2.5f, 3.0f};
+    private static final String KEY_SONG_INDEX = "song_index";
+    private static final String KEY_HAS_CHANGES = "has_changes";
+    private static final String KEY_BPM = "bpm";
+    private static final String KEY_SPEED_INDEX = "speed_index";
+    private static final String KEY_METRONOME = "metronome_enabled";
+    private static final String KEY_SONG_NAME = "song_name";
 
     private TextView tvTitle;
     private ImageButton btnBack;
+    private ImageButton btnMenu;
     private Spinner spSongSelect;
     private Spinner spTimeSignature;
+    private Spinner spSpeed;
     private LinearLayout editorSection;
     private LinearLayout songSelectorSection;
     private TextView tvEmptyHint;
@@ -52,22 +64,23 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
     private TextView tvPlaybackTime;
     private Button btnPlay;
     private Button btnStop;
-    private Button btnRegenerate;
-    private Button btnExport;
     private LinearLayout bottomBar;
-    private Button btnSave;
-    private Button btnSaveAs;
     private View[] beatIndicators;
 
     private MusicRepository repository;
     private List<SongEntry> songs = new ArrayList<>();
     private SongEntry currentSong;
     private boolean hasChanges = false;
+    private int savedSongIndex = -1;
+    private int savedSpeedIndex = 2;
+    private boolean savedMetronomeEnabled = false;
+    private String savedSongName = "";
 
     private MusicPlayerService playerService;
     private boolean isBound = false;
     private boolean isPlaying = false;
     private boolean isMetronomeEnabled = false;
+    private float currentSpeed = 1.0f;
 
     private Handler autoSaveHandler;
     private Runnable autoSaveRunnable;
@@ -86,6 +99,9 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
                 }
             });
             isBound = true;
+            if (savedSpeedIndex >= 0 && savedSpeedIndex < SPEEDS.length) {
+                playerService.setSpeed(SPEEDS[savedSpeedIndex]);
+            }
         }
 
         @Override
@@ -98,24 +114,35 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
     };
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song_editor);
 
         repository = MusicRepository.getInstance(this);
 
         initViews();
-        setupTimeSignatureSpinner();
+        setupSpinners();
         setupListeners();
         loadSongs();
+
+        if (savedInstanceState != null) {
+            savedSongIndex = savedInstanceState.getInt(KEY_SONG_INDEX, -1);
+            hasChanges = savedInstanceState.getBoolean(KEY_HAS_CHANGES, false);
+            savedSpeedIndex = savedInstanceState.getInt(KEY_SPEED_INDEX, 2);
+            savedMetronomeEnabled = savedInstanceState.getBoolean(KEY_METRONOME, false);
+            savedSongName = savedInstanceState.getString(KEY_SONG_NAME, "");
+        }
+
         startAutoSave();
     }
 
     private void initViews() {
         tvTitle = findViewById(R.id.tv_title);
         btnBack = findViewById(R.id.btn_back);
+        btnMenu = findViewById(R.id.btn_menu);
         spSongSelect = findViewById(R.id.sp_song_select);
         spTimeSignature = findViewById(R.id.sp_time_signature);
+        spSpeed = findViewById(R.id.sp_speed);
         editorSection = findViewById(R.id.editor_section);
         songSelectorSection = findViewById(R.id.song_selector_section);
         tvEmptyHint = findViewById(R.id.tv_empty_hint);
@@ -134,11 +161,7 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
         tvPlaybackTime = findViewById(R.id.tv_playback_time);
         btnPlay = findViewById(R.id.btn_play);
         btnStop = findViewById(R.id.btn_stop);
-        btnRegenerate = findViewById(R.id.btn_regenerate);
-        btnExport = findViewById(R.id.btn_export);
         bottomBar = findViewById(R.id.bottom_bar);
-        btnSave = findViewById(R.id.btn_save);
-        btnSaveAs = findViewById(R.id.btn_save_as);
 
         beatIndicators = new View[]{
             findViewById(R.id.beat_1),
@@ -151,15 +174,26 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
         bottomBar.setVisibility(View.GONE);
     }
 
-    private void setupTimeSignatureSpinner() {
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+    private void setupSpinners() {
+        ArrayAdapter<String> tsAdapter = new ArrayAdapter<>(this,
             R.layout.spinner_item, TIME_SIGNATURES);
-        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        spTimeSignature.setAdapter(adapter);
+        tsAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        spTimeSignature.setAdapter(tsAdapter);
+
+        String[] speedLabels = new String[SPEEDS.length];
+        for (int i = 0; i < SPEEDS.length; i++) {
+            speedLabels[i] = SPEEDS[i] + "x";
+        }
+        ArrayAdapter<String> speedAdapter = new ArrayAdapter<>(this,
+            R.layout.spinner_item, speedLabels);
+        speedAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        spSpeed.setAdapter(speedAdapter);
+        spSpeed.setSelection(savedSpeedIndex);
     }
 
     private void setupListeners() {
         btnBack.setOnClickListener(v -> onBackPressed());
+        btnMenu.setOnClickListener(v -> showPopupMenu(v));
 
         spSongSelect.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
             @Override
@@ -183,6 +217,22 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
                 if (currentSong != null) {
                     currentSong.keySignature = TIME_SIGNATURES[position];
                     hasChanges = true;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+        });
+
+        spSpeed.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                if (position >= 0 && position < SPEEDS.length) {
+                    currentSpeed = SPEEDS[position];
+                    savedSpeedIndex = position;
+                    if (isBound && playerService != null) {
+                        playerService.setSpeed(currentSpeed);
+                    }
                 }
             }
 
@@ -215,11 +265,48 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
                 }
             }
         });
+    }
 
-        btnRegenerate.setOnClickListener(v -> regenerateSong());
-        btnExport.setOnClickListener(v -> exportSong());
-        btnSave.setOnClickListener(v -> saveSong());
-        btnSaveAs.setOnClickListener(v -> saveSongAs());
+    private void showPopupMenu(View anchor) {
+        PopupMenu popup = new PopupMenu(this, anchor);
+        popup.getMenuInflater().inflate(R.menu.menu_song_editor, popup.getMenu());
+
+        popup.setOnMenuItemClickListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.menu_regenerate) {
+                regenerateSong();
+                return true;
+            } else if (id == R.id.menu_export_midi) {
+                exportMidi();
+                return true;
+            } else if (id == R.id.menu_export_wav) {
+                exportWav();
+                return true;
+            } else if (id == R.id.menu_save) {
+                saveSong();
+                return true;
+            } else if (id == R.id.menu_save_as) {
+                saveSongAs();
+                return true;
+            }
+            return false;
+        });
+
+        popup.show();
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(KEY_SONG_INDEX, savedSongIndex);
+        outState.putBoolean(KEY_HAS_CHANGES, hasChanges);
+        outState.putInt(KEY_SPEED_INDEX, savedSpeedIndex);
+        outState.putBoolean(KEY_METRONOME, isMetronomeEnabled);
+        outState.putString(KEY_SONG_NAME, etName.getText().toString());
+
+        if (currentSong != null) {
+            outState.putInt(KEY_BPM, currentSong.bpm);
+        }
     }
 
     private void loadSongs() {
@@ -235,11 +322,19 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
             R.layout.spinner_item, songNames);
         adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spSongSelect.setAdapter(adapter);
+
+        if (savedSongIndex >= 0 && savedSongIndex < songs.size()) {
+            spSongSelect.setSelection(savedSongIndex + 1);
+            if (!savedSongName.isEmpty() && currentSong != null) {
+                etName.setText(savedSongName);
+            }
+        }
     }
 
     private void selectSong(int index) {
         if (index < 0 || index >= songs.size()) return;
 
+        savedSongIndex = index;
         currentSong = songs.get(index);
 
         editorSection.setVisibility(View.VISIBLE);
@@ -247,6 +342,7 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
         tvEmptyHint.setVisibility(View.GONE);
 
         etName.setText(currentSong.name);
+        savedSongName = currentSong.name;
         tvStyle.setText(currentSong.style != null ? currentSong.style : "流行");
         tvDuration.setText(formatDuration(currentSong.totalDurationMs));
         tvSourceMelody.setText(currentSong.sourceMelodyName != null ? currentSong.sourceMelodyName : "未知");
@@ -356,6 +452,7 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
         } else {
             MusicData.Song song = currentSong.toMusicDataSong();
             if (song != null && song.melody != null && !song.melody.notes.isEmpty()) {
+                playerService.setSpeed(currentSpeed);
                 playerService.playSong(song);
                 isPlaying = true;
                 btnPlay.setText("暂停");
@@ -396,7 +493,17 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
         });
     }
 
-    private void exportSong() {
+    private void exportMidi() {
+        if (currentSong == null) {
+            ToastHelper.showError(this, "请先选择歌曲");
+            return;
+        }
+
+        ExportBottomSheet exportSheet = new ExportBottomSheet(this, currentSong);
+        exportSheet.show();
+    }
+
+    private void exportWav() {
         if (currentSong == null) {
             ToastHelper.showError(this, "请先选择歌曲");
             return;
@@ -456,6 +563,7 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
         repository.updateSong(currentSong.id, name);
         ToastHelper.showSuccess(this, "保存成功");
         hasChanges = false;
+        savedSongName = name;
         loadSongs();
     }
 
@@ -503,9 +611,10 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
     public void onPlaybackProgress(int positionMs, int totalMs, int currentNoteIndex) {
         runOnUiThread(() -> {
             if (totalMs > 0) {
-                int progress = (positionMs * 100) / totalMs;
+                int progress = (int) ((long) positionMs * 100 / totalMs);
                 playbackProgress.setProgress(progress);
-                tvPlaybackTime.setText(formatTime(positionMs) + " / " + formatTime(totalMs));
+                int adjustedTotal = (int) (totalMs / currentSpeed);
+                tvPlaybackTime.setText(formatTime(positionMs) + " / " + formatTime(adjustedTotal));
             }
         });
     }
@@ -525,7 +634,7 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
             isPlaying = false;
             btnPlay.setText("播放");
             playbackProgress.setProgress(0);
-            tvPlaybackTime.setText("0:00 / " + formatDuration(currentSong != null ? currentSong.totalDurationMs : 0));
+            tvPlaybackTime.setText("0:00 / " + formatTime((int) (currentSong != null ? currentSong.totalDurationMs / currentSpeed : 0)));
             btnStop.setEnabled(false);
             if (isBound && playerService != null) {
                 playerService.stopPlayback();
