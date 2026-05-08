@@ -172,15 +172,11 @@
                     android:gravity="top"
                     android:layout_marginBottom="14dp"/>
 
-                <Button
+                <com.example.musicai.view.LoadingButton
                     android:id="@+id/btn_generate_melody"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
-                    android:minHeight="48dp"
-                    android:text="生成旋律"
-                    android:textSize="16sp"
-                    android:textColor="@color/apple_white"
-                    android:background="@drawable/apple_button_primary_bg"/>
+                    android:minHeight="48dp"/>
 
             </LinearLayout>
 
@@ -309,11 +305,7 @@
                     android:id="@+id/btn_generate_chords"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
-                    android:minHeight="48dp"
-                    android:text="生成和弦"
-                    android:textSize="16sp"
-                    android:textColor="@color/apple_white"
-                    android:background="@drawable/apple_button_primary_bg"/>
+                    android:minHeight="48dp"/>
 
             </LinearLayout>
 
@@ -414,15 +406,11 @@
 
                 </LinearLayout>
 
-                <Button
+                <com.example.musicai.view.LoadingButton
                     android:id="@+id/btn_generate_song"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
-                    android:minHeight="48dp"
-                    android:text="生成曲子"
-                    android:textSize="16sp"
-                    android:textColor="@color/apple_white"
-                    android:background="@drawable/apple_button_primary_bg"/>
+                    android:minHeight="48dp"/>
 
             </LinearLayout>
 

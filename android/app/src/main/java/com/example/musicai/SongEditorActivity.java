@@ -25,6 +25,7 @@ import com.example.musicai.util.ConfirmDialog;
 import com.example.musicai.util.ExportBottomSheet;
 import com.example.musicai.util.ToastHelper;
 import com.example.musicai.view.PianoRollView;
+import com.example.musicai.view.UnifiedPlaybackButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,8 +60,7 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
     private Button btnMetronome;
     private CursorSeekBar playbackProgress;
     private TextView tvPlaybackTime;
-    private Button btnPlay;
-    private Button btnStop;
+    private UnifiedPlaybackButton btnPlay;
     private View[] beatIndicators;
     
     private PianoRollView pianoRollView;
@@ -263,8 +263,22 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
 
         btnMetronome.setOnClickListener(v -> toggleMetronome());
 
-        btnPlay.setOnClickListener(v -> playSong());
-        btnStop.setOnClickListener(v -> stopSong());
+        btnPlay.setOnPlaybackStateChangeListener(new UnifiedPlaybackButton.OnPlaybackStateChangeListener() {
+            @Override
+            public void onPlayClicked() {
+                playSong();
+            }
+
+            @Override
+            public void onPauseClicked() {
+                pauseSong();
+            }
+
+            @Override
+            public void onResumeClicked() {
+                resumeSong();
+            }
+        });
 
         playbackProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -484,7 +498,6 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
         updateTracksList();
 
         btnPlay.setEnabled(true);
-        btnStop.setEnabled(false);
         hasChanges = false;
     }
     
@@ -646,31 +659,39 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
             return;
         }
 
-        if (isPlaying) {
+        MusicData.Song song = currentSong.toMusicDataSong();
+        if (song != null && song.melody != null && !song.melody.notes.isEmpty()) {
+            playerService.setSpeed(currentSpeed);
+            playerService.playSong(song);
+            isPlaying = true;
+            btnPlay.setState(UnifiedPlaybackButton.State.PAUSE);
+
+            if (isMetronomeEnabled) {
+                playerService.setMetronomeBpm(currentSong.bpm);
+                playerService.setMetronomeBeatsPerMeasure(4);
+                playerService.startMetronome();
+            }
+        } else {
+            ToastHelper.showError(this, "无法播放此歌曲");
+        }
+    }
+
+    private void pauseSong() {
+        if (isBound && playerService != null) {
             playerService.pause();
             isPlaying = false;
-            btnPlay.setText("继续");
-            btnStop.setEnabled(false);
+            btnPlay.setState(UnifiedPlaybackButton.State.RESUME);
             if (isMetronomeEnabled) {
                 playerService.stopMetronome();
             }
-        } else {
-            MusicData.Song song = currentSong.toMusicDataSong();
-            if (song != null && song.melody != null && !song.melody.notes.isEmpty()) {
-                playerService.setSpeed(currentSpeed);
-                playerService.playSong(song);
-                isPlaying = true;
-                btnPlay.setText("暂停");
-                btnStop.setEnabled(true);
+        }
+    }
 
-                if (isMetronomeEnabled) {
-                    playerService.setMetronomeBpm(currentSong.bpm);
-                    playerService.setMetronomeBeatsPerMeasure(4);
-                    playerService.startMetronome();
-                }
-            } else {
-                ToastHelper.showError(this, "无法播放此歌曲");
-            }
+    private void resumeSong() {
+        if (isBound && playerService != null) {
+            playerService.resume();
+            isPlaying = true;
+            btnPlay.setState(UnifiedPlaybackButton.State.PAUSE);
         }
     }
 
@@ -680,10 +701,9 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
             playerService.stopMetronome();
         }
         isPlaying = false;
-        btnPlay.setText("播放");
+        btnPlay.setState(UnifiedPlaybackButton.State.PLAY);
         playbackProgress.setProgress(0);
         tvPlaybackTime.setText("0:00 / " + formatDuration(currentSong != null ? currentSong.totalDurationMs : 0));
-        btnStop.setEnabled(false);
         pianoRollView.setPlayheadPosition(0);
         resetBeatIndicators();
     }

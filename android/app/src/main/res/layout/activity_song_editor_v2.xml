@@ -550,33 +550,11 @@
                         android:gravity="center"
                         android:layout_marginBottom="12dp"/>
 
-                    <LinearLayout
+                    <com.example.musicai.view.UnifiedPlaybackButton
+                        android:id="@+id/btn_play"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <Button
-                            android:id="@+id/btn_play"
-                            android:layout_width="0dp"
-                            android:layout_height="48dp"
-                            android:layout_weight="1"
-                            android:text="播放"
-                            android:textSize="16sp"
-                            android:textColor="@color/apple_white"
-                            android:background="@drawable/apple_button_primary_bg"
-                            android:layout_marginEnd="8dp"/>
-
-                        <Button
-                            android:id="@+id/btn_stop"
-                            android:layout_width="0dp"
-                            android:layout_height="48dp"
-                            android:layout_weight="1"
-                            android:text="停止"
-                            android:textSize="16sp"
-                            android:textColor="@color/apple_text"
-                            android:background="@drawable/apple_button_bg"/>
-
-                    </LinearLayout>
+                        android:layout_height="48dp"
+                        android:layout_marginTop="8dp"/>
 
                 </LinearLayout>
 

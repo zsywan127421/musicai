@@ -23,6 +23,7 @@ import com.example.musicai.util.SelectItemBottomSheet;
 import com.example.musicai.util.ToastHelper;
 import com.example.musicai.util.ConfirmDialog;
 import com.example.musicai.util.ToolbarHelper;
+import com.example.musicai.view.UnifiedPlaybackButton;
 import com.example.musicai.MusicPlayerService.PlaybackListener;
 
 import java.util.ArrayList;
@@ -37,7 +38,8 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
     
     private TextView tvStyle, tvCreated, tvNotes, tvChords;
     private EditText etName;
-    private Button btnPlay, btnStop, btnEdit, btnDelete, btnSave;
+    private UnifiedPlaybackButton btnPlay;
+    private Button btnEdit, btnDelete, btnSave;
     private Button btnPianoRoll;
     private TextView tvSpeed, tvPlaybackTime;
     private CursorSeekBar playbackProgress;

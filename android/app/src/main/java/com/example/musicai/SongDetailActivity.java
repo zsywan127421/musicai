@@ -14,10 +14,13 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
 import com.example.musicai.util.ConfirmDialog;
 import com.example.musicai.util.TimeUtils;
 import com.example.musicai.util.ToastHelper;
 import com.example.musicai.util.ToolbarHelper;
+import com.example.musicai.view.UnifiedPlaybackButton;
 import com.example.musicai.MusicPlayerService.PlaybackListener;
 
 import java.util.Arrays;
@@ -35,7 +38,8 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
 
     private TextView tvTitle, tvStyle, tvCreated, tvSource, tvSegments;
     private EditText etName;
-    private Button btnPlay, btnStop, btnDelete, btnSave;
+    private UnifiedPlaybackButton btnPlay;
+    private Button btnDelete, btnSave;
     private TextView tvSpeed, tvPlaybackTime;
     private CursorSeekBar playbackProgress;
     private ProgressBar progressBar;
@@ -45,35 +49,71 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
     private MusicRepository repository;
     private SongEntry songEntry;
     private MusicPlayerService playerService;
+    private ToolbarHelper toolbarHelper;
     private boolean isBound = false;
+    private boolean isPlaying = false;
+    private float currentSpeed = 1.0f;
 
     private Handler handler = new Handler(Looper.getMainLooper());
-    private Runnable progressUpdater;
-    private boolean isPlaying = false;
-    private boolean isPaused = false;
-    private float playbackSpeed = 1.0f;
-    private String songId;
+
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(android.content.ComponentName name, IBinder service) {
+            MusicPlayerService.LocalBinder binder = (MusicPlayerService.LocalBinder) service;
+            playerService = binder.getService();
+            playerService.setPlaybackListener(SongDetailActivity.this);
+            isBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(android.content.ComponentName name) {
+            if (playerService != null) {
+                playerService.removePlaybackListener();
+            }
+            isBound = false;
+        }
+    };
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song_detail);
 
-        initToolbar(R.id.toolbar, "歌曲详情");
-        setBackVisible(true);
-        setMenuVisible(true);
-        setupToolbarMenu();
+        String songId = getIntent().getStringExtra(EXTRA_SONG_ID);
+        if (songId == null || songId.isEmpty()) {
+            ToastHelper.showError(this, "无效的歌曲ID");
+            finish();
+            return;
+        }
 
         repository = MusicRepository.getInstance(this);
 
-        Intent serviceIntent = new Intent(this, MusicPlayerService.class);
-        bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE);
-
-        songId = getIntent().getStringExtra(EXTRA_SONG_ID);
-
+        initToolbar();
         initViews();
-        loadData();
-        setupListeners();
+        setupToolbarMenu();
+        loadSongData(songId);
+        updatePlaybackTimeDisplay();
+    }
+
+    private void initToolbar() {
+        initToolbar(R.id.toolbar, "歌曲详情");
+        setBackVisible(true);
+        setMenuVisible(true);
+    }
+
+    private void setupToolbarMenu() {
+        toolbarHelper = getToolbarHelper();
+        if (toolbarHelper == null) return;
+
+        List<ToolbarHelper.MenuItemData> menuItems = Arrays.asList(
+            new ToolbarHelper.MenuItemData(MENU_EDIT, "编辑"),
+            new ToolbarHelper.MenuItemData(MENU_RENAME, "改名"),
+            new ToolbarHelper.MenuItemData(MENU_DELETE, "删除", 0, true),
+            new ToolbarHelper.MenuItemData(MENU_EXPORT_MIDI, "导出MIDI"),
+            new ToolbarHelper.MenuItemData(MENU_EXPORT_WAV, "导出WAV")
+        );
+
+        toolbarHelper.setMenuItems(menuItems, this::onMenuItemClick);
     }
 
     private void initViews() {
@@ -84,80 +124,43 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
         tvSegments = findViewById(R.id.tv_segments);
         etName = findViewById(R.id.et_name);
         btnPlay = findViewById(R.id.btn_play);
-        btnStop = findViewById(R.id.btn_stop);
         btnDelete = findViewById(R.id.btn_delete);
         btnSave = findViewById(R.id.btn_save);
         tvSpeed = findViewById(R.id.tv_speed);
         tvPlaybackTime = findViewById(R.id.tv_playback_time);
         playbackProgress = findViewById(R.id.playback_progress);
         progressBar = findViewById(R.id.progress_bar);
+        seekBarSpeed = findViewById(R.id.seekbar_speed);
         playbackSection = findViewById(R.id.playback_section);
         speedSection = findViewById(R.id.speed_section);
-        seekBarSpeed = findViewById(R.id.seekbar_speed);
 
-        playbackSection.setVisibility(View.VISIBLE);
-        speedSection.setVisibility(View.VISIBLE);
-        btnPlay.setVisibility(View.VISIBLE);
-        btnStop.setVisibility(View.VISIBLE);
-
-        seekBarSpeed.setMax(50);
-        seekBarSpeed.setProgress(10);
-        tvSpeed.setText("速度: 1.0x");
-    }
-
-    private void loadData() {
-        songEntry = repository.getSongById(songId);
-        if (songEntry != null) {
-            etName.setText(songEntry.name);
-            tvTitle.setText(songEntry.name);
-            tvStyle.setText("风格: " + songEntry.style);
-            tvCreated.setText("创建: " + TimeUtils.formatRelativeTime(songEntry.createdAt));
-
-            String melodyName = "未知";
-            String chordName = "未知";
-            if (songEntry.sourceMelodyId != null && !songEntry.sourceMelodyId.isEmpty()) {
-                MusicRepository.MelodyEntry melodyEntry = repository.getMelodyById(songEntry.sourceMelodyId);
-                if (melodyEntry != null) {
-                    melodyName = melodyEntry.name;
-                }
+        btnPlay.setOnPlaybackStateChangeListener(new UnifiedPlaybackButton.OnPlaybackStateChangeListener() {
+            @Override
+            public void onPlayClicked() {
+                startPlayback();
             }
-            if (songEntry.sourceChordId != null && !songEntry.sourceChordId.isEmpty()) {
-                MusicRepository.ChordEntry chordEntry = repository.getChordById(songEntry.sourceChordId);
-                if (chordEntry != null) {
-                    chordName = chordEntry.name;
-                }
+
+            @Override
+            public void onPauseClicked() {
+                pausePlayback();
             }
-            String sourceText = "来源旋律: " + melodyName + "\n" +
-                    "来源和弦: " + chordName;
-            tvSource.setText(sourceText);
 
-            String segmentsText = "段落数: " + songEntry.segments.size() + " | " +
-                    "时长: " + formatDuration(songEntry.totalDurationMs);
-            tvSegments.setText(segmentsText);
-            
-            tvPlaybackTime.setText("0:00 / " + formatDuration(songEntry.totalDurationMs));
-            playbackProgress.setProgress(0);
-        } else {
-            ToastHelper.showError(this, "歌曲加载失败");
-            finish();
-        }
-    }
+            @Override
+            public void onResumeClicked() {
+                resumePlayback();
+            }
+        });
 
-    private void setupListeners() {
-        btnPlay.setOnClickListener(v -> play());
-        btnStop.setOnClickListener(v -> stop());
+        btnSave.setOnClickListener(v -> saveChanges());
         btnDelete.setOnClickListener(v -> confirmDelete());
-        btnSave.setOnClickListener(v -> save());
 
         seekBarSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                float speed = 0.25f + (progress / 50.0f * 3.75f);
-                speed = Math.round(speed * 100) / 100.0f;
-                speed = Math.max(0.25f, Math.min(4.0f, speed));
-                tvSpeed.setText(String.format("速度: %.2fx", speed));
-                if (fromUser) {
-                    setSpeed(speed);
+                currentSpeed = 0.5f + (progress / 50f) * 2.5f;
+                tvSpeed.setText(String.format("速度: %.1fx", currentSpeed));
+                if (isBound && playerService != null) {
+                    playerService.setSpeed(currentSpeed);
                 }
             }
 
@@ -177,258 +180,190 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                if (isBound && playerService != null && isPlaying) {
-                    int currentProgress = playbackProgress.getProgress();
-                    int posMs = (int) (playerService.getDuration() * (long) currentProgress / 100L);
-                    playerService.seekTo(posMs);
+                if (isBound && playerService != null) {
+                    int durationMs = songEntry != null ? songEntry.totalDurationMs : 0;
+                    int seekPosMs = (int) ((long) durationMs * progress / 100L);
+                    playerService.seekTo(seekPosMs);
                 }
             }
         });
     }
 
-    private void setSpeed(float speed) {
-        playbackSpeed = speed;
-        if (isBound && playerService != null) {
-            playerService.setSpeed(speed);
-        }
-    }
+    private void loadSongData(String songId) {
+        songEntry = repository.getSongById(songId);
+        if (songEntry != null) {
+            etName.setText(songEntry.name);
+            tvTitle.setText(songEntry.name);
+            tvStyle.setText(songEntry.style != null ? songEntry.style : "流行");
+            tvCreated.setText(TimeUtils.formatRelativeTime(songEntry.createdAt));
 
-    private void play() {
-        if (songEntry == null || songEntry.segments.isEmpty()) {
-            ToastHelper.showError(this, "暂无可播放内容");
-            return;
-        }
-
-        if (!isBound || playerService == null) {
-            ToastHelper.showError(this, "播放器服务未连接");
-            return;
-        }
-
-        if (isPlaying) {
-            playerService.pause();
-            isPaused = true;
-            isPlaying = false;
-            btnPlay.setText("继续");
-            stopProgressUpdater();
-        } else {
-            MusicData.Song song = songEntry.toMusicDataSong();
-            if (song != null && song.melody != null && !song.melody.notes.isEmpty()) {
-                playerService.playMelody(song.melody);
-            } else {
-                ToastHelper.showError(this, "无法播放此内容");
-                return;
+            String melodyName = "未知";
+            String chordName = "未知";
+            if (songEntry.sourceMelodyId != null && !songEntry.sourceMelodyId.isEmpty()) {
+                MusicRepository.MelodyEntry melodyEntry = repository.getMelodyById(songEntry.sourceMelodyId);
+                if (melodyEntry != null) {
+                    melodyName = melodyEntry.name;
+                }
             }
-            playerService.setSpeed(playbackSpeed);
-            isPlaying = true;
-            isPaused = false;
-            btnPlay.setText("暂停");
-            startProgressUpdater();
-        }
-    }
+            if (songEntry.sourceChordId != null && !songEntry.sourceChordId.isEmpty()) {
+                MusicRepository.ChordEntry chordEntry = repository.getChordById(songEntry.sourceChordId);
+                if (chordEntry != null) {
+                    chordName = chordEntry.name;
+                }
+            }
+            String sourceText = "来源旋律: " + melodyName + "\n来源和弦: " + chordName;
+            tvSource.setText(sourceText);
 
-    private void stop() {
-        if (isBound && playerService != null) {
-            playerService.stopPlayback();
-        }
-        isPlaying = false;
-        isPaused = false;
-        btnPlay.setText("播放");
-        playbackProgress.setProgress(0);
-        tvPlaybackTime.setText("0:00 / 0:00");
-        stopProgressUpdater();
-    }
-
-    private void confirmDelete() {
-        if (songEntry != null) {
-            ConfirmDialog.showDelete(this, songEntry.name, () -> delete());
-        }
-    }
-
-    private void delete() {
-        if (songEntry != null) {
-            repository.deleteSong(songEntry.id);
-            ToastHelper.showSuccess(this, "删除成功");
+            String segmentsText = "段落数: " + songEntry.segments.size() + " | 时长: " + formatDuration(songEntry.totalDurationMs);
+            tvSegments.setText(segmentsText);
+        } else {
+            ToastHelper.showError(this, "歌曲加载失败");
             finish();
         }
     }
 
-    private void save() {
+    private void updatePlaybackTimeDisplay() {
+        if (songEntry != null) {
+            tvPlaybackTime.setText("0:00 / " + formatDuration(songEntry.totalDurationMs));
+            playbackProgress.setProgress(0);
+        }
+    }
+
+    private void startPlayback() {
+        if (songEntry == null) {
+            ToastHelper.showError(this, "无歌曲可播放");
+            return;
+        }
+
+        if (!isBound || playerService == null) {
+            ToastHelper.showError(this, "播放器服务未就绪");
+            return;
+        }
+
+        MusicData.Song song = songEntry.toMusicDataSong();
+        if (song == null || song.melody == null || song.melody.notes.isEmpty()) {
+            ToastHelper.showError(this, "无法播放此歌曲");
+            return;
+        }
+
+        playerService.setSpeed(currentSpeed);
+        playerService.playSong(song);
+        isPlaying = true;
+        btnPlay.setState(UnifiedPlaybackButton.State.PAUSE);
+    }
+
+    private void pausePlayback() {
+        if (isBound && playerService != null) {
+            playerService.pause();
+            isPlaying = false;
+            btnPlay.setState(UnifiedPlaybackButton.State.RESUME);
+        }
+    }
+
+    private void resumePlayback() {
+        if (isBound && playerService != null) {
+            playerService.resume();
+            isPlaying = true;
+            btnPlay.setState(UnifiedPlaybackButton.State.PAUSE);
+        }
+    }
+
+    private void stopPlayback() {
+        if (isBound && playerService != null) {
+            playerService.stopPlayback();
+        }
+        isPlaying = false;
+        btnPlay.setState(UnifiedPlaybackButton.State.PLAY);
+        if (songEntry != null) {
+            tvPlaybackTime.setText("0:00 / " + formatDuration(songEntry.totalDurationMs));
+            playbackProgress.setProgress(0);
+        }
+    }
+
+    private void saveChanges() {
+        if (songEntry == null) return;
+
         String name = etName.getText().toString().trim();
         if (name.isEmpty()) {
             ToastHelper.showError(this, "名称不能为空");
             return;
         }
 
-        if (songEntry != null) {
-            if (!name.equals(songEntry.name) && repository.songNameExists(name)) {
-                ConfirmDialog.showSave(this, name, () -> doSave(name));
-            } else {
-                doSave(name);
-            }
+        songEntry.name = name;
+        songEntry.updatedAt = System.currentTimeMillis();
+        repository.updateSong(songEntry.id, name);
+        ToastHelper.showSuccess(this, "保存成功");
+    }
+
+    private void confirmDelete() {
+        if (songEntry == null) return;
+
+        new android.app.AlertDialog.Builder(this)
+            .setTitle("确认删除")
+            .setMessage("确定要删除歌曲 \"" + songEntry.name + "\" 吗？此操作不可撤销。")
+            .setPositiveButton("删除", (dialog, which) -> {
+                repository.deleteSong(songEntry.id);
+                ToastHelper.showSuccess(this, "已删除");
+                finish();
+            })
+            .setNegativeButton("取消", null)
+            .show();
+    }
+
+    private void onMenuItemClick(int itemId) {
+        switch (itemId) {
+            case MENU_EDIT:
+                if (songEntry != null) {
+                    Intent intent = new Intent(this, SongEditorActivity.class);
+                    intent.putExtra("song_id", songEntry.id);
+                    startActivity(intent);
+                }
+                break;
+            case MENU_RENAME:
+                etName.requestFocus();
+                etName.setSelection(etName.getText().length());
+                ToastHelper.showInfo(this, "请修改名称后点击保存");
+                break;
+            case MENU_DELETE:
+                confirmDelete();
+                break;
+            case MENU_EXPORT_MIDI:
+                ToastHelper.showInfo(this, "导出MIDI功能开发中");
+                break;
+            case MENU_EXPORT_WAV:
+                ToastHelper.showInfo(this, "导出WAV功能开发中");
+                break;
         }
     }
 
-    private void doSave(String name) {
-        if (songEntry != null) {
-            repository.updateSong(songEntry.id, name);
-            tvTitle.setText(name);
-            ToastHelper.showSuccess(this, "保存成功");
-        }
+    private String formatDuration(int millis) {
+        if (millis <= 0) return "0:00";
+        int seconds = millis / 1000;
+        int minutes = seconds / 60;
+        seconds = seconds % 60;
+        return String.format("%d:%02d", minutes, seconds);
     }
 
-    private void setupToolbarMenu() {
-        List<ToolbarHelper.MenuItemData> menuItems = Arrays.asList(
-            new ToolbarHelper.MenuItemData(MENU_EDIT, "编辑"),
-            new ToolbarHelper.MenuItemData(MENU_RENAME, "改名"),
-            new ToolbarHelper.MenuItemData(MENU_DELETE, "删除", 0, true),
-            new ToolbarHelper.MenuItemData(MENU_EXPORT_MIDI, "导出MIDI"),
-            new ToolbarHelper.MenuItemData(MENU_EXPORT_WAV, "导出WAV")
-        );
-
-        toolbarHelper.setMenuItems(menuItems, itemId -> {
-            switch (itemId) {
-                case MENU_EDIT:
-                    openEditor();
-                    break;
-                case MENU_RENAME:
-                    etName.requestFocus();
-                    etName.setSelection(etName.getText().length());
-                    ToastHelper.showInfo(this, "请修改名称后点击保存");
-                    break;
-                case MENU_DELETE:
-                    confirmDelete();
-                    break;
-                case MENU_EXPORT_MIDI:
-                    exportAsMidi();
-                    break;
-                case MENU_EXPORT_WAV:
-                    exportAsWav();
-                    break;
+    @Override
+    public void onPlaybackProgress(int positionMs, int totalMs, int currentNoteIndex) {
+        runOnUiThread(() -> {
+            if (totalMs > 0) {
+                int progress = (int) ((long) positionMs * 100 / totalMs);
+                playbackProgress.setProgress(progress);
+                int adjustedTotal = (int) (totalMs / currentSpeed);
+                tvPlaybackTime.setText(formatTime(positionMs) + " / " + formatTime(adjustedTotal));
             }
         });
     }
-    
-    private void openEditor() {
-        if (songEntry == null) {
-            ToastHelper.showError(this, "无歌曲可编辑");
-            return;
-        }
-        
-        Intent intent = new Intent(this, SongEditorActivity.class);
-        intent.putExtra("song_id", songEntry.id);
-        startActivity(intent);
-    }
-    
-    private void exportAsMidi() {
-        if (songEntry == null) {
-            ToastHelper.showError(this, "无歌曲可导出");
-            return;
-        }
-        
-        try {
-            String fileName = (songEntry.name != null ? songEntry.name : "song").replaceAll("[^a-zA-Z0-9\\u4e00-\\u9fa5]", "_") + ".mid";
-            java.io.File exportDir = new java.io.File(getExternalFilesDir(null), "exports");
-            if (!exportDir.exists()) {
-                exportDir.mkdirs();
-            }
-            java.io.File exportFile = new java.io.File(exportDir, fileName);
-            
-            ToastHelper.showSuccess(this, "MIDI导出功能：文件将保存至 " + exportFile.getAbsolutePath());
-            
-            android.content.Intent shareIntent = new android.content.Intent(android.content.Intent.ACTION_SEND);
-            shareIntent.setType("audio/midi");
-            shareIntent.putExtra(android.content.Intent.EXTRA_STREAM, android.net.Uri.fromFile(exportFile));
-            shareIntent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(android.content.Intent.createChooser(shareIntent, "导出MIDI"));
-            
-        } catch (Exception e) {
-            ToastHelper.showError(this, "导出失败: " + e.getMessage());
-        }
-    }
-    
-    private void exportAsWav() {
-        if (songEntry == null) {
-            ToastHelper.showError(this, "无歌曲可导出");
-            return;
-        }
-        
-        try {
-            String fileName = (songEntry.name != null ? songEntry.name : "song").replaceAll("[^a-zA-Z0-9\\u4e00-\\u9fa5]", "_") + ".wav";
-            java.io.File exportDir = new java.io.File(getExternalFilesDir(null), "exports");
-            if (!exportDir.exists()) {
-                exportDir.mkdirs();
-            }
-            java.io.File exportFile = new java.io.File(exportDir, fileName);
-            
-            ToastHelper.showSuccess(this, "WAV导出功能：文件将保存至 " + exportFile.getAbsolutePath());
-            
-            android.content.Intent shareIntent = new android.content.Intent(android.content.Intent.ACTION_SEND);
-            shareIntent.setType("audio/wav");
-            shareIntent.putExtra(android.content.Intent.EXTRA_STREAM, android.net.Uri.fromFile(exportFile));
-            shareIntent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(android.content.Intent.createChooser(shareIntent, "导出WAV"));
-            
-        } catch (Exception e) {
-            ToastHelper.showError(this, "导出失败: " + e.getMessage());
-        }
-    }
-
-    private void startProgressUpdater() {
-        stopProgressUpdater();
-        progressUpdater = new Runnable() {
-            @Override
-            public void run() {
-                if (isPlaying && isBound && playerService != null) {
-                    int current = playerService.getCurrentPosition();
-                    int total = playerService.getDuration();
-                    if (total > 0) {
-                        int progress = (int) ((current / (float) total) * 100);
-                        playbackProgress.setProgress(progress);
-                        tvPlaybackTime.setText(formatTime(current) + " / " + formatTime(total));
-                    }
-                    handler.postDelayed(this, 100);
-                }
-            }
-        };
-        handler.post(progressUpdater);
-    }
-
-    private void stopProgressUpdater() {
-        if (progressUpdater != null) {
-            handler.removeCallbacks(progressUpdater);
-        }
-    }
-
-    private ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            MusicPlayerService.LocalBinder binder = (MusicPlayerService.LocalBinder) service;
-            playerService = binder.getService();
-            isBound = true;
-            playerService.setPlaybackListener(SongDetailActivity.this);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            if (playerService != null) {
-                playerService.removePlaybackListener();
-            }
-            playerService = null;
-            isBound = false;
-        }
-    };
 
     @Override
-    public void onPlaybackProgress(int positionMs, int totalMs, int currentNoteIndex) {}
-
-    @Override
-    public void onPlaybackStateChanged(boolean isPlaying) {
-        this.isPlaying = isPlaying;
+    public void onPlaybackStateChanged(boolean playing) {
+        isPlaying = playing;
         runOnUiThread(() -> {
-            if (isPlaying) {
-                btnPlay.setText("暂停");
+            if (playing) {
+                btnPlay.setState(UnifiedPlaybackButton.State.PAUSE);
             } else {
-                btnPlay.setText("继续");
+                btnPlay.setState(UnifiedPlaybackButton.State.RESUME);
             }
         });
     }
@@ -437,38 +372,32 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
     public void onPlaybackCompleted() {
         runOnUiThread(() -> {
             isPlaying = false;
-            isPaused = false;
-            btnPlay.setText("播放");
+            btnPlay.setState(UnifiedPlaybackButton.State.PLAY);
             playbackProgress.setProgress(0);
-            tvPlaybackTime.setText("0:00 / " + formatTime(songEntry != null ? songEntry.totalDurationMs : 0));
-            stopProgressUpdater();
-            if (isBound && playerService != null) {
-                playerService.stopPlayback();
+            if (songEntry != null) {
+                tvPlaybackTime.setText("0:00 / " + formatDuration(songEntry.totalDurationMs));
             }
         });
     }
 
-    private String formatTime(int millis) {
-        int seconds = millis / 1000;
-        int minutes = seconds / 60;
-        seconds = seconds % 60;
-        return String.format("%d:%02d", minutes, seconds);
-    }
-
-    private String formatDuration(int millis) {
-        int seconds = millis / 1000;
-        int minutes = seconds / 60;
-        seconds = seconds % 60;
-        return String.format("%d:%02d", minutes, seconds);
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Intent intent = new Intent(this, MusicPlayerService.class);
+        bindService(intent, connection, BIND_AUTO_CREATE);
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        stop();
+    protected void onStop() {
+        super.onStop();
         if (isBound) {
-            unbindService(serviceConnection);
+            if (playerService != null) {
+                playerService.stopPlayback();
+                playerService.setPlaybackListener(null);
+            }
+            unbindService(connection);
             isBound = false;
         }
+        isPlaying = false;
     }
 }
