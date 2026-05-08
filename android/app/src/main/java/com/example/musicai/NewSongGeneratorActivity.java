@@ -9,6 +9,8 @@ import android.os.IBinder;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+
+import com.example.musicai.view.UnifiedPlaybackButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -78,7 +80,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
     
     private CursorSeekBar playbackProgress;
     private TextView tvPlaybackTime;
-    private Button btnPlay;
+    private UnifiedPlaybackButton btnPlay;
     private Button btnStop;
     private LinearLayout speedControlLayout;
     private TextView tvSpeed;
