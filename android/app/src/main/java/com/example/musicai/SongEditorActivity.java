@@ -1,30 +1,30 @@
 package com.example.musicai;
 
-import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.musicai.util.ConfirmDialog;
 import com.example.musicai.util.ExportBottomSheet;
 import com.example.musicai.util.ToastHelper;
+import com.example.musicai.view.PianoRollView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,6 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
     private static final float[] SPEEDS = {0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f, 2.5f, 3.0f};
     private static final String KEY_SONG_INDEX = "song_index";
     private static final String KEY_HAS_CHANGES = "has_changes";
-    private static final String KEY_BPM = "bpm";
     private static final String KEY_SPEED_INDEX = "speed_index";
     private static final String KEY_METRONOME = "metronome_enabled";
     private static final String KEY_SONG_NAME = "song_name";
@@ -57,29 +56,40 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
     private TextView tvBpm;
     private Button btnBpmDecrease;
     private Button btnBpmIncrease;
-    private Button btnPianoRoll;
-    private Button btnTrackManager;
     private Button btnMetronome;
     private CursorSeekBar playbackProgress;
     private TextView tvPlaybackTime;
     private Button btnPlay;
     private Button btnStop;
     private View[] beatIndicators;
+    
+    private PianoRollView pianoRollView;
+    private HorizontalScrollView pianoScrollView;
+    private Button btnAddNote;
+    private Button btnDeleteNote;
+    private Button btnZoomIn;
+    private Button btnZoomOut;
+    private LinearLayout tracksContainer;
+    private Button btnAddTrack;
+    private View noteInfoPanel;
 
     private MusicRepository repository;
     private List<SongEntry> songs = new ArrayList<>();
     private SongEntry currentSong;
+    private MusicData.Melody currentMelody;
     private boolean hasChanges = false;
     private int savedSongIndex = -1;
     private int savedSpeedIndex = 2;
     private boolean savedMetronomeEnabled = false;
     private String savedSongName = "";
+    private float currentScaleFactor = 1.0f;
 
     private MusicPlayerService playerService;
     private boolean isBound = false;
     private boolean isPlaying = false;
     private boolean isMetronomeEnabled = false;
     private float currentSpeed = 1.0f;
+    private int playbackPositionMs = 0;
 
     private Handler autoSaveHandler;
     private Runnable autoSaveRunnable;
@@ -87,7 +97,7 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
 
     private ServiceConnection connection = new ServiceConnection() {
         @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
+        public void onServiceConnected(android.content.ComponentName name, IBinder service) {
             MusicPlayerService.LocalBinder binder = (MusicPlayerService.LocalBinder) service;
             playerService = binder.getService();
             playerService.setPlaybackListener(SongEditorActivity.this);
@@ -104,7 +114,7 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName name) {
+        public void onServiceDisconnected(android.content.ComponentName name) {
             if (playerService != null) {
                 playerService.removePlaybackListener();
             }
@@ -115,7 +125,7 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_song_editor);
+        setContentView(R.layout.activity_song_editor_v2);
 
         repository = MusicRepository.getInstance(this);
 
@@ -153,13 +163,20 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
         tvBpm = findViewById(R.id.tv_bpm);
         btnBpmDecrease = findViewById(R.id.btn_bpm_decrease);
         btnBpmIncrease = findViewById(R.id.btn_bpm_increase);
-        btnPianoRoll = findViewById(R.id.btn_piano_roll);
-        btnTrackManager = findViewById(R.id.btn_track_manager);
         btnMetronome = findViewById(R.id.btn_metronome);
         playbackProgress = findViewById(R.id.playback_progress);
         tvPlaybackTime = findViewById(R.id.tv_playback_time);
         btnPlay = findViewById(R.id.btn_play);
         btnStop = findViewById(R.id.btn_stop);
+
+        pianoRollView = findViewById(R.id.piano_roll_view);
+        pianoScrollView = findViewById(R.id.piano_scroll_view);
+        btnAddNote = findViewById(R.id.btn_add_note);
+        btnDeleteNote = findViewById(R.id.btn_delete_note);
+        btnZoomIn = findViewById(R.id.btn_zoom_in);
+        btnZoomOut = findViewById(R.id.btn_zoom_out);
+        tracksContainer = findViewById(R.id.tracks_container);
+        btnAddTrack = findViewById(R.id.btn_add_track);
 
         beatIndicators = new View[]{
             findViewById(R.id.beat_1),
@@ -170,6 +187,10 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
 
         editorSection.setVisibility(View.GONE);
         tvEmptyHint.setVisibility(View.VISIBLE);
+        
+        pianoRollView.setOnPlayheadChangedListener(position -> {
+            playbackPositionMs = position;
+        });
     }
 
     private void setupSpinners() {
@@ -240,8 +261,6 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
         btnBpmDecrease.setOnClickListener(v -> adjustBpm(-5));
         btnBpmIncrease.setOnClickListener(v -> adjustBpm(5));
 
-        btnPianoRoll.setOnClickListener(v -> openPianoRoll());
-        btnTrackManager.setOnClickListener(v -> openTrackManager());
         btnMetronome.setOnClickListener(v -> toggleMetronome());
 
         btnPlay.setOnClickListener(v -> playSong());
@@ -259,9 +278,99 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
                 if (isBound && playerService != null && isPlaying) {
                     int posMs = (int) (playerService.getDuration() * (long) seekBar.getProgress() / 100L);
                     playerService.seekTo(posMs);
+                    playerService.setPlaybackListener(SongEditorActivity.this);
                 }
             }
         });
+        
+        btnAddNote.setOnClickListener(v -> addRandomNote());
+        btnDeleteNote.setOnClickListener(v -> deleteSelectedNote());
+        btnZoomIn.setOnClickListener(v -> zoomIn());
+        btnZoomOut.setOnClickListener(v -> zoomOut());
+        btnAddTrack.setOnClickListener(v -> ToastHelper.showInfo(this, "添加轨道功能开发中"));
+        
+        btnDeleteNote.setEnabled(false);
+        
+        pianoRollView.setOnNoteChangedListener(new PianoRollView.OnNoteChangedListener() {
+            @Override
+            public void onNoteChanged(int index, String pitch, int octave, int duration, int startTime) {
+                if (currentMelody != null && index >= 0 && index < currentMelody.notes.size()) {
+                    MusicData.Note note = currentMelody.notes.get(index);
+                    note.pitch = pitch;
+                    note.octave = octave;
+                    note.duration = duration;
+                    note.startTime = startTime;
+                    hasChanges = true;
+                    updateSongFromMelody();
+                }
+            }
+            
+            @Override
+            public void onNoteSelected(int index) {
+                btnDeleteNote.setEnabled(index >= 0);
+                if (index >= 0 && currentMelody != null && index < currentMelody.notes.size()) {
+                    MusicData.Note note = currentMelody.notes.get(index);
+                    Toast.makeText(SongEditorActivity.this, 
+                        "已选择: " + note.pitch + note.octave + " 时值:" + note.duration, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        
+        pianoRollView.setOnPlayheadChangedListener(new PianoRollView.OnPlayheadChangedListener() {
+            @Override
+            public void onPlayheadChanged(int position) {
+                playbackPositionMs = position;
+            }
+        });
+    }
+    
+    private void zoomIn() {
+        currentScaleFactor = Math.min(3.0f, currentScaleFactor + 0.2f);
+        pianoRollView.setScaleFactor(currentScaleFactor);
+    }
+    
+    private void zoomOut() {
+        currentScaleFactor = Math.max(0.5f, currentScaleFactor - 0.2f);
+        pianoRollView.setScaleFactor(currentScaleFactor);
+    }
+    
+    private void addRandomNote() {
+        if (currentMelody == null) {
+            currentMelody = new MusicData.Melody();
+            currentMelody.notes = new ArrayList<>();
+        }
+        
+        String[] pitches = MusicData.PITCHES;
+        String pitch = pitches[(int) (Math.random() * pitches.length)];
+        int octave = 3 + (int) (Math.random() * 3);
+        int duration = 4;
+        int startTime = 0;
+        
+        if (!currentMelody.notes.isEmpty()) {
+            MusicData.Note lastNote = currentMelody.notes.get(currentMelody.notes.size() - 1);
+            startTime = lastNote.startTime + lastNote.duration;
+        }
+        
+        MusicData.Note note = new MusicData.Note(pitch, octave, duration, startTime);
+        currentMelody.notes.add(note);
+        pianoRollView.setNotes(currentMelody.notes);
+        hasChanges = true;
+        updateSongFromMelody();
+        Toast.makeText(this, "已添加: " + pitch + octave, Toast.LENGTH_SHORT).show();
+    }
+    
+    private void deleteSelectedNote() {
+        int selectedIndex = pianoRollView.getSelectedNoteIndex();
+        if (selectedIndex >= 0 && currentMelody != null && selectedIndex < currentMelody.notes.size()) {
+            ConfirmDialog.showDelete(this, "该音符", () -> {
+                currentMelody.notes.remove(selectedIndex);
+                pianoRollView.setNotes(currentMelody.notes);
+                hasChanges = true;
+                updateSongFromMelody();
+                btnDeleteNote.setEnabled(false);
+                Toast.makeText(this, "已删除", Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 
     private void showPopupMenu(View anchor) {
@@ -293,17 +402,13 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
     }
 
     @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
+    protected void onSaveInstanceState(@androidx.annotation.NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_SONG_INDEX, savedSongIndex);
         outState.putBoolean(KEY_HAS_CHANGES, hasChanges);
         outState.putInt(KEY_SPEED_INDEX, savedSpeedIndex);
         outState.putBoolean(KEY_METRONOME, isMetronomeEnabled);
         outState.putString(KEY_SONG_NAME, etName.getText().toString());
-
-        if (currentSong != null) {
-            outState.putInt(KEY_BPM, currentSong.bpm);
-        }
     }
 
     private void loadSongs() {
@@ -322,9 +427,6 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
 
         if (savedSongIndex >= 0 && savedSongIndex < songs.size()) {
             spSongSelect.setSelection(savedSongIndex + 1);
-            if (!savedSongName.isEmpty() && currentSong != null) {
-                etName.setText(savedSongName);
-            }
         }
     }
 
@@ -341,8 +443,24 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
         savedSongName = currentSong.name;
         tvStyle.setText(currentSong.style != null ? currentSong.style : "流行");
         tvDuration.setText(formatDuration(currentSong.totalDurationMs));
-        tvSourceMelody.setText(currentSong.sourceMelodyName != null ? currentSong.sourceMelodyName : "未知");
-        tvSourceChord.setText(currentSong.sourceChordName != null ? currentSong.sourceChordName : "未知");
+        
+        String melodyName = "未知";
+        String chordName = "未知";
+        if (currentSong.sourceMelodyId != null && !currentSong.sourceMelodyId.isEmpty()) {
+            MusicRepository.MelodyEntry melodyEntry = repository.getMelodyById(currentSong.sourceMelodyId);
+            if (melodyEntry != null) {
+                melodyName = melodyEntry.name;
+                currentMelody = melodyEntry.toMelody();
+            }
+        }
+        if (currentSong.sourceChordId != null && !currentSong.sourceChordId.isEmpty()) {
+            MusicRepository.ChordEntry chordEntry = repository.getChordById(currentSong.sourceChordId);
+            if (chordEntry != null) {
+                chordName = chordEntry.name;
+            }
+        }
+        tvSourceMelody.setText(melodyName);
+        tvSourceChord.setText(chordName);
 
         tvBpm.setText(String.valueOf(currentSong.bpm));
         int tsIndex = java.util.Arrays.asList(TIME_SIGNATURES).indexOf(currentSong.keySignature);
@@ -352,10 +470,116 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
 
         tvPlaybackTime.setText("0:00 / " + formatDuration(currentSong.totalDurationMs));
         playbackProgress.setProgress(0);
+        
+        if (currentMelody != null && currentMelody.notes != null) {
+            pianoRollView.setNotes(currentMelody.notes);
+        } else {
+            MusicData.Melody defaultMelody = currentSong.toMusicDataSong().melody;
+            if (defaultMelody != null) {
+                currentMelody = defaultMelody;
+                pianoRollView.setNotes(currentMelody.notes);
+            }
+        }
+        
+        updateTracksList();
 
         btnPlay.setEnabled(true);
         btnStop.setEnabled(false);
         hasChanges = false;
+    }
+    
+    private void updateSongFromMelody() {
+        if (currentSong == null || currentMelody == null) return;
+        
+        if (currentSong.segments == null) {
+            currentSong.segments = new ArrayList<>();
+        }
+        
+        if (!currentSong.segments.isEmpty()) {
+            SongEntry.SegmentData segment = currentSong.segments.get(0);
+            segment.melodyJson = melodyToJson(currentMelody);
+        } else {
+            SongEntry.SegmentData segment = new SongEntry.SegmentData();
+            segment.melodyJson = melodyToJson(currentMelody);
+            segment.chordJson = "{}";
+            segment.startTimeMs = 0;
+            segment.durationMs = calculateMelodyDuration(currentMelody);
+            currentSong.segments.add(segment);
+        }
+        
+        currentSong.totalDurationMs = calculateMelodyDuration(currentMelody);
+        tvDuration.setText(formatDuration(currentSong.totalDurationMs));
+    }
+    
+    private String melodyToJson(MusicData.Melody melody) {
+        org.json.JSONArray array = new org.json.JSONArray();
+        if (melody != null && melody.notes != null) {
+            for (MusicData.Note note : melody.notes) {
+                array.put(note.toJson());
+            }
+        }
+        return array.toString();
+    }
+    
+    private int calculateMelodyDuration(MusicData.Melody melody) {
+        if (melody == null || melody.notes == null || melody.notes.isEmpty()) {
+            return 0;
+        }
+        int lastNoteEnd = 0;
+        for (MusicData.Note note : melody.notes) {
+            int noteEnd = note.startTime + note.duration;
+            if (noteEnd > lastNoteEnd) {
+                lastNoteEnd = noteEnd;
+            }
+        }
+        int bpm = currentSong != null && currentSong.bpm > 0 ? currentSong.bpm : 120;
+        return lastNoteEnd * (60000 / bpm);
+    }
+    
+    private void updateTracksList() {
+        tracksContainer.removeAllViews();
+        
+        if (currentSong == null) return;
+        
+        String trackName = "主旋律";
+        if (tvSourceMelody.getText() != null && !tvSourceMelody.getText().toString().equals("未知")) {
+            trackName = tvSourceMelody.getText().toString();
+        }
+        
+        addTrackView(trackName, true, false, "Piano");
+    }
+    
+    private void addTrackView(String name, boolean muted, boolean solo, String instrument) {
+        View trackView = getLayoutInflater().inflate(R.layout.item_track_editor, tracksContainer, false);
+        
+        TextView tvTrackName = trackView.findViewById(R.id.tv_track_name);
+        Button btnMute = trackView.findViewById(R.id.btn_mute);
+        Button btnSolo = trackView.findViewById(R.id.btn_solo);
+        Button btnInstrument = trackView.findViewById(R.id.btn_instrument);
+        
+        tvTrackName.setText(name);
+        
+        btnMute.setText(muted ? "静音" : "取消静音");
+        btnMute.setBackgroundResource(muted ? R.drawable.apple_button_danger_bg : R.drawable.apple_button_bg);
+        
+        btnSolo.setText(solo ? "独奏" : "取消独奏");
+        btnSolo.setBackgroundResource(solo ? R.drawable.apple_button_primary_bg : R.drawable.apple_button_bg);
+        
+        btnInstrument.setText(instrument);
+        
+        btnMute.setOnClickListener(v -> {
+            ToastHelper.showInfo(this, "静音切换功能开发中");
+        });
+        
+        btnSolo.setOnClickListener(v -> {
+            ToastHelper.showInfo(this, "独奏切换功能开发中");
+        });
+        
+        btnInstrument.setOnClickListener(v -> {
+            ToastHelper.showInfo(this, "音色选择功能开发中");
+        });
+        
+        tracksContainer.addView(trackView);
     }
 
     private void adjustBpm(int delta) {
@@ -371,28 +595,6 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
                 playerService.setMetronomeBpm(newBpm);
             }
         }
-    }
-
-    private void openPianoRoll() {
-        if (currentSong == null) {
-            ToastHelper.showError(this, "请先选择歌曲");
-            return;
-        }
-
-        Intent intent = new Intent(this, PianoRollActivity.class);
-        intent.putExtra(PianoRollActivity.EXTRA_MELODY_ID, currentSong.sourceMelodyId);
-        startActivityForResult(intent, 100);
-    }
-
-    private void openTrackManager() {
-        if (currentSong == null) {
-            ToastHelper.showError(this, "请先选择歌曲");
-            return;
-        }
-
-        Intent intent = new Intent(this, TrackManagerActivity.class);
-        intent.putExtra(TrackManagerActivity.EXTRA_SONG_ID, currentSong.id);
-        startActivity(intent);
     }
 
     private void toggleMetronome() {
@@ -430,7 +632,10 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
     }
 
     private void playSong() {
-        if (currentSong == null) return;
+        if (currentSong == null) {
+            ToastHelper.showError(this, "请先选择歌曲");
+            return;
+        }
 
         if (!isBound || playerService == null) {
             ToastHelper.showError(this, "播放器服务未连接");
@@ -475,6 +680,7 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
         playbackProgress.setProgress(0);
         tvPlaybackTime.setText("0:00 / " + formatDuration(currentSong != null ? currentSong.totalDurationMs : 0));
         btnStop.setEnabled(false);
+        pianoRollView.setPlayheadPosition(0);
         resetBeatIndicators();
     }
 
@@ -518,6 +724,8 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
             return;
         }
 
+        updateSongFromMelody();
+        
         if (!name.equals(currentSong.name) && repository.songNameExists(name)) {
             ConfirmDialog.showSave(this, name, () -> doSave(name));
         } else {
@@ -554,6 +762,7 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
     }
 
     private void doSave(String name) {
+        updateSongFromMelody();
         currentSong.name = name;
         currentSong.updatedAt = System.currentTimeMillis();
         repository.updateSong(currentSong.id, name);
@@ -578,6 +787,7 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
     }
 
     private String formatDuration(int millis) {
+        if (millis <= 0) return "0:00";
         int seconds = millis / 1000;
         int minutes = seconds / 60;
         seconds = seconds % 60;
@@ -589,6 +799,9 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 100 && resultCode == RESULT_OK) {
             hasChanges = true;
+            if (savedSongIndex >= 0 && savedSongIndex < songs.size()) {
+                selectSong(savedSongIndex);
+            }
         }
     }
 
@@ -611,6 +824,8 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
                 playbackProgress.setProgress(progress);
                 int adjustedTotal = (int) (totalMs / currentSpeed);
                 tvPlaybackTime.setText(formatTime(positionMs) + " / " + formatTime(adjustedTotal));
+                
+                pianoRollView.setPlayheadPosition(positionMs / 500);
             }
         });
     }
@@ -632,6 +847,7 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
             playbackProgress.setProgress(0);
             tvPlaybackTime.setText("0:00 / " + formatTime((int) (currentSong != null ? currentSong.totalDurationMs / currentSpeed : 0)));
             btnStop.setEnabled(false);
+            pianoRollView.setPlayheadPosition(0);
             if (isBound && playerService != null) {
                 playerService.stopPlayback();
                 playerService.stopMetronome();
@@ -641,6 +857,7 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
     }
 
     private String formatTime(int milliseconds) {
+        if (milliseconds <= 0) return "0:00";
         int seconds = (milliseconds / 1000) % 60;
         int minutes = (milliseconds / (1000 * 60)) % 60;
         return String.format("%d:%02d", minutes, seconds);

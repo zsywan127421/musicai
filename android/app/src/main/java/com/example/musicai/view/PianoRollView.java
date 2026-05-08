@@ -446,7 +446,7 @@ public class PianoRollView extends View {
                     int timeDelta = Math.round(deltaX / scaledBeatWidth);
                     note.startTime = Math.max(0, originalStartTime + timeDelta);
                     
-                    int rowDelta = Math.round(-deltaY / NOTE_HEIGHT);
+                    int rowDelta = Math.round(deltaY / NOTE_HEIGHT);
                     int noteRow = (originalOctave - minOctave) * 12 + (11 - getPitchIndex(originalPitch));
                     int newRow = Math.max(0, Math.min((maxOctave - minOctave + 1) * 12 - 1, noteRow + rowDelta));
                     

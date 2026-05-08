@@ -113,8 +113,22 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
             tvStyle.setText("风格: " + songEntry.style);
             tvCreated.setText("创建: " + TimeUtils.formatRelativeTime(songEntry.createdAt));
 
-            String sourceText = "来源旋律: " + (songEntry.sourceMelodyName != null ? songEntry.sourceMelodyName : "未知") + "\n" +
-                    "来源和弦: " + (songEntry.sourceChordName != null ? songEntry.sourceChordName : "未知");
+            String melodyName = "未知";
+            String chordName = "未知";
+            if (songEntry.sourceMelodyId != null && !songEntry.sourceMelodyId.isEmpty()) {
+                MusicRepository.MelodyEntry melodyEntry = repository.getMelodyById(songEntry.sourceMelodyId);
+                if (melodyEntry != null) {
+                    melodyName = melodyEntry.name;
+                }
+            }
+            if (songEntry.sourceChordId != null && !songEntry.sourceChordId.isEmpty()) {
+                MusicRepository.ChordEntry chordEntry = repository.getChordById(songEntry.sourceChordId);
+                if (chordEntry != null) {
+                    chordName = chordEntry.name;
+                }
+            }
+            String sourceText = "来源旋律: " + melodyName + "\n" +
+                    "来源和弦: " + chordName;
             tvSource.setText(sourceText);
 
             String segmentsText = "段落数: " + songEntry.segments.size() + " | " +

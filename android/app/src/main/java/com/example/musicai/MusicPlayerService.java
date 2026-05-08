@@ -217,7 +217,10 @@ public class MusicPlayerService extends Service implements Metronome.MetronomeLi
         totalDurationMs = 0;
         if (currentSong != null && currentSong.melody != null && !currentSong.melody.notes.isEmpty()) {
             MusicData.Note lastNote = currentSong.melody.notes.get(currentSong.melody.notes.size() - 1);
-            totalDurationMs = (int) ((lastNote.startTime + lastNote.duration) * 250);
+            int bpm = currentSong.bpm > 0 ? currentSong.bpm : 120;
+            int msPerBeat = 60000 / bpm;
+            if (msPerBeat <= 0) msPerBeat = 500;
+            totalDurationMs = (lastNote.startTime + lastNote.duration) * msPerBeat;
         }
     }
     

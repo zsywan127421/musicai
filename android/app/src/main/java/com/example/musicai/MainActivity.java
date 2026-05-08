@@ -7,16 +7,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.musicai.util.ConfirmDialog;
-import com.example.musicai.util.ToolbarHelper;
-
-import java.util.Arrays;
-
 public class MainActivity extends BaseActivity {
-    
-    private static final int MENU_SETTINGS = 1;
-    private static final int MENU_MODEL_CONFIG = 2;
-    private static final int MENU_ABOUT = 3;
     
     private ModelConfig modelConfig;
     private ImageView ivStatusIcon;
@@ -31,34 +22,14 @@ public class MainActivity extends BaseActivity {
         modelConfig = new ModelConfig(this);
         
         initToolbar("MusicAI");
-        setupMenu();
         initViews();
         updateModelStatus();
     }
     
     private void initToolbar(String title) {
-        View toolbar = findViewById(R.id.toolbar);
         initToolbar(R.id.toolbar, title);
         setBackVisible(false);
-        setMenuVisible(true);
-    }
-    
-    private void setupMenu() {
-        java.util.List<ToolbarHelper.MenuItemData> menuItems = Arrays.asList(
-            new ToolbarHelper.MenuItemData(MENU_SETTINGS, "设置", R.drawable.ic_settings),
-            new ToolbarHelper.MenuItemData(MENU_MODEL_CONFIG, "大模型配置", R.drawable.ic_settings),
-            new ToolbarHelper.MenuItemData(MENU_ABOUT, "关于", R.drawable.ic_info)
-        );
-        
-        toolbarHelper.setMenuItems(menuItems, itemId -> {
-            if (itemId == MENU_SETTINGS) {
-                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-            } else if (itemId == MENU_MODEL_CONFIG) {
-                startActivity(new Intent(MainActivity.this, ModelConfigActivity.class));
-            } else if (itemId == MENU_ABOUT) {
-                showAboutDialog();
-            }
-        });
+        setMenuVisible(false);
     }
     
     private void initViews() {
@@ -118,14 +89,5 @@ public class MainActivity extends BaseActivity {
             tvModelStatus.setTextColor(getResources().getColor(R.color.apple_text));
             tvModelName.setText(modelName);
         }
-    }
-    
-    private void showAboutDialog() {
-        String message = "MusicAI - AI音乐创作助手\n\n版本: 1.0.0\n\n基于大语言模型驱动的智能音乐生成应用，支持旋律、和弦、歌曲的AI创作。\n\n© 2024 MusicAI";
-        new android.app.AlertDialog.Builder(this)
-            .setTitle("关于")
-            .setMessage(message)
-            .setPositiveButton("确定", null)
-            .show();
     }
 }
