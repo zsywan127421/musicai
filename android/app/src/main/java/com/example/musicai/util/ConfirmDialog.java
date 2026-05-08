@@ -24,6 +24,44 @@ public class ConfirmDialog {
         show(context, title, message, false, listener);
     }
     
+    public static void show(Context context, String title, String message, String cancelText, String confirmText, OnConfirmListener listener) {
+        Dialog dialog = new Dialog(context);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_confirm);
+        
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            window.setGravity(Gravity.BOTTOM);
+            window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+            window.setWindowAnimations(android.R.style.Animation_Dialog);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            window.setDimAmount(0.4f);
+        }
+        
+        TextView tvTitle = dialog.findViewById(R.id.tv_dialog_title);
+        TextView tvMessage = dialog.findViewById(R.id.tv_dialog_message);
+        Button btnCancel = dialog.findViewById(R.id.btn_cancel);
+        Button btnConfirm = dialog.findViewById(R.id.btn_confirm);
+        ImageButton btnClose = dialog.findViewById(R.id.btn_close);
+        
+        tvTitle.setText(title);
+        tvMessage.setText(message);
+        btnCancel.setText(cancelText);
+        btnConfirm.setText(confirmText);
+        
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        btnConfirm.setOnClickListener(v -> {
+            dialog.dismiss();
+            if (listener != null) {
+                listener.onConfirm();
+            }
+        });
+        
+        dialog.show();
+    }
+    
     public static void showDanger(Context context, String title, String message, OnConfirmListener listener) {
         show(context, title, message, true, listener);
     }

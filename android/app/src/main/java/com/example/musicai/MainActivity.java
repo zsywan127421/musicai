@@ -19,6 +19,7 @@ public class MainActivity extends BaseActivity {
         
         Button btnSongGenerator = findViewById(R.id.btn_new_song_generator);
         Button btnLibrary = findViewById(R.id.btn_library);
+        Button btnSongEditor = findViewById(R.id.btn_song_editor);
         Button btnSettings = findViewById(R.id.btn_settings);
         Button btnModelConfig = findViewById(R.id.btn_model_config);
         
@@ -30,6 +31,10 @@ public class MainActivity extends BaseActivity {
         
         btnLibrary.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, LibraryTabsActivity.class));
+        });
+        
+        btnSongEditor.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, SongEditorActivity.class));
         });
         
         btnSettings.setOnClickListener(v -> {

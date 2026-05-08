@@ -53,6 +53,11 @@
             android:windowLayoutInDisplayCutoutMode="shortEdges" />
             
         <activity
+            android:name=".SongEditorActivity"
+            android:exported="false"
+            android:windowLayoutInDisplayCutoutMode="shortEdges" />
+            
+        <activity
             android:name=".PianoRollActivity"
             android:exported="false"
             android:windowLayoutInDisplayCutoutMode="shortEdges" />

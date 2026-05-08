@@ -1,6 +1,5 @@
 package com.example.musicai;
 
-import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -11,17 +10,17 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.musicai.util.ConfirmDialog;
+import com.example.musicai.util.TimeUtils;
+import com.example.musicai.util.ToastHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -83,6 +82,16 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
     private ListView lvResult;
     private HighlightedAdapter resultAdapter;
     private List<String> resultList;
+    
+    private LinearLayout detailBar;
+    private TextView tvDetailTitle;
+    private TextView tvDetailInfo;
+    private Button btnSave;
+    private Button btnDiscard;
+    private ImageButton btnExpandDetail;
+    private LinearLayout detailExpanded;
+    private TextView tvDetailExpanded;
+    private boolean isDetailExpanded = false;
     
     private MusicPlayerService playerService;
     private boolean isBound = false;
@@ -170,6 +179,17 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         resultList = new ArrayList<>();
         resultAdapter = new HighlightedAdapter(this, resultList);
         lvResult.setAdapter(resultAdapter);
+        
+        detailBar = findViewById(R.id.detail_bar);
+        tvDetailTitle = findViewById(R.id.tv_detail_title);
+        tvDetailInfo = findViewById(R.id.tv_detail_info);
+        btnSave = findViewById(R.id.btn_detail_save);
+        btnDiscard = findViewById(R.id.btn_detail_discard);
+        btnExpandDetail = findViewById(R.id.btn_expand_detail);
+        detailExpanded = findViewById(R.id.detail_expanded);
+        tvDetailExpanded = findViewById(R.id.tv_detail_expanded);
+        
+        detailBar.setVisibility(View.GONE);
     }
     
     private void setupSpinners() {
@@ -240,6 +260,10 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         btnStop.setOnClickListener(v -> stopSong());
         btnPreviewMelody.setOnClickListener(v -> previewSelectedMelody());
         btnPreviewChords.setOnClickListener(v -> previewSelectedChords());
+        
+        btnSave.setOnClickListener(v -> saveCurrentSong());
+        btnDiscard.setOnClickListener(v -> discardCurrentSong());
+        btnExpandDetail.setOnClickListener(v -> toggleDetailExpanded());
         
         rgChordMode.setOnCheckedChangeListener((group, checkedId) -> {
             updateChordModeUI();
@@ -332,7 +356,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         if (customName != null && !customName.trim().isEmpty()) {
             return customName.trim();
         }
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd_HHmmss", Locale.getDefault());
         return prefix + "_" + sdf.format(new Date());
     }
     
@@ -542,7 +566,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
                         "时长: " + formatDuration(currentSong.totalDurationMs) + 
                         " | 段落: " + currentSong.segments.size());
                     
-                    showSongNameDialog(melodyEntry, chordEntry);
+                    showDetailBar(melodyEntry, chordEntry);
                     
                     btnPlay.setEnabled(true);
                     isGenerating = false;
@@ -559,32 +583,84 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         }).start();
     }
     
-    private void showSongNameDialog(MusicRepository.MelodyEntry melodyEntry, MusicRepository.ChordEntry chordEntry) {
-        final EditText etSongName = new EditText(this);
-        etSongName.setHint("输入歌曲名称");
-        etSongName.setText("");
-        etSongName.setPadding(48, 32, 48, 16);
-        etSongName.setTextSize(16);
+    private void showDetailBar(MusicRepository.MelodyEntry melodyEntry, MusicRepository.ChordEntry chordEntry) {
+        if (currentSong == null) return;
         
-        String defaultName = melodyEntry.name + " + " + chordEntry.name;
-        etSongName.setText(defaultName);
-        etSongName.setSelection(defaultName.length());
+        detailBar.setVisibility(View.VISIBLE);
+        tvDetailTitle.setText("生成成功");
+        tvDetailInfo.setText("时长: " + formatDuration(currentSong.totalDurationMs) + 
+            " | 段落: " + currentSong.segments.size() + 
+            " | 来源: " + melodyEntry.name + " + " + chordEntry.name);
+        detailExpanded.setVisibility(View.GONE);
+        isDetailExpanded = false;
+        btnExpandDetail.setRotation(0);
         
-        new AlertDialog.Builder(this)
-            .setTitle("保存歌曲")
-            .setMessage("生成完成！请输入歌曲名称：")
-            .setView(etSongName)
-            .setPositiveButton("保存", (dialog, which) -> {
-                String songName = etSongName.getText().toString().trim();
-                if (songName.isEmpty()) {
-                    songName = defaultName;
-                }
-                saveSongToLibrary(songName, melodyEntry, chordEntry);
-            })
-            .setNegativeButton("稍后保存", (dialog, which) -> {
-            })
-            .setCancelable(false)
-            .show();
+        updateDetailExpanded(melodyEntry, chordEntry);
+    }
+    
+    private void updateDetailExpanded(MusicRepository.MelodyEntry melodyEntry, MusicRepository.ChordEntry chordEntry) {
+        if (currentSong == null) return;
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append("标题: ").append(currentSong.title != null ? currentSong.title : "未命名").append("\n");
+        sb.append("风格: ").append(currentSong.style).append("\n");
+        sb.append("时长: ").append(formatDuration(currentSong.totalDurationMs)).append("\n");
+        sb.append("段落数: ").append(currentSong.segments.size()).append("\n");
+        sb.append("\n来源:\n");
+        sb.append("旋律: ").append(melodyEntry.name).append("\n");
+        sb.append("和弦: ").append(chordEntry.name).append("\n");
+        sb.append("\n旋律长度: ").append(melodyEntry.notes.size()).append(" 音符\n");
+        sb.append("和弦数量: ").append(chordEntry.chords.size()).append(" 和弦");
+        
+        tvDetailExpanded.setText(sb.toString());
+    }
+    
+    private void toggleDetailExpanded() {
+        if (detailExpanded.getVisibility() == View.VISIBLE) {
+            detailExpanded.setVisibility(View.GONE);
+            isDetailExpanded = false;
+            btnExpandDetail.setRotation(0);
+        } else {
+            detailExpanded.setVisibility(View.VISIBLE);
+            isDetailExpanded = true;
+            btnExpandDetail.setRotation(180);
+        }
+    }
+    
+    private void saveCurrentSong() {
+        if (currentSong == null) return;
+        
+        List<MusicRepository.MelodyEntry> melodies = repository.getMelodyLibrary();
+        List<MusicRepository.ChordEntry> chords = repository.getChordLibrary();
+        
+        int melodyPos = spSongMelody.getSelectedItemPosition();
+        int chordPos = spSongChords.getSelectedItemPosition();
+        
+        if (melodyPos >= melodies.size() || chordPos >= chords.size()) return;
+        
+        MusicRepository.MelodyEntry melodyEntry = melodies.get(melodyPos);
+        MusicRepository.ChordEntry chordEntry = chords.get(chordPos);
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd_HHmmss", Locale.getDefault());
+        String defaultName = "歌曲_" + sdf.format(new Date());
+        
+        saveSongToLibrary(defaultName, melodyEntry, chordEntry);
+        
+        ToastHelper.showSuccess(this, "已保存到资源库");
+        
+        detailBar.setVisibility(View.GONE);
+        currentSong = null;
+    }
+    
+    private void discardCurrentSong() {
+        ConfirmDialog.show(this, "确定要丢弃此次生成结果吗？", "取消", "确认丢弃", () -> {
+            currentSong = null;
+            detailBar.setVisibility(View.GONE);
+            resultList.clear();
+            resultAdapter.notifyDataSetChanged();
+            btnPlay.setEnabled(false);
+            ToastHelper.showInfo(NewSongGeneratorActivity.this, "已丢弃");
+        });
     }
     
     private void saveSongToLibrary(String name, MusicRepository.MelodyEntry melodyEntry, MusicRepository.ChordEntry chordEntry) {
@@ -605,7 +681,6 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         }
         
         repository.addSong(songEntry);
-        Toast.makeText(this, "歌曲已保存到歌曲库", Toast.LENGTH_SHORT).show();
     }
     
     private String formatDuration(int millis) {

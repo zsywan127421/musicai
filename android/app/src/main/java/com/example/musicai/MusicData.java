@@ -238,6 +238,7 @@ public class MusicData {
         public ChordProgression chord;
         public int startTimeMs;
         public int durationMs;
+        public static final int DEFAULT_BPM = 120;
         
         public Segment() {
             this.index = 0;
@@ -252,10 +253,21 @@ public class MusicData {
             this.melody = melody;
             this.chord = chord;
             this.startTimeMs = startTimeMs;
-            this.durationMs = calculateDuration(melody);
+            this.durationMs = calculateDuration(melody, chord);
         }
         
-        private int calculateDuration(Melody melody) {
+        private int calculateDuration(Melody melody, ChordProgression chord) {
+            if (chord != null && !chord.chords.isEmpty()) {
+                int beatsPerChord = chord.chords.get(0).duration;
+                int beatsPerBar = 4;
+                int beatsPerSecond = DEFAULT_BPM / 60;
+                int msPerBeat = 1000 / beatsPerSecond;
+                int barsPerChord = beatsPerChord / beatsPerBar;
+                if (barsPerChord < 1) barsPerChord = 1;
+                int beatsPerSegment = barsPerChord * beatsPerBar;
+                return beatsPerSegment * msPerBeat;
+            }
+            
             if (melody == null || melody.notes == null || melody.notes.isEmpty()) {
                 return 8000;
             }
@@ -264,7 +276,7 @@ public class MusicData {
                 int end = note.startTime + note.duration;
                 if (end > lastEnd) lastEnd = end;
             }
-            return lastEnd * (60000 / 120);
+            return lastEnd * (60000 / DEFAULT_BPM);
         }
         
         public JSONObject toJson() throws JSONException {
