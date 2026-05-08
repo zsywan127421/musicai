@@ -32,6 +32,7 @@ public class MelodyEditorActivity extends BaseActivity {
     private int currentMode = MODE_SELECT;
     private String selectedEntryId = null;
     private boolean isOriginalEntry = false;
+    private int selectedNoteIndex = -1;
     
     private MusicRepository repository;
     private MusicData.Melody currentMelody;
@@ -109,11 +110,14 @@ public class MelodyEditorActivity extends BaseActivity {
         btnBack = findViewById(R.id.btn_back);
         
         lvLibrary.setOnItemClickListener((parent, view, position, id) -> selectMelody(position));
-        lvNotes.setOnItemClickListener((parent, view, position, id) -> editNote(position));
+        lvNotes.setOnItemClickListener((parent, view, position, id) -> selectNoteForEdit(position));
         
         btnSave.setOnClickListener(v -> saveMelody(false));
         btnSaveAs.setOnClickListener(v -> saveMelody(true));
         btnBack.setOnClickListener(v -> backToSelectMode());
+        
+        Button btnUpdateNote = findViewById(R.id.btn_update_note);
+        btnUpdateNote.setOnClickListener(v -> updateSelectedNote());
     }
     
     private void setupSpinners() {
@@ -274,6 +278,64 @@ public class MelodyEditorActivity extends BaseActivity {
             lvNotes.setItemChecked(position, true);
             Toast.makeText(this, "已更新音符", Toast.LENGTH_SHORT).show();
         }
+    }
+    
+    private void selectNoteForEdit(int position) {
+        if (position < 0 || position >= currentMelody.notes.size()) return;
+        
+        MusicData.Note note = currentMelody.notes.get(position);
+        selectedNoteIndex = position;
+        
+        Spinner spPitch = findViewById(R.id.sp_pitch);
+        Spinner spOctave = findViewById(R.id.sp_octave);
+        Spinner spDuration = findViewById(R.id.sp_duration);
+        
+        for (int i = 0; i < MusicData.PITCHES.length; i++) {
+            if (MusicData.PITCHES[i].equals(note.pitch)) {
+                spPitch.setSelection(i);
+                break;
+            }
+        }
+        
+        int octaveIndex = note.octave - 2;
+        if (octaveIndex >= 0 && octaveIndex < 5) {
+            spOctave.setSelection(octaveIndex);
+        }
+        
+        int durationIndex = 2;
+        switch (note.duration) {
+            case 1: durationIndex = 0; break;
+            case 2: durationIndex = 1; break;
+            case 4: durationIndex = 2; break;
+            case 8: durationIndex = 3; break;
+            case 16: durationIndex = 4; break;
+        }
+        spDuration.setSelection(durationIndex);
+        
+        lvNotes.setItemChecked(position, true);
+        Toast.makeText(this, "已选择音符 " + (position + 1) + "，点击\"应用修改\"保存", Toast.LENGTH_SHORT).show();
+    }
+    
+    private void updateSelectedNote() {
+        if (selectedNoteIndex < 0 || selectedNoteIndex >= currentMelody.notes.size()) {
+            Toast.makeText(this, "请先选择要编辑的音符", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        MusicData.Note note = currentMelody.notes.get(selectedNoteIndex);
+        
+        Spinner spPitch = findViewById(R.id.sp_pitch);
+        Spinner spOctave = findViewById(R.id.sp_octave);
+        Spinner spDuration = findViewById(R.id.sp_duration);
+        
+        note.pitch = (String) spPitch.getSelectedItem();
+        note.octave = Integer.parseInt((String) spOctave.getSelectedItem());
+        
+        String durationStr = (String) spDuration.getSelectedItem();
+        note.duration = Integer.parseInt(durationStr.split(" ")[0]);
+        
+        updateNotesList();
+        Toast.makeText(this, "音符已更新", Toast.LENGTH_SHORT).show();
     }
     
     private void transpose(int semitones) {

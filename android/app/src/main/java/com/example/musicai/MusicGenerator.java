@@ -19,12 +19,13 @@ public class MusicGenerator {
     private ModelConfig modelConfig;
     
     private static final String MUSIC_SYSTEM_PROMPT = 
-        "你是一个专业的音乐创作助手。你的任务是创作音乐数据。\n" +
+        "你是一个专业的音乐创作助手，擅长创作高质量的旋律和和弦进行。\n" +
         "重要规则：\n" +
         "1. 只返回有效的JSON数组或JSON对象，不要包含任何解释性文字\n" +
         "2. 不要使用Markdown代码块标记（如```json```）\n" +
         "3. 不要有任何开场白或自我介绍\n" +
-        "4. 直接输出JSON格式的数据";
+        "4. 直接输出JSON格式的数据\n" +
+        "5. 确保返回的JSON数组至少包含1个有效音符/和弦";
     
     public MusicGenerator(Context context) {
         this.modelConfig = new ModelConfig(context);
@@ -43,7 +44,8 @@ public class MusicGenerator {
         prompt.append("【创作要求】\n");
         prompt.append("- 请创作").append(length).append("个音符的旋律\n");
         prompt.append("- 旋律要有起伏，节奏要有变化\n");
-        prompt.append("- 确保音符数据完整且格式正确\n\n");
+        prompt.append("- 确保音符数据完整且格式正确\n");
+        prompt.append("- 旋律应该优美动听，有音乐性\n\n");
         prompt.append("直接输出JSON数组，不要任何其他文字：");
         
         if (description != null && !description.isEmpty()) {
@@ -65,6 +67,10 @@ public class MusicGenerator {
                 throw new IOException("AI未生成有效旋律内容，请重试");
             }
             
+            if (jsonArray.length() < 2) {
+                throw new IOException("AI生成的旋律过短（少于2个音符），请重试");
+            }
+            
             MusicData.Melody melody = new MusicData.Melody();
             melody.id = String.valueOf(System.currentTimeMillis());
             melody.createdAt = System.currentTimeMillis();
@@ -72,19 +78,26 @@ public class MusicGenerator {
             melody.name = "AI Generated " + style;
             
             int time = 0;
+            boolean hasValidNote = false;
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject noteObj = jsonArray.getJSONObject(i);
-                String pitch = noteObj.optString("pitch", "C");
-                int octave = noteObj.optInt("octave", 4);
-                int duration = noteObj.optInt("duration", 4);
+                String pitch = noteObj.optString("pitch", "");
+                int octave = noteObj.optInt("octave", 0);
+                int duration = noteObj.optInt("duration", 0);
+                
+                if (pitch.isEmpty() || octave < 2 || octave > 7 || duration <= 0) {
+                    Log.w(TAG, "Skipping invalid note at index " + i);
+                    continue;
+                }
                 
                 MusicData.Note note = new MusicData.Note(pitch, octave, duration, time);
                 melody.notes.add(note);
                 time = note.startTime + note.duration;
+                hasValidNote = true;
             }
             
-            if (melody.notes.isEmpty()) {
-                throw new IOException("生成失败：AI返回内容为空，请重试");
+            if (!hasValidNote || melody.notes.isEmpty()) {
+                throw new IOException("生成失败：AI返回内容格式无效，请重试");
             }
             
             return melody;
@@ -97,17 +110,47 @@ public class MusicGenerator {
     public MusicData.ChordProgression generateChordsWithMelody(String style, int length, MusicData.ChordProgression userChords, MusicData.Melody melody) throws IOException {
         StringBuilder prompt = new StringBuilder();
         prompt.append("请根据以下旋律生成对应的和弦进行。\n\n");
+        
+        if (melody != null && !melody.notes.isEmpty()) {
+            prompt.append("【旋律分析】\n");
+            
+            String firstPitch = melody.notes.get(0).pitch;
+            String lastPitch = melody.notes.get(melody.notes.get(melody.notes.size() - 1).pitch + "").pitch;
+            int firstOctave = melody.notes.get(0).octave;
+            boolean startsHigh = firstPitch.contains("#") || firstOctave >= 5;
+            boolean endsOnRoot = lastPitch.equals("C") || lastPitch.equals("F") || lastPitch.equals("G");
+            
+            if (startsHigh && endsOnRoot) {
+                prompt.append("旋律特点：大调风格（以高音开始，结束在主音）\n");
+                prompt.append("请使用大调功能和声：主和弦(I)、下属和弦(IV)、属和弦(V)为主\n\n");
+            } else if (!startsHigh && lastPitch.equals("A")) {
+                prompt.append("旋律特点：小调风格（以低音开始）\n");
+                prompt.append("请使用小调功能和声：主和弦(i)、下属和弦(iv)、属和弦(V)为主\n\n");
+            } else {
+                prompt.append("旋律特点：混合风格\n");
+                prompt.append("请使用灵活的和声进行\n\n");
+            }
+            
+            prompt.append("【Key信息】\n");
+            prompt.append("请分析旋律确定调性后，选择合适的和弦\n\n");
+        }
+        
         prompt.append("【输出格式要求】\n");
         prompt.append("必须返回一个JSON数组，格式如下：\n");
         prompt.append("[{\"name\":\"C\",\"type\":\"major\",\"duration\":4},{\"name\":\"G\",\"type\":\"major\",\"duration\":4}]\n\n");
         prompt.append("【字段说明】\n");
         prompt.append("- name: 根音，取值范围 C C# D D# E F F# G G# A A# B\n");
-        prompt.append("- type: 和弦类型，取值范围 major minor seventh diminished augmented sus2 sus4\n");
-        prompt.append("- duration: 时值\n\n");
+        prompt.append("- type: 和弦类型 major minor seventh diminished augmented sus2 sus4\n");
+        prompt.append("- duration: 时值（以四分音符为单位）\n\n");
+        prompt.append("【和弦功能圈】\n");
+        prompt.append("C大调常用进行：C - G - Am - F (I - V - vi - IV)\n");
+        prompt.append("C大调经典进行：Am - F - C - G (vi - IV - I - V)\n");
+        prompt.append("C大调下行进行：C - Em - F - G (I - iii - IV - V)\n\n");
         prompt.append("【创作要求】\n");
         prompt.append("- 请生成").append(length).append("个和弦\n");
         prompt.append("- 和弦进行要符合音乐理论，与旋律风格匹配\n");
-        prompt.append("- 确保和弦数据完整且格式正确\n\n");
+        prompt.append("- 优先使用功能圈进行（I-V-vi-IV 或变体）\n");
+        prompt.append("- 确保每个和弦都与旋律的调性协调\n\n");
         prompt.append("直接输出JSON数组，不要任何其他文字：");
         
         if (melody != null && !melody.notes.isEmpty()) {
@@ -134,6 +177,10 @@ public class MusicGenerator {
                 throw new IOException("AI未生成有效和弦内容，请重试");
             }
             
+            if (jsonArray.length() < 2) {
+                throw new IOException("AI生成的和弦过少（少于2个），请重试");
+            }
+            
             MusicData.ChordProgression progression = new MusicData.ChordProgression();
             progression.id = String.valueOf(System.currentTimeMillis());
             progression.createdAt = System.currentTimeMillis();
@@ -141,19 +188,26 @@ public class MusicGenerator {
             progression.name = "AI Generated " + style;
             
             int time = 0;
+            boolean hasValidChord = false;
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject chordObj = jsonArray.getJSONObject(i);
-                String name = chordObj.optString("name", "C");
-                String type = chordObj.optString("type", "major");
-                int duration = chordObj.optInt("duration", 4);
+                String name = chordObj.optString("name", "");
+                String type = chordObj.optString("type", "");
+                int duration = chordObj.optInt("duration", 0);
+                
+                if (name.isEmpty() || type.isEmpty() || duration <= 0) {
+                    Log.w(TAG, "Skipping invalid chord at index " + i);
+                    continue;
+                }
                 
                 MusicData.Chord chord = new MusicData.Chord(name, type, duration, time);
                 progression.chords.add(chord);
                 time = chord.startTime + chord.duration;
+                hasValidChord = true;
             }
             
-            if (progression.chords.isEmpty()) {
-                throw new IOException("生成失败：AI返回内容为空，请重试");
+            if (!hasValidChord || progression.chords.isEmpty()) {
+                throw new IOException("生成失败：AI返回内容格式无效，请重试");
             }
             
             return progression;
@@ -220,16 +274,39 @@ public class MusicGenerator {
     public MusicData.ChordProgression generateCustomChords(String style, int length, String keySignature, String mood, String description) throws IOException {
         StringBuilder prompt = new StringBuilder();
         prompt.append("请为").append(style).append("风格创作一组和弦。\n\n");
+        
+        if (keySignature != null && !keySignature.isEmpty()) {
+            prompt.append("【调性信息】\n");
+            prompt.append("指定调性：").append(keySignature).append("\n");
+            
+            if (keySignature.contains("m") || keySignature.contains("Minor")) {
+                prompt.append("小调常用进行：Am - F - C - G (i - VI - III - VII)\n");
+                prompt.append("小调下行进行：Am - Em - F - G (i - iv - V - VI)\n\n");
+            } else {
+                prompt.append("大调功能圈：I - V - vi - IV 是最常用的进行\n");
+                prompt.append("大调经典进行：vi - IV - I - V\n");
+                prompt.append("大调变体：C - G - Am - Em - F - C (I - V - vi - iii - IV - I)\n\n");
+            }
+        }
+        
         prompt.append("【输出格式要求】\n");
         prompt.append("必须返回一个JSON数组，格式如下：\n");
         prompt.append("[{\"name\":\"C\",\"type\":\"major\",\"duration\":4},{\"name\":\"G\",\"type\":\"major\",\"duration\":4}]\n\n");
         prompt.append("【字段说明】\n");
         prompt.append("- name: 根音，取值范围 C C# D D# E F F# G G# A A# B\n");
         prompt.append("- type: 和弦类型 major minor seventh diminished augmented sus2 sus4\n");
-        prompt.append("- duration: 时值\n\n");
+        prompt.append("- duration: 时值（以四分音符为单位）\n\n");
         prompt.append("【创作要求】\n");
         prompt.append("- 请生成").append(length).append("个和弦\n");
-        prompt.append("- 确保和弦进行自然流畅\n");
+        prompt.append("- 确保和弦进行自然流畅，有音乐性\n");
+        prompt.append("- 优先使用经典功能圈进行\n\n");
+        
+        if (mood != null && !mood.isEmpty()) {
+            prompt.append("【风格/情绪】\n");
+            prompt.append("用户要求：").append(mood).append("\n");
+            prompt.append("根据情绪选择合适的和声进行\n\n");
+        }
+        
         prompt.append("直接输出JSON数组，不要任何其他文字：");
         
         try {
@@ -247,6 +324,10 @@ public class MusicGenerator {
                 throw new IOException("AI未生成有效和弦内容，请重试");
             }
             
+            if (jsonArray.length() < 2) {
+                throw new IOException("AI生成的和弦过少（少于2个），请重试");
+            }
+            
             MusicData.ChordProgression progression = new MusicData.ChordProgression();
             progression.id = String.valueOf(System.currentTimeMillis());
             progression.createdAt = System.currentTimeMillis();
@@ -254,20 +335,31 @@ public class MusicGenerator {
             progression.name = "自定义和弦 " + style;
             
             int time = 0;
+            boolean hasValidChord = false;
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject chordObj = jsonArray.getJSONObject(i);
+                String name = chordObj.optString("name", "");
+                String type = chordObj.optString("type", "");
+                int duration = chordObj.optInt("duration", 0);
+                
+                if (name.isEmpty() || type.isEmpty() || duration <= 0) {
+                    Log.w(TAG, "Skipping invalid chord at index " + i);
+                    continue;
+                }
+                
                 MusicData.Chord chord = new MusicData.Chord(
-                    chordObj.optString("name", "C"),
-                    chordObj.optString("type", "major"),
-                    chordObj.optInt("duration", 4),
+                    name,
+                    type,
+                    duration,
                     time
                 );
                 progression.chords.add(chord);
                 time = chord.startTime + chord.duration;
+                hasValidChord = true;
             }
             
-            if (progression.chords.isEmpty()) {
-                throw new IOException("生成失败：AI返回内容为空，请重试");
+            if (!hasValidChord || progression.chords.isEmpty()) {
+                throw new IOException("生成失败：AI返回内容格式无效，请重试");
             }
             
             return progression;

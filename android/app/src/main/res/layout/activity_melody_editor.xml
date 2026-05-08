@@ -176,6 +176,19 @@
                     android:paddingEnd="14dp"
                     android:layout_marginBottom="10dp"/>
 
+                <Button
+                    android:id="@+id/btn_update_note"
+                    android:layout_width="match_parent"
+                    android:layout_height="42dp"
+                    android:minHeight="42dp"
+                    android:text="应用修改"
+                    android:textSize="14sp"
+                    android:textColor="@color/apple_white"
+                    android:background="@drawable/apple_button_primary_bg"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:layout_marginBottom="10dp"/>
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
