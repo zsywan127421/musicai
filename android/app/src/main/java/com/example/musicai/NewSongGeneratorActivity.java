@@ -1,5 +1,6 @@
 package com.example.musicai;
 
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
@@ -19,7 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.musicai.util.ConfirmDialog;
-import com.example.musicai.util.HelpBottomSheet;
 import com.example.musicai.util.TimeUtils;
 import com.example.musicai.util.ToastHelper;
 import com.example.musicai.util.ToolbarHelper;

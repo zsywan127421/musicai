@@ -202,6 +202,7 @@ public class SongEditorActivity extends BaseActivity implements MusicPlayerServi
                     editorSection.setVisibility(View.GONE);
                     tvEmptyHint.setVisibility(View.VISIBLE);
                 }
+            }
 
             @Override
             public void onNothingSelected(android.widget.AdapterView<?> parent) {}
