@@ -512,4 +512,10 @@ public class PianoRollView extends View {
     public int getSelectedNoteIndex() {
         return selectedNoteIndex;
     }
+
+    public void setStartOctave(int octave) {
+        this.minOctave = octave;
+        if (octave > maxOctave - 1) maxOctave = octave + 1;
+        invalidate();
+    }
 }
