@@ -416,9 +416,4 @@ public class PianoRollView extends View {
     public int getSelectedNoteIndex() {
         return selectedNoteIndex;
     }
-    
-    public void setStartOctave(int octave) {
-        this.startOctave = octave;
-        invalidate();
-    }
 }

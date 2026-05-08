@@ -81,7 +81,12 @@ public class MusicPlayerService extends Service implements Metronome.MetronomeLi
             externalMetronomeListener.onMetronomeBeat(beat, isDownbeat);
         }
     }
-    
+
+    @Override
+    public void onTempoChanged(int bpm) {
+        // 节拍器速度变化处理
+    }
+
     public void setMetronomeEnabled(boolean enabled) {
         this.metronomeEnabled = enabled;
         if (!enabled && metronome.isRunning()) {
