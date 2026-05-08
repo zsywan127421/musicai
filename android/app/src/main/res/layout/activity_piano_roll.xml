@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/apple_light_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical"
+        android:background="@color/apple_card_bg">
+
+        <Button
+            android:id="@+id/btn_back"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:minHeight="36dp"
+            android:text="返回"
+            android:textSize="14sp"
+            android:textColor="@color/apple_button_text"
+            android:background="@drawable/apple_button_bg"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"/>
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="钢琴卷帘"
+            android:textSize="18sp"
+            android:textColor="@color/apple_text"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginHorizontal="12dp"/>
+
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:minHeight="36dp"
+            android:text="保存"
+            android:textSize="14sp"
+            android:textColor="@color/apple_white"
+            android:background="@drawable/apple_button_primary_bg"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="音符数: 0  |  点击音符可拖拽编辑"
+        android:textSize="13sp"
+        android:textColor="@color/apple_text_secondary"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"/>
+
+    <com.example.musicai.view.PianoRollView
+        android:id="@+id/piano_roll_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="@color/apple_card_bg"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btn_add_note"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:text="添加音符"
+            android:textSize="14sp"
+            android:textColor="@color/apple_white"
+            android:background="@drawable/apple_button_primary_bg"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btn_delete_note"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:text="删除选中"
+            android:textSize="14sp"
+            android:textColor="@color/apple_white"
+            android:background="@drawable/apple_button_danger_bg"/>
+
+    </LinearLayout>
+
+</LinearLayout>

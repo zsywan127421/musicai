@@ -20,6 +20,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.musicai.util.ConfirmDialog;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -341,7 +343,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         
         String style = (String) spStyle.getSelectedItem();
         String description = etDescription.getText().toString().trim();
-        String customName = etMelodyName.getText().toString().trim();
+        final String customName = etMelodyName.getText().toString().trim();
         
         String lengthStr = (String) spMelodyLength.getSelectedItem();
         int length = 8;
@@ -354,12 +356,31 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         if (length > 24) length = 24;
         
         final int finalLength = length;
+        final String generatedName = getCustomOrDefaultName(customName, "旋律");
+        
+        if (repository.melodyNameExists(generatedName)) {
+            isGenerating = false;
+            updateUI();
+            ConfirmDialog.showSave(this, generatedName, () -> {
+                doSaveMelody(style, description, generatedName, finalLength);
+            });
+        } else {
+            doSaveMelody(style, description, generatedName, finalLength);
+        }
+    }
+    
+    private void doSaveMelody(String style, String description, String name, int length) {
+        isGenerating = true;
+        updateUI();
+        
+        final String finalName = name;
+        
         new Thread(() -> {
             try {
-                MusicData.Melody melody = musicGenerator.generateMelodyWithDescription(style, finalLength, null, description);
+                MusicData.Melody melody = musicGenerator.generateMelodyWithDescription(style, length, null, description);
                 
                 MusicRepository.MelodyEntry entry = new MusicRepository.MelodyEntry();
-                entry.name = getCustomOrDefaultName(customName, "旋律");
+                entry.name = finalName;
                 entry.style = style;
                 for (MusicData.Note note : melody.notes) {
                     entry.notes.add(new MusicRepository.NoteData(note));
@@ -392,14 +413,34 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         updateUI();
         
         String style = (String) spStyle.getSelectedItem();
-        String customName = etChordName.getText().toString().trim();
+        final String customName = etChordName.getText().toString().trim();
         int checkedId = rgChordMode.getCheckedRadioButtonId();
+        
+        final String generatedName = getCustomOrDefaultName(customName, "和弦");
+        
+        if (repository.chordNameExists(generatedName)) {
+            isGenerating = false;
+            updateUI();
+            ConfirmDialog.showSave(this, generatedName, () -> {
+                doSaveChord(style, generatedName, checkedId);
+            });
+        } else {
+            doSaveChord(style, generatedName, checkedId);
+        }
+    }
+    
+    private void doSaveChord(String style, String name, int checkedId) {
+        isGenerating = true;
+        updateUI();
+        
+        final String finalName = name;
+        final int finalCheckedId = checkedId;
         
         new Thread(() -> {
             try {
                 MusicData.ChordProgression progression;
                 
-                if (checkedId == R.id.rb_from_melody) {
+                if (finalCheckedId == R.id.rb_from_melody) {
                     List<MusicRepository.MelodyEntry> melodies = repository.getMelodyLibrary();
                     int selectedPos = spMelodySelect.getSelectedItemPosition();
                     if (melodies.isEmpty() || selectedPos >= melodies.size()) {
@@ -416,7 +457,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
                 }
                 
                 MusicRepository.ChordEntry entry = new MusicRepository.ChordEntry();
-                entry.name = getCustomOrDefaultName(customName, "和弦");
+                entry.name = finalName;
                 entry.style = style;
                 entry.keySignature = etKeySignature.getText().toString().trim();
                 entry.mood = etMood.getText().toString().trim();

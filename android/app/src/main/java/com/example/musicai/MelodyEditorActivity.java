@@ -20,6 +20,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.musicai.util.ConfirmDialog;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -383,6 +385,29 @@ public class MelodyEditorActivity extends BaseActivity {
             return;
         }
         
+        boolean nameExists = !saveAsNew && isOriginalEntry && 
+                             repository.melodyNameExists(name) && 
+                             !name.equals(getCurrentEntryName());
+        
+        if (nameExists) {
+            ConfirmDialog.showSave(this, name, () -> doSaveMelody(saveAsNew, name));
+        } else {
+            doSaveMelody(saveAsNew, name);
+        }
+    }
+    
+    private String getCurrentEntryName() {
+        if (selectedEntryId != null) {
+            for (MusicRepository.MelodyEntry entry : repository.getMelodyLibrary()) {
+                if (entry.id.equals(selectedEntryId)) {
+                    return entry.name;
+                }
+            }
+        }
+        return null;
+    }
+    
+    private void doSaveMelody(boolean saveAsNew, String name) {
         if (saveAsNew || !isOriginalEntry) {
             MusicRepository.MelodyEntry newEntry = new MusicRepository.MelodyEntry();
             newEntry.name = name;
