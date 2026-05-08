@@ -42,7 +42,8 @@
         android:layout_height="wrap_content"
         android:maxHeight="300dp"
         android:paddingHorizontal="12dp"
-        android:clipToPadding="false"/>
+        android:clipToPadding="false"
+        android:scrollbars="none"/>
 
     <Button
         android:id="@+id/btn_cancel"

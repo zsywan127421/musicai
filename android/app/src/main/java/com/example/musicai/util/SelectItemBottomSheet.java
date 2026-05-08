@@ -59,8 +59,13 @@ public class SelectItemBottomSheet {
         tvTitle.setText(title);
         
         SelectItemAdapter adapter = new SelectItemAdapter(items);
-        rvItems.setLayoutManager(new LinearLayoutManager(context));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(context);
+        rvItems.setLayoutManager(layoutManager);
         rvItems.setAdapter(adapter);
+        rvItems.setHasFixedSize(true);
+        rvItems.setItemViewCacheSize(20);
+        layoutManager.setItemPrefetchEnabled(true);
+        rvItems.setNestedScrollingEnabled(false);
         
         adapter.setOnItemClickListener((position) -> {
             dialog.dismiss();

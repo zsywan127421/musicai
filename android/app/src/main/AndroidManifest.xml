@@ -58,7 +58,8 @@
             
         <activity
             android:name=".ModelConfigActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowLayoutInDisplayCutoutMode="shortEdges" />
             
         <service
             android:name=".MusicPlayerService"
