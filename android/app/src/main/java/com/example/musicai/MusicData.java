@@ -167,6 +167,8 @@ public class MusicData {
         public String style;
         public Melody melody;
         public ChordProgression chords;
+        public List<Segment> segments;
+        public int totalDurationMs;
         public List<Note> bassLine;
         public List<Note> drums;
         public long createdAt;
@@ -177,9 +179,11 @@ public class MusicData {
             style = "pop";
             melody = new Melody();
             chords = new ChordProgression();
+            segments = new ArrayList<>();
             bassLine = new ArrayList<>();
             drums = new ArrayList<>();
             createdAt = System.currentTimeMillis();
+            totalDurationMs = 0;
         }
         
         public JSONObject toJson() throws JSONException {
@@ -189,7 +193,15 @@ public class MusicData {
             obj.put("style", style);
             obj.put("melody", melody.toJson());
             obj.put("chords", chords.toJson());
+            obj.put("totalDurationMs", totalDurationMs);
             obj.put("createdAt", createdAt);
+            
+            JSONArray segmentsArray = new JSONArray();
+            for (Segment segment : segments) {
+                segmentsArray.put(segment.toJson());
+            }
+            obj.put("segments", segmentsArray);
+            
             return obj;
         }
         
@@ -198,10 +210,83 @@ public class MusicData {
             song.title = obj.optString("title", "Untitled Song");
             song.artist = obj.optString("artist", "Unknown");
             song.style = obj.optString("style", "pop");
-            song.melody = Melody.fromJson(obj.getJSONObject("melody"));
-            song.chords = ChordProgression.fromJson(obj.getJSONObject("chords"));
+            song.totalDurationMs = obj.optInt("totalDurationMs", 0);
             song.createdAt = obj.optLong("createdAt", System.currentTimeMillis());
+            
+            if (obj.has("melody")) {
+                song.melody = Melody.fromJson(obj.getJSONObject("melody"));
+            }
+            if (obj.has("chords")) {
+                song.chords = ChordProgression.fromJson(obj.getJSONObject("chords"));
+            }
+            if (obj.has("segments")) {
+                JSONArray segmentsArray = obj.getJSONArray("segments");
+                for (int i = 0; i < segmentsArray.length(); i++) {
+                    song.segments.add(Segment.fromJson(segmentsArray.getJSONObject(i)));
+                }
+            }
+            
             return song;
+        }
+    }
+    
+    public static class Segment {
+        public int index;
+        public Melody melody;
+        public ChordProgression chord;
+        public int startTimeMs;
+        public int durationMs;
+        
+        public Segment() {
+            this.index = 0;
+            this.melody = new Melody();
+            this.chord = new ChordProgression();
+            this.startTimeMs = 0;
+            this.durationMs = 0;
+        }
+        
+        public Segment(int index, Melody melody, ChordProgression chord, int startTimeMs) {
+            this.index = index;
+            this.melody = melody;
+            this.chord = chord;
+            this.startTimeMs = startTimeMs;
+            this.durationMs = calculateDuration(melody);
+        }
+        
+        private int calculateDuration(Melody melody) {
+            if (melody == null || melody.notes == null || melody.notes.isEmpty()) {
+                return 8000;
+            }
+            int lastEnd = 0;
+            for (Note note : melody.notes) {
+                int end = note.startTime + note.duration;
+                if (end > lastEnd) lastEnd = end;
+            }
+            return lastEnd * (60000 / 120);
+        }
+        
+        public JSONObject toJson() throws JSONException {
+            JSONObject obj = new JSONObject();
+            obj.put("index", index);
+            obj.put("melody", melody.toJson());
+            obj.put("chord", chord.toJson());
+            obj.put("startTimeMs", startTimeMs);
+            obj.put("durationMs", durationMs);
+            return obj;
+        }
+        
+        public static Segment fromJson(JSONObject obj) throws JSONException {
+            Segment segment = new Segment();
+            segment.index = obj.optInt("index", 0);
+            if (obj.has("melody")) {
+                segment.melody = Melody.fromJson(obj.getJSONObject("melody"));
+            }
+            if (obj.has("chord")) {
+                segment.chord = ChordProgression.fromJson(obj.getJSONObject("chord"));
+            }
+            segment.startTimeMs = obj.optInt("startTimeMs", 0);
+            segment.durationMs = obj.optInt("durationMs", 8000);
+            return segment;
         }
     }
     

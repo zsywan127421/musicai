@@ -1,5 +1,6 @@
 package com.example.musicai;
 
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -512,22 +513,37 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         updateUI();
         
         String style = (String) spStyle.getSelectedItem();
-        MusicRepository.MelodyEntry melodyEntry = melodies.get(melodyPos);
-        MusicRepository.ChordEntry chordEntry = chords.get(chordPos);
+        final MusicRepository.MelodyEntry melodyEntry = melodies.get(melodyPos);
+        final MusicRepository.ChordEntry chordEntry = chords.get(chordPos);
         
         new Thread(() -> {
             try {
                 MusicData.Melody melody = melodyEntry.toMelody();
                 MusicData.ChordProgression progression = chordEntry.toChordProgression();
                 
-                currentSong = musicGenerator.generateCompleteSong(style, melody, progression);
+                if (progression.chords.isEmpty()) {
+                    throw new Exception("和弦数据为空");
+                }
+                
+                runOnUiThread(() -> addResultItem("⏳ 开始生成歌曲...", "使用段落拼接模式"));
+                
+                currentSong = musicGenerator.generateSongWithSegments(style, melody, progression, (segmentIndex, totalSegments) -> {
+                    runOnUiThread(() -> addResultItem(
+                        "✓ 第" + (segmentIndex + 1) + "段生成完成",
+                        "进度: " + (segmentIndex + 1) + "/" + totalSegments
+                    ));
+                });
+                
                 currentSong.melody = melody;
                 currentSong.chords = progression;
                 
                 runOnUiThread(() -> {
-                    Toast.makeText(NewSongGeneratorActivity.this, 
-                        "曲子生成完成！", Toast.LENGTH_SHORT).show();
-                    addResultItem("✓ 曲子已生成", currentSong.title + " - " + currentSong.artist);
+                    addResultItem("✓ 曲子生成完成", 
+                        "时长: " + formatDuration(currentSong.totalDurationMs) + 
+                        " | 段落: " + currentSong.segments.size());
+                    
+                    showSongNameDialog(melodyEntry, chordEntry);
+                    
                     btnPlay.setEnabled(true);
                     isGenerating = false;
                     updateUI();
@@ -541,6 +557,62 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
                 });
             }
         }).start();
+    }
+    
+    private void showSongNameDialog(MusicRepository.MelodyEntry melodyEntry, MusicRepository.ChordEntry chordEntry) {
+        final EditText etSongName = new EditText(this);
+        etSongName.setHint("输入歌曲名称");
+        etSongName.setText("");
+        etSongName.setPadding(48, 32, 48, 16);
+        etSongName.setTextSize(16);
+        
+        String defaultName = melodyEntry.name + " + " + chordEntry.name;
+        etSongName.setText(defaultName);
+        etSongName.setSelection(defaultName.length());
+        
+        new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight_Dialog_Alert)
+            .setTitle("保存歌曲")
+            .setMessage("生成完成！请输入歌曲名称：")
+            .setView(etSongName)
+            .setPositiveButton("保存", (dialog, which) -> {
+                String songName = etSongName.getText().toString().trim();
+                if (songName.isEmpty()) {
+                    songName = defaultName;
+                }
+                saveSongToLibrary(songName, melodyEntry, chordEntry);
+            })
+            .setNegativeButton("稍后保存", (dialog, which) -> {
+            })
+            .setCancelable(false)
+            .show();
+    }
+    
+    private void saveSongToLibrary(String name, MusicRepository.MelodyEntry melodyEntry, MusicRepository.ChordEntry chordEntry) {
+        SongEntry songEntry = new SongEntry();
+        songEntry.name = name;
+        songEntry.style = currentSong.style;
+        songEntry.sourceMelodyId = melodyEntry.id;
+        songEntry.sourceMelodyName = melodyEntry.name;
+        songEntry.sourceChordId = chordEntry.id;
+        songEntry.sourceChordName = chordEntry.name;
+        songEntry.bpm = 120;
+        songEntry.totalDurationMs = currentSong.totalDurationMs;
+        
+        if (currentSong.segments != null) {
+            for (MusicData.Segment segment : currentSong.segments) {
+                songEntry.addSegment(segment.melody, segment.chord, segment.startTimeMs);
+            }
+        }
+        
+        repository.addSong(songEntry);
+        Toast.makeText(this, "歌曲已保存到歌曲库", Toast.LENGTH_SHORT).show();
+    }
+    
+    private String formatDuration(int millis) {
+        int seconds = millis / 1000;
+        int minutes = seconds / 60;
+        seconds = seconds % 60;
+        return String.format("%d:%02d", minutes, seconds);
     }
     
     private void updateSongResult() {

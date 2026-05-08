@@ -17,12 +17,14 @@ public class MusicRepository {
     private static final String PREFS_NAME = "MusicRepositoryPrefs";
     private static final String KEY_MELODIES = "melody_library";
     private static final String KEY_CHORDS = "chord_library";
+    private static final String KEY_SONGS = "song_library";
     
     private static MusicRepository instance;
     private SharedPreferences prefs;
     
     private List<MelodyEntry> melodyLibrary;
     private List<ChordEntry> chordLibrary;
+    private List<SongEntry> songLibrary;
     
     public static class MelodyEntry {
         public String id;
@@ -333,6 +335,7 @@ public class MusicRepository {
         prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         melodyLibrary = new ArrayList<>();
         chordLibrary = new ArrayList<>();
+        songLibrary = new ArrayList<>();
         loadFromPrefs();
     }
     
@@ -473,6 +476,66 @@ public class MusicRepository {
         return chordLibrary.size();
     }
     
+    public List<SongEntry> getSongLibrary() {
+        return new ArrayList<>(songLibrary);
+    }
+    
+    public void addSong(SongEntry entry) {
+        songLibrary.add(0, entry);
+        saveSongsToPrefs();
+    }
+    
+    public SongEntry getSongById(String id) {
+        for (SongEntry entry : songLibrary) {
+            if (entry.id.equals(id)) {
+                return entry;
+            }
+        }
+        return null;
+    }
+    
+    public void deleteSong(String id) {
+        for (int i = 0; i < songLibrary.size(); i++) {
+            if (songLibrary.get(i).id.equals(id)) {
+                songLibrary.remove(i);
+                saveSongsToPrefs();
+                return;
+            }
+        }
+    }
+    
+    public void updateSong(String id, String newName) {
+        for (SongEntry entry : songLibrary) {
+            if (entry.id.equals(id)) {
+                entry.name = newName;
+                entry.updatedAt = System.currentTimeMillis();
+                saveSongsToPrefs();
+                return;
+            }
+        }
+    }
+    
+    public boolean songNameExists(String name) {
+        for (SongEntry entry : songLibrary) {
+            if (entry.name.equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public int getSongCount() {
+        return songLibrary.size();
+    }
+    
+    public void saveSongsToPrefs() {
+        JSONArray array = new JSONArray();
+        for (SongEntry entry : songLibrary) {
+            array.put(entry.toJson());
+        }
+        prefs.edit().putString(KEY_SONGS, array.toString()).apply();
+    }
+    
     public void saveMelodiesToPrefs() {
         JSONArray array = new JSONArray();
         for (MelodyEntry entry : melodyLibrary) {
@@ -492,9 +555,11 @@ public class MusicRepository {
     private void loadFromPrefs() {
         melodyLibrary.clear();
         chordLibrary.clear();
+        songLibrary.clear();
         
         String melodiesJson = prefs.getString(KEY_MELODIES, "[]");
         String chordsJson = prefs.getString(KEY_CHORDS, "[]");
+        String songsJson = prefs.getString(KEY_SONGS, "[]");
         
         try {
             JSONArray melodiesArray = new JSONArray(melodiesJson);
@@ -505,6 +570,11 @@ public class MusicRepository {
             JSONArray chordsArray = new JSONArray(chordsJson);
             for (int i = 0; i < chordsArray.length(); i++) {
                 chordLibrary.add(ChordEntry.fromJson(chordsArray.getJSONObject(i)));
+            }
+            
+            JSONArray songsArray = new JSONArray(songsJson);
+            for (int i = 0; i < songsArray.length(); i++) {
+                songLibrary.add(SongEntry.fromJson(songsArray.getJSONObject(i)));
             }
         } catch (JSONException e) {
             Log.e(TAG, "Failed to load from prefs", e);

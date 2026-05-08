@@ -271,6 +271,183 @@ public class MusicGenerator {
         }
     }
     
+    public interface SegmentProgressCallback {
+        void onSegmentProgress(int segmentIndex, int totalSegments);
+    }
+    
+    public MusicData.Song generateSongWithSegments(String style, MusicData.Melody melody, 
+            MusicData.ChordProgression chords, SegmentProgressCallback callback) throws IOException {
+        
+        if (chords == null || chords.chords.isEmpty()) {
+            throw new IOException("和弦数据不能为空");
+        }
+        
+        MusicData.Song song = new MusicData.Song();
+        song.title = "AI创作歌曲";
+        song.artist = "MusicAI";
+        song.style = style;
+        
+        int totalSegments = chords.chords.size();
+        int currentTimeMs = 0;
+        
+        for (int i = 0; i < totalSegments; i++) {
+            MusicData.Chord chord = chords.chords.get(i);
+            MusicData.Melody segmentMelody;
+            
+            if (i == 0) {
+                segmentMelody = melody;
+            } else {
+                String segmentPrompt = buildSegmentPrompt(style, melody, chords, i);
+                
+                try {
+                    AIResponse response = modelConfig.requestAIWithSystemPrompt(segmentPrompt, MUSIC_SYSTEM_PROMPT);
+                    
+                    if (response.isSuccess() && response.content != null && !response.content.trim().isEmpty()) {
+                        segmentMelody = parseSegmentMelody(response.content, currentTimeMs);
+                    } else {
+                        segmentMelody = generateDefaultSegmentMelody(chords, i, currentTimeMs);
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Segment " + i + " generation failed, using default", e);
+                    segmentMelody = generateDefaultSegmentMelody(chords, i, currentTimeMs);
+                }
+            }
+            
+            MusicData.ChordProgression segmentChord = new MusicData.ChordProgression();
+            segmentChord.chords.add(chord);
+            
+            MusicData.Segment segment = new MusicData.Segment(i, segmentMelody, segmentChord, currentTimeMs);
+            song.segments.add(segment);
+            
+            currentTimeMs += segment.durationMs;
+            
+            if (callback != null) {
+                callback.onSegmentProgress(i, totalSegments);
+            }
+        }
+        
+        song.totalDurationMs = currentTimeMs;
+        song.melody = mergeMelodies(song.segments);
+        song.chords = chords;
+        
+        return song;
+    }
+    
+    private String buildSegmentPrompt(String style, MusicData.Melody originalMelody, 
+            MusicData.ChordProgression chords, int segmentIndex) {
+        
+        MusicData.Chord currentChord = chords.chords.get(segmentIndex);
+        
+        StringBuilder prompt = new StringBuilder();
+        prompt.append("请根据以下信息生成一段与和弦匹配的新旋律。\n\n");
+        prompt.append("【输出格式要求】\n");
+        prompt.append("必须返回一个JSON数组，格式如下：\n");
+        prompt.append("[{\"pitch\":\"C\",\"octave\":4,\"duration\":4}]\n\n");
+        prompt.append("【字段说明】\n");
+        prompt.append("- pitch: 音高，取值范围 C C# D D# E F F# G G# A A# B\n");
+        prompt.append("- octave: 八度，取值范围 2-7\n");
+        prompt.append("- duration: 时值，1=全音符 2=二分 4=四分 8=八分 16=十六分\n\n");
+        prompt.append("【当前段落信息】\n");
+        prompt.append("- 段落序号：").append(segmentIndex + 1).append("\n");
+        prompt.append("- 当前和弦：").append(currentChord.name).append(" ").append(currentChord.type).append("\n");
+        prompt.append("- 和弦功能：").append(getChordFunction(currentChord.name, segmentIndex)).append("\n\n");
+        prompt.append("【参考旋律】\n");
+        prompt.append("原始主旋律包含").append(originalMelody.notes.size()).append("个音符\n");
+        prompt.append("请生成与当前和弦协调的旋律变体\n\n");
+        prompt.append("【创作要求】\n");
+        prompt.append("- 旋律应与当前和弦的声音相协调\n");
+        prompt.append("- 可以使用和弦内音或经过音\n");
+        prompt.append("- 保持与整体风格的统一\n");
+        prompt.append("- 生成4-8个音符的短旋律\n\n");
+        prompt.append("直接输出JSON数组，不要任何其他文字：");
+        
+        return prompt.toString();
+    }
+    
+    private String getChordFunction(String chordName, int index) {
+        if (chordName == null) return "未知";
+        
+        switch (chordName) {
+            case "C": case "F": case "G":
+                return "主功能（Tonic）或下属/属功能";
+            case "Am": case "Dm": case "Em":
+                return "下属功能或辅助功能";
+            case "D": case "E": case "A":
+                return "属功能或主功能";
+            default:
+                return "辅助功能（位置：" + (index + 1) + "）";
+        }
+    }
+    
+    private MusicData.Melody parseSegmentMelody(String content, int startTimeMs) {
+        MusicData.Melody melody = new MusicData.Melody();
+        melody.name = "Segment melody";
+        
+        try {
+            JSONArray jsonArray = extractMusicJsonArray(content);
+            if (jsonArray != null && jsonArray.length() > 0) {
+                int time = 0;
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject noteObj = jsonArray.getJSONObject(i);
+                    String pitch = noteObj.optString("pitch", "C");
+                    int octave = noteObj.optInt("octave", 4);
+                    int duration = noteObj.optInt("duration", 4);
+                    
+                    MusicData.Note note = new MusicData.Note(pitch, octave, duration, time);
+                    melody.notes.add(note);
+                    time = note.startTime + note.duration;
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to parse segment melody", e);
+        }
+        
+        if (melody.notes.isEmpty()) {
+            melody = generateDefaultSegmentMelody(null, 0, startTimeMs);
+        }
+        
+        return melody;
+    }
+    
+    private MusicData.Melody generateDefaultSegmentMelody(MusicData.ChordProgression chords, int segmentIndex, int startTimeMs) {
+        MusicData.Melody melody = new MusicData.Melody();
+        melody.name = "Default segment melody " + segmentIndex;
+        
+        String[] defaultPitches = {"C", "E", "G", "C"};
+        
+        int time = 0;
+        for (int i = 0; i < 4; i++) {
+            String pitch = defaultPitches[i % defaultPitches.length];
+            int octave = 4 + (i / 2);
+            int duration = 4;
+            
+            MusicData.Note note = new MusicData.Note(pitch, octave, duration, time);
+            melody.notes.add(note);
+            time += duration;
+        }
+        
+        return melody;
+    }
+    
+    private MusicData.Melody mergeMelodies(List<MusicData.Segment> segments) {
+        MusicData.Melody merged = new MusicData.Melody();
+        merged.name = "Merged melody";
+        
+        for (MusicData.Segment segment : segments) {
+            for (MusicData.Note note : segment.melody.notes) {
+                MusicData.Note newNote = new MusicData.Note(
+                    note.pitch,
+                    note.octave,
+                    note.duration,
+                    segment.startTimeMs + note.startTime
+                );
+                merged.notes.add(newNote);
+            }
+        }
+        
+        return merged;
+    }
+    
     public MusicData.ChordProgression generateCustomChords(String style, int length, String keySignature, String mood, String description) throws IOException {
         StringBuilder prompt = new StringBuilder();
         prompt.append("请为").append(style).append("风格创作一组和弦。\n\n");
