@@ -17,20 +17,15 @@ public class MainActivity extends BaseActivity {
         
         modelConfig = new ModelConfig(this);
         
-        Button btnSongGenerator = findViewById(R.id.btn_song_generator);
-        Button btnNewSongGenerator = findViewById(R.id.btn_new_song_generator);
+        Button btnSongGenerator = findViewById(R.id.btn_new_song_generator);
         Button btnLibrary = findViewById(R.id.btn_library);
         Button btnSettings = findViewById(R.id.btn_settings);
         Button btnModelConfig = findViewById(R.id.btn_model_config);
         
         updateModelStatus();
         
-        btnNewSongGenerator.setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, NewSongGeneratorActivity.class));
-        });
-        
         btnSongGenerator.setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, SongGeneratorActivity.class));
+            startActivity(new Intent(MainActivity.this, NewSongGeneratorActivity.class));
         });
         
         btnLibrary.setOnClickListener(v -> {
