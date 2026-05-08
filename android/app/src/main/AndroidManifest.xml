@@ -66,6 +66,10 @@
             android:exported="false"
             android:windowLayoutInDisplayCutoutMode="shortEdges" />
             
+        <activity
+            android:name=".ProjectEditorActivity"
+            android:exported="false" />
+            
         <service
             android:name=".MusicPlayerService"
             android:exported="false" />
