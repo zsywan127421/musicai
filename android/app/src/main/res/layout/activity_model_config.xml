@@ -256,16 +256,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:min="1000"
-                    android:max="25000"
+                    android:max="2500"
                     android:stepSize="1000"
-                    android:progress="4096"
+                    android:progress="2048"
                     android:progressTint="@color/apple_accent"
                     android:thumbTint="@color/apple_accent"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="建议值4096-8192，值越大生成内容越长"
+                    android:text="建议值2048-8192，值越大生成内容越长"
                     android:textSize="12sp"
                     android:textColor="@color/apple_text_tertiary"
                     android:layout_marginTop="4dp"/>
