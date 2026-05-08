@@ -9,4 +9,5 @@
     android:paddingEnd="14dp"
     android:textSize="14sp"
     android:textColor="@color/apple_text"
-    android:background="@color/apple_card_bg"/>
+    android:background="@color/apple_card_bg"
+    android:dropDownWidth="match_parent"/>

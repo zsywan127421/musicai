@@ -6,6 +6,8 @@ import android.content.res.Configuration;
 import android.view.View;
 import android.view.Window;
 
+import androidx.appcompat.app.AppCompatDelegate;
+
 public class ThemeManager {
     
     public static final String PREFS_NAME = "ThemePrefs";
@@ -25,6 +27,7 @@ public class ThemeManager {
         appContext = context.getApplicationContext();
         prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         currentThemeMode = prefs.getInt(KEY_THEME_MODE, THEME_SYSTEM);
+        applyPersistedTheme();
     }
     
     public static synchronized ThemeManager getInstance(Context context) {
@@ -34,6 +37,20 @@ public class ThemeManager {
         return instance;
     }
     
+    private void applyPersistedTheme() {
+        switch (currentThemeMode) {
+            case THEME_LIGHT:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                break;
+            case THEME_DARK:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                break;
+            default:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                break;
+        }
+    }
+    
     public int getThemeMode() {
         return currentThemeMode;
     }
@@ -41,6 +58,7 @@ public class ThemeManager {
     public void setThemeMode(int mode) {
         currentThemeMode = mode;
         prefs.edit().putInt(KEY_THEME_MODE, mode).apply();
+        applyPersistedTheme();
     }
     
     public boolean isDarkMode() {

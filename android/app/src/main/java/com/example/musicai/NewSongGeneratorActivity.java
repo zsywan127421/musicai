@@ -370,9 +370,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
                     Toast.makeText(NewSongGeneratorActivity.this, 
                         "旋律已保存到库中！", Toast.LENGTH_SHORT).show();
                     etMelodyName.setText("");
-                    resultList.clear();
-                    resultList.add("生成旋律：" + entry.getPreviewText());
-                    resultAdapter.notifyDataSetChanged();
+                    addResultItem("✓ 旋律已完成", entry.getPreviewText());
                     isGenerating = false;
                     updateUI();
                 });
@@ -431,9 +429,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
                     Toast.makeText(NewSongGeneratorActivity.this, 
                         "和弦已保存到库中！", Toast.LENGTH_SHORT).show();
                     etChordName.setText("");
-                    resultList.clear();
-                    resultList.add("生成和弦：" + entry.getPreviewText());
-                    resultAdapter.notifyDataSetChanged();
+                    addResultItem("✓ 和弦已完成", entry.getPreviewText());
                     isGenerating = false;
                     updateUI();
                 });
@@ -490,7 +486,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
                 runOnUiThread(() -> {
                     Toast.makeText(NewSongGeneratorActivity.this, 
                         "曲子生成完成！", Toast.LENGTH_SHORT).show();
-                    updateSongResult();
+                    addResultItem("✓ 曲子已生成", currentSong.title + " - " + currentSong.artist);
                     btnPlay.setEnabled(true);
                     isGenerating = false;
                     updateUI();
@@ -525,6 +521,19 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         }
         resultAdapter.setHighlightIndex(-1);
         resultAdapter.notifyDataSetChanged();
+    }
+
+    private void addResultItem(String title, String detail) {
+        if (resultList.isEmpty()) {
+            resultList.add("当前已生成：");
+            resultList.add("");
+        }
+        int insertIndex = resultList.size();
+        resultList.add(title);
+        resultList.add("  " + detail);
+        resultList.add("");
+        resultAdapter.notifyItemInserted(insertIndex);
+        lvResult.smoothScrollToPosition(resultList.size() - 1);
     }
     
     private void previewSelectedMelody() {

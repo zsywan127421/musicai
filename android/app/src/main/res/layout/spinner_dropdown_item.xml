@@ -9,4 +9,5 @@
     android:paddingEnd="14dp"
     android:textSize="14sp"
     android:textColor="@color/apple_text"
-    android:background="@drawable/spinner_dropdown_item_bg"/>
+    android:background="@drawable/spinner_dropdown_item_bg"
+    android:dropDownWidth="match_parent"/>
