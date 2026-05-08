@@ -23,7 +23,6 @@ import com.example.musicai.util.ConfirmDialog;
 import com.example.musicai.util.TimeUtils;
 import com.example.musicai.util.ToastHelper;
 import com.example.musicai.util.ToolbarHelper;
-import com.example.musicai.view.LoadingButton;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -61,7 +60,7 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
     private EditText etMelodyName;
     private EditText etChordName;
     private EditText etDescription;
-    private LoadingButton btnGenerateMelody;
+    private Button btnGenerateMelody;
     private ProgressBar progressBar;
     
     private Spinner spMelodySelect;
@@ -69,13 +68,13 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
     private EditText etKeySignature;
     private EditText etMood;
     private EditText etChordDescription;
-    private LoadingButton btnGenerateChords;
+    private Button btnGenerateChords;
     
     private Spinner spSongMelody;
     private Spinner spSongChords;
     private Button btnPreviewMelody;
     private Button btnPreviewChords;
-    private LoadingButton btnGenerateSong;
+    private Button btnGenerateSong;
     
     private CursorSeekBar playbackProgress;
     private TextView tvPlaybackTime;
@@ -301,9 +300,9 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
             loadSongSelectors();
         }
         
-        btnGenerateMelody.setLoading(isGenerating);
-        btnGenerateChords.setLoading(isGenerating);
-        btnGenerateSong.setLoading(isGenerating);
+        btnGenerateMelody.setEnabled(!isGenerating);
+        btnGenerateChords.setEnabled(!isGenerating);
+        btnGenerateSong.setEnabled(!isGenerating);
         progressBar.setVisibility(isGenerating ? View.VISIBLE : View.GONE);
     }
     
