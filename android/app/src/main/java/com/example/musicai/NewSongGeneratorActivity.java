@@ -163,7 +163,6 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         etChordName = findViewById(R.id.et_chord_name);
         etDescription = findViewById(R.id.et_description);
         btnGenerateMelody = findViewById(R.id.btn_generate_melody);
-        btnGenerateMelody.setText("生成旋律");
         progressBar = findViewById(R.id.progress_bar);
         
         spMelodySelect = findViewById(R.id.sp_melody_select);
@@ -172,14 +171,12 @@ public class NewSongGeneratorActivity extends BaseActivity implements MusicPlaye
         etMood = findViewById(R.id.et_mood);
         etChordDescription = findViewById(R.id.et_chord_description);
         btnGenerateChords = findViewById(R.id.btn_generate_chords);
-        btnGenerateChords.setText("生成和弦");
         
         spSongMelody = findViewById(R.id.sp_song_melody);
         spSongChords = findViewById(R.id.sp_song_chords);
         btnPreviewMelody = findViewById(R.id.btn_preview_melody);
         btnPreviewChords = findViewById(R.id.btn_preview_chords);
         btnGenerateSong = findViewById(R.id.btn_generate_song);
-        btnGenerateSong.setText("生成歌曲");
         
         playbackProgress = findViewById(R.id.playback_progress);
         tvPlaybackTime = findViewById(R.id.tv_playback_time);

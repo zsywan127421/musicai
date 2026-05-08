@@ -74,7 +74,6 @@ public class UnifiedPlaybackButton extends View {
         
         setClickable(true);
         setMinimumHeight((int) dpToPx(44));
-        setWillNotDraw(false);
         
         loadingAnimator = ValueAnimator.ofFloat(0, 360);
         loadingAnimator.setDuration(1000);
