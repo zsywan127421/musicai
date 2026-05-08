@@ -6,6 +6,36 @@
     android:background="@color/apple_light_bg"
     android:fitsSystemWindows="true">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="8dp"
+        android:background="@color/apple_light_bg">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_arrow_down"
+            android:contentDescription="返回"/>
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="歌曲编辑器"
+            android:textSize="18sp"
+            android:textColor="@color/apple_text"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginEnd="48dp"/>
+
+    </LinearLayout>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -20,16 +50,8 @@
             android:padding="16dp"
             android:paddingBottom="32dp">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="歌曲编辑器"
-                android:textSize="24sp"
-                android:textColor="@color/apple_text"
-                android:textStyle="bold"
-                android:layout_marginBottom="16dp"/>
-
             <LinearLayout
+                android:id="@+id/song_selector_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -43,9 +65,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="选择歌曲"
-                    android:textSize="15sp"
+                    android:textSize="12sp"
                     android:textColor="@color/apple_text_secondary"
-                    android:layout_marginBottom="10dp"/>
+                    android:textAllCaps="true"
+                    android:layout_marginBottom="12dp"/>
 
                 <Spinner
                     android:id="@+id/sp_song_select"
@@ -63,338 +86,446 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/apple_card_bg"
-                android:padding="16dp"
-                android:layout_marginBottom="16dp"
-                android:visibility="gone"
-                android:elevation="0dp"
-                android:outlineProvider="background">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="歌曲信息"
-                    android:textSize="17sp"
-                    android:textColor="@color/apple_text"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="14dp"/>
-
-                <EditText
-                    android:id="@+id/et_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:minHeight="44dp"
-                    android:hint="歌曲名称"
-                    android:textSize="15sp"
-                    android:textColor="@color/apple_text"
-                    android:textColorHint="@color/apple_text_tertiary"
-                    android:background="@drawable/apple_edittext_bg"
-                    android:paddingStart="14dp"
-                    android:paddingEnd="14dp"
-                    android:layout_marginBottom="12dp"/>
-
-                <TextView
-                    android:id="@+id/tv_song_info"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="风格: - | 段落: -"
-                    android:textSize="14sp"
-                    android:textColor="@color/apple_text_secondary"
-                    android:layout_marginBottom="8dp"/>
-
-                <TextView
-                    android:id="@+id/tv_duration"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="时长: -"
-                    android:textSize="14sp"
-                    android:textColor="@color/apple_text_secondary"
-                    android:layout_marginBottom="8dp"/>
-
-                <TextView
-                    android:id="@+id/tv_source"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="来源: -"
-                    android:textSize="14sp"
-                    android:textColor="@color/apple_text_secondary"
-                    android:layout_marginBottom="14dp"/>
-
-                <Button
-                    android:id="@+id/btn_play"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:minHeight="48dp"
-                    android:text="播放"
-                    android:textSize="16sp"
-                    android:textColor="@color/apple_white"
-                    android:background="@drawable/apple_button_primary_bg"
-                    android:enabled="false"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/apple_card_bg"
-                android:padding="16dp"
-                android:visibility="gone"
-                android:elevation="0dp"
-                android:outlineProvider="background">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="播放控制"
-                    android:textSize="17sp"
-                    android:textColor="@color/apple_text"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="14dp"/>
-
-                <com.example.musicai.CursorSeekBar
-                    android:id="@+id/playback_progress"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:max="100"
-                    android:progress="0"
-                    android:layout_marginBottom="8dp"/>
-
-                <TextView
-                    android:id="@+id/tv_playback_time"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="0:00 / 0:00"
-                    android:textSize="13sp"
-                    android:textColor="@color/apple_text_secondary"
-                    android:gravity="center"
-                    android:layout_marginBottom="12dp"/>
+                android:visibility="gone">
 
                 <LinearLayout
-                    android:id="@+id/speed_control_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:layout_marginBottom="12dp">
+                    android:background="@drawable/apple_card_bg"
+                    android:padding="16dp"
+                    android:layout_marginBottom="12dp"
+                    android:elevation="0dp"
+                    android:outlineProvider="background">
 
-                    <TextView
-                        android:id="@+id/tv_speed"
+                    <EditText
+                        android:id="@+id/et_name"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="速度: 1x"
-                        android:textSize="13sp"
-                        android:textColor="@color/apple_text_secondary"
-                        android:gravity="center"
-                        android:layout_marginBottom="8dp"/>
+                        android:layout_height="44dp"
+                        android:minHeight="44dp"
+                        android:hint="歌曲名称"
+                        android:textSize="17sp"
+                        android:textColor="@color/apple_text"
+                        android:textColorHint="@color/apple_text_tertiary"
+                        android:background="@drawable/apple_edittext_bg"
+                        android:paddingHorizontal="14dp"
+                        android:layout_marginBottom="12dp"/>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:gravity="center">
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="风格："
+                            android:textSize="14sp"
+                            android:textColor="@color/apple_text_secondary"/>
+
+                        <TextView
+                            android:id="@+id/tv_style"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="流行"
+                            android:textSize="14sp"
+                            android:textColor="@color/apple_text"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="时长："
+                            android:textSize="14sp"
+                            android:textColor="@color/apple_text_secondary"/>
+
+                        <TextView
+                            android:id="@+id/tv_duration"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0:00"
+                            android:textSize="14sp"
+                            android:textColor="@color/apple_text"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="来源旋律："
+                            android:textSize="14sp"
+                            android:textColor="@color/apple_text_secondary"/>
+
+                        <TextView
+                            android:id="@+id/tv_source_melody"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="未选择"
+                            android:textSize="14sp"
+                            android:textColor="@color/apple_text"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="来源和弦："
+                            android:textSize="14sp"
+                            android:textColor="@color/apple_text_secondary"/>
+
+                        <TextView
+                            android:id="@+id/tv_source_chord"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="未选择"
+                            android:textSize="14sp"
+                            android:textColor="@color/apple_text"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <Button
+                        android:id="@+id/btn_piano_roll"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="钢琴卷帘"
+                        android:textSize="15sp"
+                        android:textColor="@color/apple_text"
+                        android:background="@drawable/apple_button_bg"
+                        android:layout_marginEnd="8dp"/>
+
+                    <Button
+                        android:id="@+id/btn_track_manager"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="轨道管理"
+                        android:textSize="15sp"
+                        android:textColor="@color/apple_text"
+                        android:background="@drawable/apple_button_bg"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/apple_card_bg"
+                    android:padding="16dp"
+                    android:layout_marginBottom="12dp"
+                    android:elevation="0dp"
+                    android:outlineProvider="background">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="BPM"
+                            android:textSize="15sp"
+                            android:textColor="@color/apple_text"/>
+
+                        <TextView
+                            android:id="@+id/tv_bpm"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="120"
+                            android:textSize="15sp"
+                            android:textColor="@color/apple_accent"
+                            android:textStyle="bold"
+                            android:layout_marginEnd="16dp"/>
 
                         <Button
-                            android:id="@+id/btn_speed_05"
-                            android:layout_width="0dp"
-                            android:layout_height="32dp"
-                            android:minHeight="32dp"
-                            android:layout_weight="1"
-                            android:text="0.5x"
-                            android:textSize="12sp"
-                            android:textColor="@color/apple_button_text"
+                            android:id="@+id/btn_bpm_decrease"
+                            android:layout_width="40dp"
+                            android:layout_height="36dp"
+                            android:text="-"
+                            android:textSize="18sp"
+                            android:textColor="@color/apple_text"
+                            android:background="@drawable/apple_button_bg"/>
+
+                        <Button
+                            android:id="@+id/btn_bpm_increase"
+                            android:layout_width="40dp"
+                            android:layout_height="36dp"
+                            android:text="+"
+                            android:textSize="18sp"
+                            android:textColor="@color/apple_text"
                             android:background="@drawable/apple_button_bg"
-                            android:layout_marginEnd="4dp"/>
+                            android:layout_marginStart="8dp"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="拍号"
+                            android:textSize="15sp"
+                            android:textColor="@color/apple_text"/>
+
+                        <Spinner
+                            android:id="@+id/sp_time_signature"
+                            android:layout_width="120dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/spinner_bg"
+                            android:paddingHorizontal="12dp"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/apple_card_bg"
+                    android:padding="16dp"
+                    android:layout_marginBottom="12dp"
+                    android:elevation="0dp"
+                    android:outlineProvider="background">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="节拍器"
+                        android:textSize="12sp"
+                        android:textColor="@color/apple_text_secondary"
+                        android:textAllCaps="true"
+                        android:layout_marginBottom="12dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
 
                         <Button
-                            android:id="@+id/btn_speed_075"
-                            android:layout_width="0dp"
-                            android:layout_height="32dp"
-                            android:minHeight="32dp"
-                            android:layout_weight="1"
-                            android:text="0.75x"
-                            android:textSize="12sp"
-                            android:textColor="@color/apple_button_text"
+                            android:id="@+id/btn_metronome"
+                            android:layout_width="wrap_content"
+                            android:layout_height="44dp"
+                            android:text="开启节拍器"
+                            android:textSize="15sp"
+                            android:textColor="@color/apple_white"
                             android:background="@drawable/apple_button_bg"
-                            android:layout_marginEnd="4dp"/>
+                            android:paddingHorizontal="20dp"/>
+
+                        <LinearLayout
+                            android:id="@+id/beat_indicators"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="horizontal"
+                            android:gravity="center"
+                            android:layout_marginStart="16dp">
+
+                            <View
+                                android:id="@+id/beat_1"
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_margin="4dp"
+                                android:background="@drawable/beat_indicator_bg"/>
+
+                            <View
+                                android:id="@+id/beat_2"
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_margin="4dp"
+                                android:background="@drawable/beat_indicator_bg"/>
+
+                            <View
+                                android:id="@+id/beat_3"
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_margin="4dp"
+                                android:background="@drawable/beat_indicator_bg"/>
+
+                            <View
+                                android:id="@+id/beat_4"
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_margin="4dp"
+                                android:background="@drawable/beat_indicator_bg"/>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/apple_card_bg"
+                    android:padding="16dp"
+                    android:layout_marginBottom="12dp"
+                    android:elevation="0dp"
+                    android:outlineProvider="background">
+
+                    <com.example.musicai.CursorSeekBar
+                        android:id="@+id/playback_progress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="100"
+                        android:progress="0"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:id="@+id/tv_playback_time"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="0:00 / 0:00"
+                        android:textSize="13sp"
+                        android:textColor="@color/apple_text_secondary"
+                        android:gravity="center"
+                        android:layout_marginBottom="12dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
 
                         <Button
-                            android:id="@+id/btn_speed_1"
+                            android:id="@+id/btn_play"
                             android:layout_width="0dp"
-                            android:layout_height="32dp"
-                            android:minHeight="32dp"
+                            android:layout_height="48dp"
                             android:layout_weight="1"
-                            android:text="1x"
-                            android:textSize="12sp"
+                            android:text="播放"
+                            android:textSize="16sp"
                             android:textColor="@color/apple_white"
                             android:background="@drawable/apple_button_primary_bg"
-                            android:layout_marginEnd="4dp"/>
+                            android:layout_marginEnd="8dp"/>
 
                         <Button
-                            android:id="@+id/btn_speed_125"
+                            android:id="@+id/btn_stop"
                             android:layout_width="0dp"
-                            android:layout_height="32dp"
-                            android:minHeight="32dp"
+                            android:layout_height="48dp"
                             android:layout_weight="1"
-                            android:text="1.25x"
-                            android:textSize="12sp"
-                            android:textColor="@color/apple_button_text"
-                            android:background="@drawable/apple_button_bg"
-                            android:layout_marginEnd="4dp"/>
-
-                        <Button
-                            android:id="@+id/btn_speed_15"
-                            android:layout_width="0dp"
-                            android:layout_height="32dp"
-                            android:minHeight="32dp"
-                            android:layout_weight="1"
-                            android:text="1.5x"
-                            android:textSize="12sp"
-                            android:textColor="@color/apple_button_text"
-                            android:background="@drawable/apple_button_bg"
-                            android:layout_marginEnd="4dp"/>
-
-                        <Button
-                            android:id="@+id/btn_speed_2"
-                            android:layout_width="0dp"
-                            android:layout_height="32dp"
-                            android:minHeight="32dp"
-                            android:layout_weight="1"
-                            android:text="2x"
-                            android:textSize="12sp"
-                            android:textColor="@color/apple_button_text"
+                            android:text="停止"
+                            android:textSize="16sp"
+                            android:textColor="@color/apple_text"
                             android:background="@drawable/apple_button_bg"/>
 
                     </LinearLayout>
 
                 </LinearLayout>
 
-                <Button
-                    android:id="@+id/btn_stop"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:minHeight="44dp"
-                    android:text="停止"
-                    android:textSize="15sp"
-                    android:textColor="@color/apple_button_text"
-                    android:background="@drawable/apple_button_bg"
-                    android:enabled="false"/>
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <Button
+                        android:id="@+id/btn_regenerate"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="重新生成"
+                        android:textSize="15sp"
+                        android:textColor="@color/apple_text"
+                        android:background="@drawable/apple_button_bg"
+                        android:layout_marginEnd="8dp"/>
+
+                    <Button
+                        android:id="@+id/btn_export"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="导出"
+                        android:textSize="15sp"
+                        android:textColor="@color/apple_text"
+                        android:background="@drawable/apple_button_bg"/>
+
+                </LinearLayout>
 
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_empty_hint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="请从上方选择一首歌曲进行编辑"
+                android:textSize="15sp"
+                android:textColor="@color/apple_text_secondary"
+                android:gravity="center"
+                android:padding="32dp"/>
 
         </LinearLayout>
 
     </ScrollView>
 
     <LinearLayout
-        android:id="@+id/detail_bar"
+        android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/apple_card_bg"
+        android:orientation="horizontal"
         android:padding="16dp"
-        android:elevation="8dp"
-        android:visibility="gone">
+        android:paddingBottom="24dp"
+        android:background="@color/apple_light_bg">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="保存"
+            android:textSize="16sp"
+            android:textColor="@color/apple_white"
+            android:background="@drawable/apple_button_primary_bg"
+            android:layout_marginEnd="8dp"/>
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tv_detail_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="歌曲详情"
-                    android:textSize="15sp"
-                    android:textColor="@color/apple_text"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="4dp"/>
-
-                <TextView
-                    android:id="@+id/tv_detail_info"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="时长: - | 段落: -"
-                    android:textSize="13sp"
-                    android:textColor="@color/apple_text_secondary"/>
-
-            </LinearLayout>
-
-            <ImageButton
-                android:id="@+id/btn_expand_detail"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:src="@android:drawable/arrow_down_float"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="展开详情"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/detail_expanded"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="12dp"
-            android:padding="12dp"
-            android:background="@color/apple_light_bg"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/tv_detail_expanded"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:textSize="13sp"
-                android:textColor="@color/apple_text_secondary"
-                android:lineSpacingExtra="4dp"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="12dp">
-
-            <Button
-                android:id="@+id/btn_detail_save"
-                android:layout_width="0dp"
-                android:layout_height="44dp"
-                android:minHeight="44dp"
-                android:layout_weight="1"
-                android:text="保存"
-                android:textSize="15sp"
-                android:textColor="@color/apple_white"
-                android:background="@drawable/apple_button_primary_bg"
-                android:layout_marginEnd="8dp"/>
-
-            <Button
-                android:id="@+id/btn_detail_delete"
-                android:layout_width="0dp"
-                android:layout_height="44dp"
-                android:minHeight="44dp"
-                android:layout_weight="1"
-                android:text="删除"
-                android:textSize="15sp"
-                android:textColor="@color/apple_warning"
-                android:background="@drawable/apple_button_bg"
-                android:layout_marginStart="8dp"/>
-
-        </LinearLayout>
+        <Button
+            android:id="@+id/btn_save_as"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="另存为"
+            android:textSize="16sp"
+            android:textColor="@color/apple_text"
+            android:background="@drawable/apple_button_secondary_bg"
+            android:layout_marginStart="8dp"/>
 
     </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="16dp"
-        android:background="@color/apple_light_bg"/>
 
 </LinearLayout>
