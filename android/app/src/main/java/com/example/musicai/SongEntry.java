@@ -133,7 +133,8 @@ public class SongEntry {
                 lastNoteEnd = noteEnd;
             }
         }
-        return lastNoteEnd * (60000 / 120);
+        int actualBpm = (bpm > 0) ? bpm : 120;
+        return lastNoteEnd * (60000 / actualBpm);
     }
 
     public MusicData.Melody getSegmentMelody(int index) {

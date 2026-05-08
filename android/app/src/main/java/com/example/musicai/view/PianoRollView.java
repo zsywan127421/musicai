@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.musicai.MusicData;
 import com.example.musicai.R;
+import com.example.musicai.util.ThemeManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,16 +75,18 @@ public class PianoRollView extends View {
     }
     
     private void init() {
+        boolean isDark = ThemeManager.isNightMode(getContext());
+        
         whiteKeyPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        whiteKeyPaint.setColor(0xFFF5F5F5);
+        whiteKeyPaint.setColor(isDark ? 0xFF2C2C2E : 0xFFF5F5F5);
         whiteKeyPaint.setStyle(Paint.Style.FILL);
         
         blackKeyPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        blackKeyPaint.setColor(0xFF333333);
+        blackKeyPaint.setColor(isDark ? 0xFF1C1C1E : 0xFF333333);
         blackKeyPaint.setStyle(Paint.Style.FILL);
         
         gridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        gridPaint.setColor(0xFFE0E0E0);
+        gridPaint.setColor(isDark ? 0xFF3C3C3E : 0xFFE0E0E0);
         gridPaint.setStrokeWidth(1);
         
         notePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -91,15 +94,15 @@ public class PianoRollView extends View {
         notePaint.setStyle(Paint.Style.FILL);
         
         noteSelectedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        noteSelectedPaint.setColor(0xFF0066CC);
+        noteSelectedPaint.setColor(isDark ? 0xFF0A84FF : 0xFF0066CC);
         noteSelectedPaint.setStyle(Paint.Style.FILL);
         
         textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        textPaint.setColor(0xFF666666);
+        textPaint.setColor(isDark ? 0xFFEBEBF5 : 0xFF666666);
         textPaint.setTextSize(24);
         
         beatTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        beatTextPaint.setColor(0xFF999999);
+        beatTextPaint.setColor(isDark ? 0xFF8E8E93 : 0xFF999999);
         beatTextPaint.setTextSize(28);
         beatTextPaint.setTextAlign(Paint.Align.CENTER);
     }

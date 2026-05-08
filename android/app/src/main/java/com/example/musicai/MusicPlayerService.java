@@ -160,7 +160,7 @@ public class MusicPlayerService extends Service {
         totalDurationMs = 0;
         if (currentSong != null && currentSong.melody != null && !currentSong.melody.notes.isEmpty()) {
             MusicData.Note lastNote = currentSong.melody.notes.get(currentSong.melody.notes.size() - 1);
-            totalDurationMs = (int) ((lastNote.startTime + lastNote.duration) * 250 / speed);
+            totalDurationMs = (int) ((lastNote.startTime + lastNote.duration) * 250);
         }
     }
     
@@ -245,11 +245,9 @@ public class MusicPlayerService extends Service {
     public void setSpeed(float speed) {
         float oldSpeed = this.speed;
         this.speed = Math.max(0.25f, Math.min(4.0f, speed));
-
-        if (totalDurationMs > 0) {
+        if (isPlaying && oldSpeed != this.speed) {
             float ratio = oldSpeed / this.speed;
             currentPositionMs = (int) (currentPositionMs * ratio);
-            totalDurationMs = (int) (totalDurationMs * ratio);
         }
     }
     

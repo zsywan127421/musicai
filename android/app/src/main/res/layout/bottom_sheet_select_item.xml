@@ -54,7 +54,7 @@
         android:layout_marginTop="16dp"
         android:text="取消"
         android:textSize="15sp"
-        android:textColor="@color/apple_button_text"
-        android:background="@drawable/apple_button_bg"/>
+        android:textColor="@color/apple_accent"
+        android:background="@drawable/apple_button_secondary_bg"/>
 
 </LinearLayout>

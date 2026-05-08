@@ -60,6 +60,7 @@ public class ModelConfigActivity extends BaseActivity {
         tvTemperatureValue.setText(String.format("%.1f", temperature));
 
         int maxTokens = modelConfig.getMaxTokens();
+        maxTokens = Math.max(1000, Math.min(2500, maxTokens));
         seekbarMaxTokens.setProgress(maxTokens);
         tvMaxTokensValue.setText(String.valueOf(maxTokens));
     }
@@ -82,7 +83,11 @@ public class ModelConfigActivity extends BaseActivity {
         seekbarMaxTokens.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int value = progress;
+                int value = (progress / 100) * 100;
+                if (progress % 100 >= 50) {
+                    value += 100;
+                }
+                value = Math.max(1000, Math.min(2500, value));
                 tvMaxTokensValue.setText(String.valueOf(value));
             }
 
@@ -143,7 +148,13 @@ public class ModelConfigActivity extends BaseActivity {
         String apiKey = etApiKey.getText().toString().trim();
         String modelName = etModelName.getText().toString().trim();
         double temperature = seekbarTemperature.getProgress() / 10.0;
-        int maxTokens = seekbarMaxTokens.getProgress();
+        
+        int progress = seekbarMaxTokens.getProgress();
+        int maxTokens = (progress / 100) * 100;
+        if (progress % 100 >= 50) {
+            maxTokens += 100;
+        }
+        maxTokens = Math.max(1000, Math.min(2500, maxTokens));
 
         if (apiKey.isEmpty()) {
             ToastHelper.showWarning(this, "API Key 不能为空");
