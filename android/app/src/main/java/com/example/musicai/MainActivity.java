@@ -22,7 +22,6 @@ public class MainActivity extends BaseActivity {
         Button btnLibrary = findViewById(R.id.btn_library);
         Button btnSettings = findViewById(R.id.btn_settings);
         Button btnModelConfig = findViewById(R.id.btn_model_config);
-        Button btnProjectEditor = findViewById(R.id.btn_project_editor);
         
         updateModelStatus();
         
@@ -35,7 +34,7 @@ public class MainActivity extends BaseActivity {
         });
         
         btnLibrary.setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, LibraryActivity.class));
+            startActivity(new Intent(MainActivity.this, LibraryTabsActivity.class));
         });
         
         btnSettings.setOnClickListener(v -> {
@@ -44,10 +43,6 @@ public class MainActivity extends BaseActivity {
         
         btnModelConfig.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, ModelConfigActivity.class));
-        });
-        
-        btnProjectEditor.setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, ProjectEditorActivity.class));
         });
     }
     

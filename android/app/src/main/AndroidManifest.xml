@@ -53,10 +53,6 @@
             android:exported="false" />
             
         <activity
-            android:name=".GeneratorTestActivity"
-            android:exported="false" />
-            
-        <activity
             android:name=".ModelConfigActivity"
             android:exported="false"
             android:windowLayoutInDisplayCutoutMode="shortEdges" />
@@ -72,17 +68,7 @@
             android:windowLayoutInDisplayCutoutMode="shortEdges" />
             
         <activity
-            android:name=".SongDetailActivity"
-            android:exported="false"
-            android:windowLayoutInDisplayCutoutMode="shortEdges" />
-            
-        <activity
             android:name=".LibraryTabsActivity"
-            android:exported="false"
-            android:windowLayoutInDisplayCutoutMode="shortEdges" />
-            
-        <activity
-            android:name=".ProjectEditorActivity"
             android:exported="false"
             android:windowLayoutInDisplayCutoutMode="shortEdges" />
             
