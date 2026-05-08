@@ -109,7 +109,6 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
         tvChords = findViewById(R.id.tv_chords);
         etName = findViewById(R.id.et_name);
         btnPlay = findViewById(R.id.btn_play);
-        btnStop = findViewById(R.id.btn_stop);
         btnEdit = findViewById(R.id.btn_edit);
         btnDelete = findViewById(R.id.btn_delete);
         btnSave = findViewById(R.id.btn_save);
@@ -131,7 +130,6 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
             playbackSection.setVisibility(View.VISIBLE);
             speedSection.setVisibility(View.VISIBLE);
             btnPlay.setVisibility(View.VISIBLE);
-            btnStop.setVisibility(View.VISIBLE);
             btnPianoRoll.setVisibility(View.VISIBLE);
         } else {
             notesSection.setVisibility(View.GONE);
@@ -140,7 +138,6 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
             speedSection.setVisibility(View.GONE);
             btnEdit.setVisibility(View.VISIBLE);
             btnPlay.setVisibility(View.GONE);
-            btnStop.setVisibility(View.GONE);
             btnPianoRoll.setVisibility(View.GONE);
         }
         
@@ -222,7 +219,6 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
     
     private void setupListeners() {
         btnPlay.setOnClickListener(v -> play());
-        btnStop.setOnClickListener(v -> stop());
         btnEdit.setOnClickListener(v -> showEditDialog());
         btnDelete.setOnClickListener(v -> confirmDelete());
         btnSave.setOnClickListener(v -> save());
@@ -397,7 +393,7 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
             playerService.pause();
             isPaused = true;
             isPlaying = false;
-            btnPlay.setText("继续");
+            btnPlay.setState(UnifiedPlaybackButton.State.RESUME);
             stopProgressUpdater();
         } else {
             if (itemType == TYPE_MELODY && melody != null) {
@@ -409,7 +405,7 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
             playerService.setSpeed(playbackSpeed);
             isPlaying = true;
             isPaused = false;
-            btnPlay.setText("暂停");
+            btnPlay.setState(UnifiedPlaybackButton.State.PAUSE);
             startProgressUpdater();
         }
     }
@@ -420,7 +416,7 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
         }
         isPlaying = false;
         isPaused = false;
-        btnPlay.setText("播放");
+        btnPlay.setState(UnifiedPlaybackButton.State.PLAY);
         playbackProgress.setProgress(0);
         tvPlaybackTime.setText("0:00 / 0:00");
         stopProgressUpdater();
@@ -650,9 +646,9 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
         this.isPlaying = isPlaying;
         runOnUiThread(() -> {
             if (isPlaying) {
-                btnPlay.setText("暂停");
+                btnPlay.setState(UnifiedPlaybackButton.State.PAUSE);
             } else {
-                btnPlay.setText("继续");
+                btnPlay.setState(UnifiedPlaybackButton.State.RESUME);
             }
         });
     }
@@ -662,7 +658,7 @@ public class LibraryDetailActivity extends BaseActivity implements PlaybackListe
         runOnUiThread(() -> {
             isPlaying = false;
             isPaused = false;
-            btnPlay.setText("播放");
+            btnPlay.setState(UnifiedPlaybackButton.State.PLAY);
             playbackProgress.setProgress(0);
             int durationMs = calculateMelodyDuration(melody);
             tvPlaybackTime.setText("0:00 / " + formatTime(durationMs));

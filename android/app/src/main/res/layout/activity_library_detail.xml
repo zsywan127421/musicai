@@ -299,7 +299,6 @@
             android:background="@drawable/apple_button_danger_bg"
             android:layout_marginStart="8dp"/>
 
-    </LinearLayout>
 
     <Button
         android:id="@+id/btn_save"

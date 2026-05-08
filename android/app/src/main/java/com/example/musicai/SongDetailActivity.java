@@ -49,7 +49,7 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
     private MusicRepository repository;
     private SongEntry songEntry;
     private MusicPlayerService playerService;
-    private ToolbarHelper toolbarHelper;
+    // Inherited from BaseActivity: protected ToolbarHelper toolbarHelper;
     private boolean isBound = false;
     private boolean isPlaying = false;
     private float currentSpeed = 1.0f;
@@ -102,7 +102,7 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
     }
 
     private void setupToolbarMenu() {
-        toolbarHelper = getToolbarHelper();
+        // toolbarHelper is already initialized by BaseActivity.initToolbar()
         if (toolbarHelper == null) return;
 
         List<ToolbarHelper.MenuItemData> menuItems = Arrays.asList(
@@ -182,7 +182,7 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
             public void onStopTrackingTouch(SeekBar seekBar) {
                 if (isBound && playerService != null) {
                     int durationMs = songEntry != null ? songEntry.totalDurationMs : 0;
-                    int seekPosMs = (int) ((long) durationMs * progress / 100L);
+                    int seekPosMs = (int) ((long) durationMs * seekBar.getProgress() / 100L);
                     playerService.seekTo(seekPosMs);
                 }
             }
@@ -351,7 +351,7 @@ public class SongDetailActivity extends BaseActivity implements PlaybackListener
                 int progress = (int) ((long) positionMs * 100 / totalMs);
                 playbackProgress.setProgress(progress);
                 int adjustedTotal = (int) (totalMs / currentSpeed);
-                tvPlaybackTime.setText(formatTime(positionMs) + " / " + formatTime(adjustedTotal));
+                tvPlaybackTime.setText(formatDuration(positionMs) + " / " + formatDuration(adjustedTotal));
             }
         });
     }
