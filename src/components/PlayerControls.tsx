@@ -1,34 +1,38 @@
 import { useStore } from '../store';
-import { playSong, stopPlayback, setVolume } from '../services/audioPlayer';
+import { playSong, pausePlayback, resumePlayback, stopPlayback, setVolume } from '../services/audioPlayer';
 import { Play, Pause, Square, Volume2, VolumeX } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 export const PlayerControls = () => {
   const { song, setPlaying, setCurrentTime } = useStore();
   const [volume, setVolumeState] = useState(50);
   const [isMuted, setIsMuted] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const progressBarRef = useRef<HTMLDivElement>(null);
 
-  const handlePlay = async () => {
+  const handlePlayPause = useCallback(() => {
     if (!song.song) return;
 
-    setPlaying(true);
-    try {
-      await playSong(song.song, (time) => {
+    if (isPaused) {
+      resumePlayback();
+      setIsPaused(false);
+      setPlaying(true);
+    } else if (song.isPlaying) {
+      pausePlayback();
+      setIsPaused(true);
+      setPlaying(false);
+    } else {
+      setIsPaused(false);
+      setPlaying(true);
+      playSong(song.song, (time) => {
         setCurrentTime(time);
       });
-    } finally {
-      setPlaying(false);
-      setCurrentTime(0);
     }
-  };
-
-  const handlePause = () => {
-    stopPlayback();
-    setPlaying(false);
-  };
+  }, [song.song, song.isPlaying, isPaused, setPlaying, setCurrentTime]);
 
   const handleStop = () => {
     stopPlayback();
+    setIsPaused(false);
     setPlaying(false);
     setCurrentTime(0);
   };
@@ -37,11 +41,24 @@ export const PlayerControls = () => {
     const newVolume = parseInt(e.target.value);
     setVolumeState(newVolume);
     setVolume(newVolume / 100);
+    if (newVolume > 0 && isMuted) {
+      setIsMuted(false);
+    }
   };
 
   const handleMute = () => {
-    setIsMuted(!isMuted);
-    setVolume(isMuted ? volume / 100 : 0);
+    const newMuted = !isMuted;
+    setIsMuted(newMuted);
+    setVolume(newMuted ? 0 : volume / 100);
+  };
+
+  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!progressBarRef.current || !song.song) return;
+    const rect = progressBarRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const pct = Math.max(0, Math.min(1, x / rect.width));
+    // In a real app we'd seek; for now just visual feedback
+    setCurrentTime(song.song.duration * pct);
   };
 
   const formatTime = (seconds: number) => {
@@ -59,50 +76,51 @@ export const PlayerControls = () => {
   }, []);
 
   return (
-    <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6">
-      <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-        <Play className="text-indigo-400" />
+    <div className="card p-5">
+      <h2 className="text-base font-semibold text-[var(--color-text)] mb-4 flex items-center gap-2">
+        <Play size={16} className="text-[var(--color-primary)]" />
         播放控制
       </h2>
 
       {song.song ? (
         <div className="space-y-4">
-          <div className="flex items-center gap-3">
+          {/* Controls */}
+          <div className="flex items-center justify-center gap-4">
             <button
-              onClick={song.isPlaying ? handlePause : handlePlay}
-              disabled={!song.song}
-              className="play-button w-14 h-14 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white flex items-center justify-center shadow-lg shadow-indigo-500/30 disabled:opacity-50"
+              onClick={handlePlayPause}
+              className="btn btn-icon btn-primary"
+              style={{ width: '52px', height: '52px' }}
             >
-              {song.isPlaying ? <Pause size={28} /> : <Play size={28} />}
+              {song.isPlaying ? <Pause size={24} /> : <Play size={24} />}
             </button>
-            <button
-              onClick={handleStop}
-              disabled={!song.song}
-              className="play-button w-12 h-12 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-gray-600 disabled:opacity-50"
-            >
-              <Square size={22} />
+            <button onClick={handleStop} className="btn btn-icon btn-secondary">
+              <Square size={20} />
             </button>
           </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-gray-400 text-sm">
-              <span>{formatTime(song.currentTime)}</span>
-              <span>{formatTime(song.song.duration)}</span>
-            </div>
-            <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+          {/* Progress bar */}
+          <div className="space-y-1">
+            <div
+              ref={progressBarRef}
+              onClick={handleProgressClick}
+              className="h-2 rounded-full overflow-hidden cursor-pointer"
+              style={{ background: 'var(--color-border)' }}
+            >
               <div
-                className="progress-bar h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
-                style={{ width: `${progress}%` }}
+                className="progress-bar h-full rounded-full"
+                style={{ width: `${progress}%`, background: 'linear-gradient(90deg, var(--color-primary), var(--color-primary-hover))' }}
               />
             </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono" style={{ color: 'var(--color-text-muted)' }}>{formatTime(song.currentTime)}</span>
+              <span className="text-xs font-mono" style={{ color: 'var(--color-text-muted)' }}>{formatTime(song.song.duration)}</span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleMute}
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+          {/* Volume */}
+          <div className="flex items-center gap-3 px-1">
+            <button onClick={handleMute} className="btn btn-ghost" style={{ padding: '4px' }}>
+              {isMuted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
             </button>
             <input
               type="range"
@@ -110,14 +128,16 @@ export const PlayerControls = () => {
               max="100"
               value={isMuted ? 0 : volume}
               onChange={handleVolumeChange}
-              className="flex-1 slider-track"
+              className="flex-1"
             />
-            <span className="text-gray-400 text-sm w-8">{isMuted ? 0 : volume}%</span>
+            <span className="text-xs font-mono w-8 text-right" style={{ color: 'var(--color-text-muted)' }}>
+              {isMuted ? 0 : volume}%
+            </span>
           </div>
         </div>
       ) : (
-        <div className="text-center py-8">
-          <p className="text-gray-400">请先生成一首曲子</p>
+        <div className="py-10 text-center">
+          <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>请先生成一首曲子</p>
         </div>
       )}
     </div>

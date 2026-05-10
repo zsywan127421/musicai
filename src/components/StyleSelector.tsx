@@ -13,20 +13,27 @@ export const StyleSelector = () => {
   const { style, setStyle } = useStore();
 
   return (
-    <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4">
-      <h3 className="text-white text-sm font-medium mb-3">音乐风格</h3>
+    <div className="card p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <Music size={16} className="text-[var(--color-primary)]" />
+        <span className="text-sm font-medium text-[var(--color-text-secondary)]">音乐风格</span>
+      </div>
       <div className="flex gap-2 flex-wrap">
         {styles.map(({ value, label, icon: Icon }) => (
           <button
             key={value}
             onClick={() => setStyle(value)}
-            className={`style-chip flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+            className={`chord-tag text-sm font-medium ${
               style === value
-                ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-500/30'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                ? 'text-white shadow-lg'
+                : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text)]'
             }`}
+            style={style === value
+              ? { background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))', boxShadow: '0 4px 14px rgba(99,102,241,0.3)' }
+              : { background: 'var(--color-surface)', border: '1px solid var(--color-border)' }
+            }
           >
-            <Icon size={16} />
+            <Icon size={15} />
             {label}
           </button>
         ))}

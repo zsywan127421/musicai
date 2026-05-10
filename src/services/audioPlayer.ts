@@ -1,4 +1,5 @@
-import { Track, Song } from '../types';
+import { Note, Song } from '../types';
+import type { Track } from '../types';
 
 const noteToFrequency = (note: string): number => {
   const noteMap: Record<string, number> = {
@@ -16,10 +17,19 @@ const noteToFrequency = (note: string): number => {
 
 let audioContext: AudioContext | null = null;
 let gainNode: GainNode | null = null;
+let activeOscillators = new Set<OscillatorNode>();
+let isPaused = false;
+let pauseTimeMs = 0;
+let playStartTime = 0;
+let playbackTimer: ReturnType<typeof setTimeout> | null = null;
+let progressInterval: ReturnType<typeof setInterval> | null = null;
+let currentSong: Song | null = null;
+let onTimeUpdate: ((time: number) => void) | null = null;
+let totalDurationMs = 0;
 
 const getAudioContext = (): AudioContext => {
-  if (!audioContext) {
-    audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+  if (!audioContext || audioContext.state === 'closed') {
+    audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     gainNode = audioContext.createGain();
     gainNode.connect(audioContext.destination);
     gainNode.gain.value = 0.5;
@@ -30,111 +40,216 @@ const getAudioContext = (): AudioContext => {
   return audioContext;
 };
 
-const playNote = (note: string, duration: number, startTime: number, instrument: string = 'piano') => {
+const playNote = (
+  note: Note,
+  scheduleFromTime: number,
+  instrument: string = 'piano'
+): void => {
   const ctx = getAudioContext();
-  const oscillator = ctx.createOscillator();
+  const startTime = ctx.currentTime + scheduleFromTime;
+  const duration = note.duration;
+  const freq = noteToFrequency(note.pitch);
+
+  const osc = ctx.createOscillator();
   const noteGain = ctx.createGain();
-  
-  oscillator.connect(noteGain);
+
+  osc.connect(noteGain);
   noteGain.connect(gainNode!);
-  
-  const freq = noteToFrequency(note);
-  
+
   if (instrument === 'drums') {
-    oscillator.type = 'square';
+    osc.type = 'square';
     noteGain.gain.setValueAtTime(0.3, startTime);
     noteGain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
   } else if (instrument === 'bass') {
-    oscillator.type = 'sine';
+    osc.type = 'sine';
     noteGain.gain.setValueAtTime(0.4, startTime);
     noteGain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
   } else if (instrument === 'synthesizer') {
-    oscillator.type = 'sawtooth';
+    osc.type = 'sawtooth';
     noteGain.gain.setValueAtTime(0.2, startTime);
     noteGain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
   } else if (instrument === 'lead') {
-    oscillator.type = 'triangle';
+    osc.type = 'triangle';
     noteGain.gain.setValueAtTime(0.25, startTime);
     noteGain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
   } else {
-    oscillator.type = 'sine';
+    osc.type = 'sine';
     noteGain.gain.setValueAtTime(0.3, startTime);
     noteGain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
   }
-  
-  oscillator.frequency.setValueAtTime(freq, startTime);
-  
+
+  osc.frequency.setValueAtTime(freq, startTime);
+
   if (instrument === 'piano') {
-    oscillator.frequency.exponentialRampToValueAtTime(freq * 0.99, startTime + 0.01);
+    osc.frequency.exponentialRampToValueAtTime(freq * 0.99, startTime + 0.01);
   }
-  
-  oscillator.start(startTime);
-  oscillator.stop(startTime + duration);
+
+  osc.start(startTime);
+  osc.stop(startTime + duration + 0.05);
+
+  activeOscillators.add(osc);
+  osc.onended = () => {
+    activeOscillators.delete(osc);
+  };
 };
 
-export const playTrack = (track: Track, onTimeUpdate?: (time: number) => void) => {
-  const ctx = getAudioContext();
-  const startTime = ctx.currentTime;
-  
-  track.notes.forEach((note) => {
-    playNote(note.pitch, note.duration, startTime + note.start, track.instrument);
-  });
-  
-  if (onTimeUpdate) {
-    const maxTime = Math.max(...track.notes.map((n) => n.start + n.duration));
-    const interval = setInterval(() => {
-      const elapsed = ctx.currentTime - startTime;
-      onTimeUpdate(elapsed);
-      if (elapsed >= maxTime) {
-        clearInterval(interval);
-        onTimeUpdate(maxTime);
-      }
-    }, 50);
-  }
-  
-  return startTime + Math.max(...track.notes.map((n) => n.start + n.duration));
-};
+const scheduleSongNotes = (
+  song: Song,
+  fromTimeMs: number = 0
+): number => {
+  let maxEndTime = 0;
 
-export const playSong = async (song: Song, onTimeUpdate?: (time: number) => void): Promise<void> => {
-  const ctx = getAudioContext();
-  const startTime = ctx.currentTime;
-  let maxEndTime = startTime;
-  
   song.tracks.forEach((track) => {
     track.notes.forEach((note) => {
-      playNote(note.pitch, note.duration, startTime + note.start, track.instrument);
+      const noteEndMs = (note.start + note.duration) * 1000;
+      if (noteEndMs <= fromTimeMs) return;
+
+      const adjustedStart = Math.max(0, (note.start * 1000 - fromTimeMs) / 1000);
+      const remainingDuration = (noteEndMs - fromTimeMs) / 1000;
+
+      if (remainingDuration <= 0) return;
+
+      const adjustedNote: Note = {
+        ...note,
+        start: adjustedStart,
+        duration: remainingDuration,
+      };
+      playNote(adjustedNote, 0, track.instrument);
     });
-    
-    const trackEndTime = startTime + Math.max(...track.notes.map((n) => n.start + n.duration));
-    if (trackEndTime > maxEndTime) {
-      maxEndTime = trackEndTime;
-    }
+
+    const trackEnd = Math.max(...track.notes.map(n => n.start + n.duration));
+    if (trackEnd > maxEndTime) maxEndTime = trackEnd;
   });
-  
+
+  return maxEndTime;
+};
+
+export const playTrack = (track: Track): void => {
+  stopPlayback();
+  getAudioContext();
+  const scheduleDelay = 0.05;
+  track.notes.forEach((note) => {
+    playNote(note, scheduleDelay, track.instrument);
+  });
+};
+
+export const playSong = (
+  song: Song,
+  callback?: (time: number) => void
+): void => {
+  stopPlayback();
+
+  currentSong = song;
+  onTimeUpdate = callback || null;
+  isPaused = false;
+  pauseTimeMs = 0;
+  totalDurationMs = song.duration * 1000;
+
+  getAudioContext();
+  playStartTime = Date.now();
+
+  scheduleSongNotes(song, 0);
+
   if (onTimeUpdate) {
-    const interval = setInterval(() => {
-      const elapsed = ctx.currentTime - startTime;
-      onTimeUpdate(elapsed);
-      if (elapsed >= song.duration) {
-        clearInterval(interval);
-        onTimeUpdate(song.duration);
+    progressInterval = setInterval(() => {
+      const elapsed = Date.now() - playStartTime;
+      onTimeUpdate!(elapsed / 1000);
+      if (elapsed >= totalDurationMs) {
+        clearInterval(progressInterval!);
+        progressInterval = null;
+        onTimeUpdate!(song.duration);
+        cleanup();
       }
     }, 50);
   }
-  
-  await new Promise((resolve) => setTimeout(resolve, (maxEndTime - startTime) * 1000 + 100));
+};
+
+export const pausePlayback = (): void => {
+  if (isPaused || !audioContext) return;
+  isPaused = true;
+  pauseTimeMs = Date.now() - playStartTime;
+
+  if (progressInterval) {
+    clearInterval(progressInterval);
+    progressInterval = null;
+  }
+
+  activeOscillators.forEach((osc) => {
+    try { osc.stop(); } catch (e) { /* already stopped */ }
+  });
+  activeOscillators.clear();
+};
+
+export const resumePlayback = (): void => {
+  if (!isPaused || !currentSong) return;
+  isPaused = false;
+
+  getAudioContext();
+  playStartTime = Date.now() - pauseTimeMs;
+
+  const fromSeconds = pauseTimeMs / 1000;
+  const remainingDuration = currentSong.duration - fromSeconds;
+
+  if (remainingDuration <= 0) {
+    cleanup();
+    return;
+  }
+
+  scheduleSongNotes(currentSong, pauseTimeMs);
+
+  if (onTimeUpdate) {
+    progressInterval = setInterval(() => {
+      const totalElapsed = Date.now() - playStartTime;
+      onTimeUpdate!(totalElapsed / 1000);
+      if (totalElapsed >= totalDurationMs) {
+        clearInterval(progressInterval!);
+        progressInterval = null;
+        onTimeUpdate!(currentSong!.duration);
+        cleanup();
+      }
+    }, 50);
+  }
 };
 
 export const stopPlayback = (): void => {
-  if (audioContext) {
-    audioContext.close();
-    audioContext = null;
-    gainNode = null;
+  activeOscillators.forEach((osc) => {
+    try { osc.stop(); } catch (e) { /* already stopped */ }
+  });
+  activeOscillators.clear();
+
+  if (progressInterval) {
+    clearInterval(progressInterval);
+    progressInterval = null;
   }
+  if (playbackTimer) {
+    clearTimeout(playbackTimer);
+    playbackTimer = null;
+  }
+
+  isPaused = false;
+  pauseTimeMs = 0;
+  currentSong = null;
+  onTimeUpdate = null;
 };
 
 export const setVolume = (volume: number): void => {
   if (gainNode) {
-    gainNode.gain.value = volume;
+    gainNode.gain.value = Math.max(0, Math.min(1, volume));
   }
+};
+
+export const getPlaybackState = () => ({
+  isPaused,
+  currentTimeMs: isPaused ? pauseTimeMs : (audioContext ? (Date.now() - playStartTime) : 0),
+});
+
+export const isCurrentlyPlaying = (): boolean => {
+  return activeOscillators.size > 0 || isPaused;
+};
+
+const cleanup = (): void => {
+  currentSong = null;
+  onTimeUpdate = null;
+  isPaused = false;
+  pauseTimeMs = 0;
 };
