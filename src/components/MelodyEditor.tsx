@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useStore } from '../store';
 import { generateMelody } from '../services/musicGenerator';
-import { Music, Plus, Trash2, RefreshCw, Play } from 'lucide-react';
+import { playTrack, stopPlayback } from '../services/audioPlayer';
+import { Track } from '../types';
+import { Music, Plus, Trash2, RefreshCw, Play, Square } from 'lucide-react';
 
 const pitches = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const octaves = [3, 4, 5, 6];
@@ -19,6 +21,18 @@ export const MelodyEditor = () => {
     } finally {
       setMelodyGenerating(false);
     }
+  };
+
+  const handlePlayMelody = () => {
+    if (melody.notes.length === 0) return;
+    stopPlayback();
+    const track: Track = {
+      id: 'melody-preview',
+      name: '旋律预览',
+      instrument: 'piano',
+      notes: melody.notes,
+    };
+    playTrack(track);
   };
 
   const handleAddNote = () => {
@@ -108,10 +122,18 @@ export const MelodyEditor = () => {
       </div>
 
       <button
+        onClick={handlePlayMelody}
         className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors"
       >
         <Play size={16} />
         播放旋律
+      </button>
+      <button
+        onClick={stopPlayback}
+        className="mt-2 w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg font-medium hover:bg-red-700 transition-colors"
+      >
+        <Square size={16} />
+        停止
       </button>
     </div>
   );

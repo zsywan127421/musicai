@@ -1,11 +1,20 @@
 import { useState } from 'react';
 import { useStore } from '../store';
 import { generateChords } from '../services/musicGenerator';
-import { GitBranch, Plus, Trash2, RefreshCw, Play } from 'lucide-react';
+import { playTrack, stopPlayback } from '../services/audioPlayer';
+import { Note, Track } from '../types';
+import { GitBranch, Plus, Trash2, RefreshCw, Play, Square } from 'lucide-react';
 
 const chordNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const chordQualities = ['', 'm', '7', 'm7', 'M7', 'dim', 'aug'];
 const durations = [0.5, 1, 2, 4];
+
+const extractRootPitch = (chordName: string): string => {
+  const sharpRoots = ['C#', 'D#', 'F#', 'G#', 'A#'];
+  const prefix = chordName.substring(0, 2);
+  if (sharpRoots.includes(prefix)) return prefix;
+  return chordName.charAt(0);
+};
 
 export const ChordEditor = () => {
   const { chords, setChords, addChord, updateChord, deleteChord, setChordsGenerating, style } = useStore();
@@ -19,6 +28,24 @@ export const ChordEditor = () => {
     } finally {
       setChordsGenerating(false);
     }
+  };
+
+  const handlePlayChords = () => {
+    if (chords.chords.length === 0) return;
+    stopPlayback();
+    const chordNotes: Note[] = chords.chords.map(c => ({
+      id: c.id,
+      pitch: extractRootPitch(c.name) + '4',
+      duration: c.duration,
+      start: c.start,
+    }));
+    const track: Track = {
+      id: 'chord-preview',
+      name: '和弦预览',
+      instrument: 'piano',
+      notes: chordNotes,
+    };
+    playTrack(track);
   };
 
   const handleAddChord = () => {
@@ -131,10 +158,18 @@ export const ChordEditor = () => {
       </div>
 
       <button
+        onClick={handlePlayChords}
         className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors"
       >
         <Play size={16} />
         播放和弦
+      </button>
+      <button
+        onClick={stopPlayback}
+        className="mt-2 w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg font-medium hover:bg-red-700 transition-colors"
+      >
+        <Square size={16} />
+        停止
       </button>
     </div>
   );

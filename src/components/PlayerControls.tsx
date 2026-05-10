@@ -70,7 +70,7 @@ export const PlayerControls = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={song.isPlaying ? handlePause : handlePlay}
-              disabled={!song.song || (song.isPlaying && false)}
+              disabled={!song.song}
               className="play-button w-14 h-14 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white flex items-center justify-center shadow-lg shadow-indigo-500/30 disabled:opacity-50"
             >
               {song.isPlaying ? <Pause size={28} /> : <Play size={28} />}
